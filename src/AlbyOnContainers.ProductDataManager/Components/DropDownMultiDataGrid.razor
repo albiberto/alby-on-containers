@@ -1,11 +1,16 @@
 ﻿@using AlbyOnContainers.ProductDataManager.Models
 @using System.Linq.Dynamic.Core;
+@using System.Linq.Expressions
 @using AlbyOnContainers.ProductDataManager.Data
-@page "/multi"
+@using AlbyOnContainers.ProductDataManager.Extensions
+@using Microsoft.EntityFrameworkCore
+
+@inherits FormComponent<IEnumerable<Category>>
+
 @inject ProductContext Context
 
 <RadzenDropDownDataGrid
-    @ref="_grid"
+    @ref="grid"
     TValue="IEnumerable<Category>"
     Value="Value"
     ValueChanged="@HandleValueChanged"
@@ -13,7 +18,7 @@
     AllowFiltering="true"
     AllowClear="true"
     Multiple="true"
-    Data="@_categories" LoadData="LoadDataCategories" Count="_categoriesCount"
+    Data="@categories" LoadData="LoadDataAsync" Count="count"
     Placeholder="Select..."
     TextProperty="Name"
     Style="width:100%; display: block;">
@@ -23,8 +28,9 @@
                 <RadzenCheckBox
                     TValue="bool"
                     TriState="false"
-                    Value="@(Checked(data))"
-                    Change="@(args => Select(data))"/>
+                    Disabled="true"
+                    Value="@(Value is not null && Value.Contains((Category)data))"
+                    Change="@(_ => grid.SelectItem(data))"/>
             </Template>
         </RadzenDropDownDataGridColumn>
         <RadzenDropDownDataGridColumn Property="Name" Title="Name"/>
@@ -33,52 +39,31 @@
 </RadzenDropDownDataGrid>
 
 @code{
+    RadzenDropDownDataGrid<IEnumerable<Category>> grid;
 
-    [Parameter] public IEnumerable<Category> Value { get; set; } = Enumerable.Empty<Category>();
-    [Parameter] public EventCallback<IEnumerable<Category>> ValueChanged { get; set; }
+    IEnumerable<Category> categories;
+    int count;
 
-    private RadzenDropDownDataGrid<IEnumerable<Category>> _grid;
-    private int _categoriesCount;
-    private IList<Category> _categories;
+    public override bool HasValue => Value.Any();
 
-    private Task HandleValueChanged(IEnumerable<Category> category)
+    Task HandleValueChanged(IEnumerable<Category> categories)
     {
-        Value = category;
-        return ValueChanged.InvokeAsync(category);
+        var value = categories?.ToList() ?? new List<Category>();
+        
+        Value = value;
+        return ValueChanged.InvokeAsync(value);
     }
 
-    bool Checked(dynamic data) => Value is not null && Value.Contains((Category)data);
-
-    dynamic Select(dynamic data) => _grid.SelectItem(data);
-
-    void LoadDataCategories(LoadDataArgs args)
+    async Task LoadDataAsync(LoadDataArgs args)
     {
+        Expression<Func<Category, bool>> Selector(string filter) => c => c.Name.ToLower().Contains(filter.ToLower());
         var query = Context.Categories.AsQueryable();
+        
+        var result = await query.LoadDataAsync(args, Selector);
 
-        if (!string.IsNullOrEmpty(args.Filter))
-        {
-            query = query.Where(c => c.Name.ToLower().Contains(args.Filter.ToLower()));
-        }
+        categories = result.Entities;
+        count = result.Count;
 
-        _categoriesCount = query.Count();
-
-        if (!string.IsNullOrEmpty(args.OrderBy))
-        {
-            query = query.OrderBy(args.OrderBy);
-        }
-
-        if (args.Skip != null)
-        {
-            query = query.Skip(args.Skip.Value);
-        }
-
-        if (args.Top != null)
-        {
-            query = query.Take(args.Top.Value);
-        }
-
-        _categories = query.ToList();
-
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 }

@@ -4,6 +4,16 @@ using Abstract;
 
 public class CategoryDescrType: Auditable
 {
+    public CategoryDescrType()
+    {
+    }
+    
+    public CategoryDescrType(Category category, DescrType type)
+    {
+        Category = category;
+        DescrType = type;
+    }
+    
     public Guid CategoryId { get; set; }
     public Category Category { get; set; }
     

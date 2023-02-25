@@ -1,6 +1,5 @@
 namespace AlbyOnContainers.ProductDataManager.Models;
 
-using System.Collections.Generic;
 using Abstract;
 
 public class AttrType : Entity
