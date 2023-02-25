@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  postgres_BE:
+    expose:
+      - ${POSTGRES_BE_PORT}
+    ports:
+      - ${POSTGRES_BE_PORT}:${POSTGRES_BE_PORT}
+    environment:
+      POSTGRES_USER: ${POSTGRES_BE_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_BE_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_BE_DB}
+    command: -p 5433
+
+# IDENTITY PROVIDER
+  postgres_IP:
+    expose:
+      - ${POSTGRES_IP_PORT}
+    ports:
+      - ${POSTGRES_IP_PORT}:${POSTGRES_IP_PORT}
+    environment:
+      POSTGRES_USER: ${POSTGRES_IP_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_IP_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_IP_DB}
+
+  keycloak:
+    environment:
+      DB_PORT: ${POSTGRES_IP_PORT}
+      DB_DATABASE: ${POSTGRES_IP_DB}
+      DB_USER: ${POSTGRES_IP_USER}
+      DB_PASSWORD: ${POSTGRES_IP_PASSWORD}
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      # KEYCLOAK_LOGLEVEL: DEBUG
+      JGROUPS_DISCOVERY_PROTOCOL: JDBC_PING
+      JGROUPS_DISCOVERY_PROPERTIES: datasource_jndi_name=java:jboss/datasources/KeycloakDS,info_writer_sleep_time=500,initialize_sql="CREATE TABLE IF NOT EXISTS JGROUPSPING ( own_addr varchar(200) NOT NULL, cluster_name varchar(200) NOT NULL, created timestamp default current_timestamp, ping_data BYTEA, constraint PK_JGROUPSPING PRIMARY KEY (own_addr, cluster_name))"
+    labels:
+      traefik.enable: true
+      traefik.port: 8080
+      traefik.protocol: http
+      traefik.frontend.rule: Host:localhost
+      traefik.frontend.passHostHeader: true
+      # traefik.backend.loadbalancer.stickiness: true
+      
+  traefik:
+    ports:
+      - ${TRAEFIK_UI_PORT}:80
+      - ${TRAEFIK_API_PORT}:8080
+    command: >
+      --logLevel=ERROR
+      --api.dashboard
+      --docker
+      --entrypoints="Name:http Address::80"
+      --defaultentrypoints="http"
+
+# END IDENTITY

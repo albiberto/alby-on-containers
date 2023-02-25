@@ -1,0 +1,54 @@
+version: '3'
+
+volumes:
+  postgres_BE_data:
+  postgres_IP_data:
+  traefik_data:
+
+networks:
+  frontend:
+  backend:
+  identity:
+
+services:
+  postgres_BE:
+    image: postgres:alpine
+    container_name: postgres_BE
+    restart: always
+    volumes:
+      - postgres_BE_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  # IDENTITY PROVIDER
+  postgres_IP:
+    image: postgres:alpine
+    container_name: postgres_IP
+    restart: always
+    volumes:
+      - postgres_IP_data:/var/lib/postgresql/data
+    networks:
+      - identity
+
+  keycloak:
+    image: jboss/keycloak:latest
+    container_name: keycloak
+    restart: unless-stopped
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres_IP
+    depends_on:
+      - postgres_IP
+    networks:
+      - identity
+
+  traefik:
+    image: library/traefik:alpine
+    container_name: traefik
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - keycloak
+    networks:
+      - identity

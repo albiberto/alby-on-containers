@@ -1,0 +1,61 @@
+﻿@using AlbyOnContainers.ProductDataManager.Models
+@using System.Linq.Dynamic.Core;
+@using AlbyOnContainers.ProductDataManager.Data
+
+@inject ProductContext Context
+
+<RadzenDropDownDataGrid
+    TValue="Category"
+    Value="Value"
+    ValueChanged=@ValueChanged
+    AllowSorting="true"
+    AllowFiltering="true"
+    Data="@_categories" LoadData="LoadDataCategories" Count="_categoriescount"
+    TextProperty="Name"
+    Style="width:100%; display: block;">
+    <Columns>
+        <RadzenDropDownDataGridColumn Property="Name" Title="Name"/>
+        <RadzenDropDownDataGridColumn Property="Description" Title="Description"/>
+    </Columns>
+</RadzenDropDownDataGrid>
+
+@code{
+
+    [Parameter] public Category Value {get; set; }
+    [Parameter] public EventCallback<Category> ValueChanged {get; set; }
+    
+    private int _categoriescount;
+    private IList<Category> _categories;
+
+    void LoadDataCategories(LoadDataArgs args)
+    {
+        var query = Context.Categories.AsQueryable();
+
+        if (!string.IsNullOrEmpty(args.Filter))
+        {
+            query = query.Where(c => c.Name.ToLower().Contains(args.Filter.ToLower()));
+        }
+
+        _categoriescount = query.Count();
+
+        if (!string.IsNullOrEmpty(args.OrderBy))
+        {
+            query = query.OrderBy(args.OrderBy);
+        }
+
+        if (args.Skip != null)
+        {
+            query = query.Skip(args.Skip.Value);
+        }
+
+        if (args.Top != null)
+        {
+            query = query.Take(args.Top.Value);
+        }
+
+        _categories = query.ToList();
+
+        InvokeAsync(StateHasChanged);
+    }
+
+}

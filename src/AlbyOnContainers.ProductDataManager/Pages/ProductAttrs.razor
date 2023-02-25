@@ -1,0 +1,54 @@
+﻿@using AlbyOnContainers.ProductDataManager.Models
+<RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add New Product" Click="@InsertRow" Disabled="@(_attrToInsert != null || _attrToUpdate != null)"/>
+<RadzenDataGrid
+     @ref="_grid"
+        TItem="Attr"
+        Data="@Product.Attrs"
+        AllowAlternatingRows="false"
+        AllowFiltering="true" FilterMode="FilterMode.Simple"
+        AllowSorting="true"
+        AllowPaging="true" PageSize="5"
+        EditMode="DataGridEditMode.Single"
+        RowUpdate="@OnUpdateRow"
+        RowCreate="@OnCreateRow"
+        Sort="@Reset" Page="@Reset" Filter="@Reset">
+    <Columns>
+        <RadzenDataGridColumn TItem="Attr" Property="AttrType.Name" Title="Attr" Width="280px" Type="typeof(IEnumerable<string>)" FilterValue="@_selectedType" FilterOperator="FilterOperator.Contains">
+            <FilterTemplate>
+                <RadzenDropDown @bind-Value=@_selectedType Style="width:100%;"
+                Change=@OnSelectedCompanyNamesChange Data="@(_types)" TextProperty="Name" ValueProperty="Name" AllowClear="true" Multiple="true" />
+            </FilterTemplate>
+            <EditTemplate Context="attr">
+                <RadzenDropDown @bind-Value="attr.AttrTypeId" Data="@_types" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Attr" Property="Name" Title="Name">
+            <EditTemplate Context="attr">
+                <RadzenTextBox @bind-Value="attr.Name" Style="width:100%; display: block" Name="AttrName"/>
+                <RadzenRequiredValidator Text="Name is required" Component="AttrName" Popup="true"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Attr" Property="Description" Title="description">
+            <EditTemplate Context="attr">
+                <RadzenTextBox @bind-Value="attr.Description" Style="width:100%; display: block" Name="AttrDescription"/>
+                <RadzenRequiredValidator Text="Description is required" Component="AttrDescription" Popup="true"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Attr" Context="attr" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
+            <Template Context="attr">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(attr))" @onclick:stopPropagation="true">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(attr))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="attr">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => SaveRow(attr))">
+                </RadzenButton>
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => CancelEdit(attr))">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(attr))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>

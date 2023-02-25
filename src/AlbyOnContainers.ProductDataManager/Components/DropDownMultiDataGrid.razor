@@ -1,0 +1,84 @@
+﻿@using AlbyOnContainers.ProductDataManager.Models
+@using System.Linq.Dynamic.Core;
+@using AlbyOnContainers.ProductDataManager.Data
+@page "/multi"
+@inject ProductContext Context
+
+<RadzenDropDownDataGrid
+    @ref="_grid"
+    TValue="IEnumerable<Category>"
+    Value="Value"
+    ValueChanged="@HandleValueChanged"
+    AllowSorting="true"
+    AllowFiltering="true"
+    AllowClear="true"
+    Multiple="true"
+    Data="@_categories" LoadData="LoadDataCategories" Count="_categoriesCount"
+    Placeholder="Select..."
+    TextProperty="Name"
+    Style="width:100%; display: block;">
+    <Columns>
+        <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+            <Template Context="data">
+                <RadzenCheckBox
+                    TValue="bool"
+                    TriState="false"
+                    Value="@(Checked(data))"
+                    Change="@(args => Select(data))"/>
+            </Template>
+        </RadzenDropDownDataGridColumn>
+        <RadzenDropDownDataGridColumn Property="Name" Title="Name"/>
+        <RadzenDropDownDataGridColumn Property="Description" Title="Description"/>
+    </Columns>
+</RadzenDropDownDataGrid>
+
+@code{
+
+    [Parameter] public IEnumerable<Category> Value { get; set; } = Enumerable.Empty<Category>();
+    [Parameter] public EventCallback<IEnumerable<Category>> ValueChanged { get; set; }
+
+    private RadzenDropDownDataGrid<IEnumerable<Category>> _grid;
+    private int _categoriesCount;
+    private IList<Category> _categories;
+
+    private Task HandleValueChanged(IEnumerable<Category> category)
+    {
+        Value = category;
+        return ValueChanged.InvokeAsync(category);
+    }
+
+    bool Checked(dynamic data) => Value is not null && Value.Contains((Category)data);
+
+    dynamic Select(dynamic data) => _grid.SelectItem(data);
+
+    void LoadDataCategories(LoadDataArgs args)
+    {
+        var query = Context.Categories.AsQueryable();
+
+        if (!string.IsNullOrEmpty(args.Filter))
+        {
+            query = query.Where(c => c.Name.ToLower().Contains(args.Filter.ToLower()));
+        }
+
+        _categoriesCount = query.Count();
+
+        if (!string.IsNullOrEmpty(args.OrderBy))
+        {
+            query = query.OrderBy(args.OrderBy);
+        }
+
+        if (args.Skip != null)
+        {
+            query = query.Skip(args.Skip.Value);
+        }
+
+        if (args.Top != null)
+        {
+            query = query.Take(args.Top.Value);
+        }
+
+        _categories = query.ToList();
+
+        InvokeAsync(StateHasChanged);
+    }
+}
