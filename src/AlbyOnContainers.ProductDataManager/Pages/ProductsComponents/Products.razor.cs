@@ -1,33 +1,33 @@
-﻿namespace AlbyOnContainers.ProductDataManager.Pages.DescriptionsComponent;
+﻿namespace AlbyOnContainers.ProductDataManager.Pages.ProductsComponents;
 
-using Models;
-using Radzen;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Extensions;
+using Models;
+using Microsoft.EntityFrameworkCore;
+using Radzen;
 
-public partial class DescrTypes
+public partial class Products
 {
     async Task LoadDataAsync(LoadDataArgs args)
     {
         isLoading = true;
         await Task.Yield();
 
-        var query = Context.DescrTypes
-            .Include(type => type.CategoryDescrTypes)
-            .ThenInclude(join => join.Category)
-            .Include(type => type.DescrValues)
+        var query = Context.Products
+            .Include(product => product.Descrs)
+            .ThenInclude(join => join.DescrValue)
+            .Include(product => product.Attrs)
             .AsQueryable();
 
         var result = await query.LoadDataAsync(args);
 
-        elemens = result.Entities;
+        elements = result.Entities;
         count = result.Count;
         
         isLoading = false;
     }
 
-    async Task OnCreateRowAsync(DescrType type)
+    async Task OnCreateRowAsync(Product type)
     {
         toInsert = null;
 
@@ -35,7 +35,7 @@ public partial class DescrTypes
         await Context.SaveChangesAsync();
     }
 
-    async Task OnUpdateRowAsync(DescrType type)
+    async Task OnUpdateRowAsync(Product type)
     {
         if (type.Equals(toInsert)) toInsert = null;
         toUpdate = null;
@@ -44,7 +44,8 @@ public partial class DescrTypes
         await Context.SaveChangesAsync();
     }
     
-    async Task DeleteRowAsync(DescrType type)
+    async Task DeleteRowAsync(Product 
+        type)
     {
         if (await DialogService.Confirm("Are you sure you want to delete this record?") == false) return;
         if (await Context.DescrValues.AnyAsync(value => value.DescrTypeId == type.Id))
@@ -56,7 +57,7 @@ public partial class DescrTypes
         if (type.Equals(toInsert)) toInsert = null;
         if (type.Equals(toUpdate)) toUpdate = null;
 
-        if (elemens.Contains(type))
+        if (elements.Contains(type))
         {
             Context.Remove(type);
             await Context.SaveChangesAsync();

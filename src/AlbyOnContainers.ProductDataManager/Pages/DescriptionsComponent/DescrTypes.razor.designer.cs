@@ -3,9 +3,23 @@
 using Radzen.Blazor;
 using Models;
 using Microsoft.EntityFrameworkCore;
+using Data;
+using Models;
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
+using Radzen;
+using System.Linq;
+using Extensions;
 
 public partial class DescrTypes
 {
+    [Inject] ProductContext Context { get; set; }
+    [Inject] DialogService DialogService { get; set; }
+
+    IEnumerable<DescrType> elemens;
+    int count;
+    bool isLoading;
+    
     RadzenDataGrid<DescrType> grid;
 
     DescrType toInsert;

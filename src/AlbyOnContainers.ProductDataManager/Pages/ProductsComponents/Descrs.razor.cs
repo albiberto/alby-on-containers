@@ -1,33 +1,17 @@
-﻿namespace AlbyOnContainers.ProductDataManager.Pages.DescriptionsComponent;
+﻿namespace AlbyOnContainers.ProductDataManager.Pages.ProductsComponents;
 
-using Models;
-using Radzen;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Extensions;
+using Microsoft.AspNetCore.Components;
+using Models;
+using Microsoft.EntityFrameworkCore;
+using Radzen;
 
-public partial class DescrTypes
+public partial class Descrs
 {
-    async Task LoadDataAsync(LoadDataArgs args)
-    {
-        isLoading = true;
-        await Task.Yield();
+    [Parameter]public Product Product { get; set; }
 
-        var query = Context.DescrTypes
-            .Include(type => type.CategoryDescrTypes)
-            .ThenInclude(join => join.Category)
-            .Include(type => type.DescrValues)
-            .AsQueryable();
-
-        var result = await query.LoadDataAsync(args);
-
-        elemens = result.Entities;
-        count = result.Count;
-        
-        isLoading = false;
-    }
-
-    async Task OnCreateRowAsync(DescrType type)
+    async Task OnCreateRowAsync(Descr type)
     {
         toInsert = null;
 
@@ -35,7 +19,7 @@ public partial class DescrTypes
         await Context.SaveChangesAsync();
     }
 
-    async Task OnUpdateRowAsync(DescrType type)
+    async Task OnUpdateRowAsync(Descr type)
     {
         if (type.Equals(toInsert)) toInsert = null;
         toUpdate = null;
@@ -44,7 +28,8 @@ public partial class DescrTypes
         await Context.SaveChangesAsync();
     }
     
-    async Task DeleteRowAsync(DescrType type)
+    async Task DeleteRowAsync(Descr 
+        type)
     {
         if (await DialogService.Confirm("Are you sure you want to delete this record?") == false) return;
         if (await Context.DescrValues.AnyAsync(value => value.DescrTypeId == type.Id))
@@ -56,7 +41,7 @@ public partial class DescrTypes
         if (type.Equals(toInsert)) toInsert = null;
         if (type.Equals(toUpdate)) toUpdate = null;
 
-        if (elemens.Contains(type))
+        if (Product.Descrs.Contains(type))
         {
             Context.Remove(type);
             await Context.SaveChangesAsync();

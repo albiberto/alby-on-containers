@@ -15,12 +15,4 @@
   <ItemGroup>
     <ProjectReference Include="..\AlbyOnContainers.Library.Database\AlbyOnContainers.Library.Database.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Pages\Categories.en.resx">
-      <DependentUpon>Categories.razor</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Pages\Categories.it.resx">
-      <DependentUpon>Categories.razor</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
 </Project>

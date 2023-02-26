@@ -1,29 +1,25 @@
-﻿namespace AlbyOnContainers.ProductDataManager.Pages.AttributesComponent;
+﻿namespace AlbyOnContainers.ProductDataManager.Pages.ProductsComponents;
 
-using Radzen.Blazor;
-using Models;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using Data;
-using Extensions;
-using Models;
+using AlbyOnContainers.ProductDataManager.Data;
+using AlbyOnContainers.ProductDataManager.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
+using Radzen.Blazor;
 
-public partial class AttrTypes
+public partial class Products
 {
     [Inject] ProductContext Context { get; set; }
     [Inject] DialogService DialogService { get; set; }
 
-    IEnumerable<AttrType> elements;
+    IEnumerable<Product> elements;
     int count;
     bool isLoading;
     
-    RadzenDataGrid<AttrType> grid;
+    RadzenDataGrid<Product> grid;
 
-    AttrType toInsert;
-    AttrType toUpdate;   
+    Product toInsert;
+    Product toUpdate;   
     
     async Task InsertRowAsync()
     {
@@ -31,13 +27,13 @@ public partial class AttrTypes
         await grid.InsertRow(toInsert);
     }
     
-    async Task EditRowAsync(AttrType type)
+    async Task EditRowAsync(Product type)
     {
         toUpdate = type;
         await grid.EditRow(type);
     }
 
-    void CancelEdit(AttrType type)
+    void CancelEdit(Product type)
     {
         if (type.Equals(toInsert)) toInsert = null;
 
@@ -52,7 +48,7 @@ public partial class AttrTypes
         orderEntry.State = EntityState.Unchanged;
     }
     
-    Task SaveRowAsync(AttrType type) => grid.UpdateRow(type);
+    Task SaveRowAsync(Product type) => grid.UpdateRow(type);
     
     void Reset()
     {

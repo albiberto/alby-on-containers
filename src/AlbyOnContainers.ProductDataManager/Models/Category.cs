@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abstract;
-using Microsoft.EntityFrameworkCore;
 
 public class Category : Entity
 {

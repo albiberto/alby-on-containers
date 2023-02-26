@@ -1,22 +1,13 @@
 ﻿namespace AlbyOnContainers.ProductDataManager.Pages.AttributesComponent;
 
 using System.Linq;
-using Data;
 using Extensions;
 using Models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
 
 public partial class AttrTypes
 {
-    [Inject] ProductContext Context { get; set; }
-    [Inject] DialogService DialogService { get; set; }
-
-    IEnumerable<AttrType> types;
-    int count;
-    bool isLoading;
-    
     async Task LoadDataAsync(LoadDataArgs args)
     {
         isLoading = true;
@@ -29,7 +20,7 @@ public partial class AttrTypes
 
         var result = await query.LoadDataAsync(args);
 
-        types = result.Entities;
+        elements = result.Entities;
         count = result.Count;
         
         isLoading = false;
@@ -41,8 +32,6 @@ public partial class AttrTypes
 
         await Context.AddAsync(type);
         await Context.SaveChangesAsync();
-        
-        await grid.FirstPage();
     }
 
     async Task OnUpdateRowAsync(AttrType type)
@@ -66,7 +55,7 @@ public partial class AttrTypes
         if (type.Equals(toInsert)) toInsert = null;
         if (type.Equals(toUpdate)) toUpdate = null;
 
-        if (types.Contains(type))
+        if (elements.Contains(type))
         {
             Context.Remove(type);
             await Context.SaveChangesAsync();

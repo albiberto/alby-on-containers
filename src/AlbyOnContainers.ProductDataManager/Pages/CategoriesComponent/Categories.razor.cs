@@ -1,18 +1,15 @@
-namespace AlbyOnContainers.ProductDataManager.Pages;
+namespace AlbyOnContainers.ProductDataManager.Pages.CategoriesComponent;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Data;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.EntityFrameworkCore;
 using Models;
+using Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 using Radzen;
 using Radzen.Blazor;
-using Services;
 
 public partial class Categories
 {

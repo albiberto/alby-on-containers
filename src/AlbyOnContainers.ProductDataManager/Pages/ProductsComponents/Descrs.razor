@@ -1,13 +1,11 @@
-@page "/attr-types"
-
 @using AlbyOnContainers.ProductDataManager.Models
 @using AlbyOnContainers.ProductDataManager.Components
 
-<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Attributes" Click="@InsertRowAsync" Disabled="@(isLoading || toInsert is not null || toUpdate is not null)"/>
+<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Description" Click="@InsertRowAsync" Disabled="@(toInsert is not null || toUpdate is not null)"/>
 
 <RadzenDataGrid @ref="grid"
-                TItem="AttrType"
-                Data="@elements" IsLoading="isLoading" LoadData="@LoadDataAsync" Count="@count"
+                TItem="Descr"
+                Data="@Product.Descrs"
                 AllowAlternatingRows="true"
                 AllowColumnResize="true"
                 AllowFiltering="true" FilterMode="FilterMode.Simple"
@@ -18,36 +16,23 @@
                 RowCreate="@OnCreateRowAsync"
                 Sort="@Reset" Page="@Reset" Filter="@Reset">
     <EmptyTemplate>
-        <NoRecords />
+        <NoRecords/>
     </EmptyTemplate>
     <Columns>
-        <RadzenDataGridColumn TItem="AttrType" Property="Id" Title="ID" Width="275px"/>
-        <RadzenDataGridColumn TItem="AttrType" Property="Name" Title="Name">
+        <RadzenDataGridColumn TItem="Descr" Property="Id" Title="ID" Width="275px"/>
+        <RadzenDataGridColumn TItem="Descr" Property="Name" Title="Name">
             <EditTemplate Context="type">
                 <RadzenTextBox @bind-Value="type.Name" Name="DescrTypeName" Style="width:100%; display: block"/>
                 <RadzenRequiredValidator Text="Name is required" Component="DescrTypeName" Popup="true"/>
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="AttrType" Property="Description" Title="Description">
+        <RadzenDataGridColumn TItem="Descr" Property="Description" Title="Description">
             <EditTemplate Context="type">
                 <RadzenTextBox @bind-Value="type.Description" Name="DescrTypeDescription" Style="width:100%; display: block"/>
                 <RadzenRequiredValidator Text="Description is required" Component="DescrTypeDescription" Popup="true"/>
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="AttrType" Title="Categories">
-            <EditTemplate Context="type">
-                <DropDownMultiDataGrid
-                    Name="Categories"
-                    Value="type.CategoryAttrTypes.Select(c => c.Category)"
-                    ValueChanged="@(categories => type.CategoryAttrTypes = categories.Select(category => new CategoryAttrType(category, type)).ToList())">
-                </DropDownMultiDataGrid>
-                <RadzenRequiredValidator Text="Categories is required" Component="Categories" Popup="true"/>
-            </EditTemplate>
-            <Template Context="type">
-                @(type.CategoryAttrTypes.Any() ? string.Join(", ", type.CategoryAttrTypes.Select(t => t.Category.Name)) : string.Empty)
-            </Template>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="AttrType" Context="type" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
+        <RadzenDataGridColumn TItem="Descr" Context="type" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
             <Template Context="type">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRowAsync(type))" @onclick:stopPropagation="true">
                 </RadzenButton>
