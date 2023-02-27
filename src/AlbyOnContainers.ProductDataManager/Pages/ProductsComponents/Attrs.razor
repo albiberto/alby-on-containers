@@ -1,14 +1,17 @@
+@inherits GridBase<Attr>
+
+@using Abstract;
 @using AlbyOnContainers.ProductDataManager.Models
 @using AlbyOnContainers.ProductDataManager.Components
 
-<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Attribute" Click="@InsertRowAsync" Disabled="@(toInsert is not null || toUpdate is not null)"/>
+<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Attribute" Click="@InsertRowAsync" Disabled="@(ToInsert is not null || ToUpdate is not null)"/>
 
-<RadzenDataGrid @ref="grid"
+<RadzenDataGrid @ref="Grid"
                 TItem="Attr"
-                Data="@Product.Attrs"
+                Data="@Elements"
                 AllowAlternatingRows="true"
                 AllowColumnResize="true"
-                AllowFiltering="true" FilterMode="FilterMode.Simple"
+                AllowFiltering="true" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 AllowPaging="true" PageSize="5"
                 AllowSorting="true"
                 EditMode="DataGridEditMode.Single"

@@ -1,10 +1,14 @@
-﻿@using AlbyOnContainers.ProductDataManager.Models
+﻿@inherits GridBase<DescrValue>
+
+@using Abstract
+@using AlbyOnContainers.ProductDataManager.Models
+
 <RadzenDataGrid
-    @ref="grid"
+    @ref="Grid"
     TItem="DescrValue"
     Data="@DescrType.DescrValues"
     AllowAlternatingRows="false"
-    AllowFiltering="true" FilterMode="FilterMode.Simple"
+    AllowFiltering="true" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
     AllowSorting="true"
     AllowPaging="true" PageSize="5"
     EditMode="DataGridEditMode.Single"
@@ -47,4 +51,4 @@
     </Columns>
 </RadzenDataGrid>
 
-<RadzenButton ButtonStyle="ButtonStyle.Secondary" class="mt-2" Text="Add Value" Variant="Variant.Flat" Icon="add_circle_outline" Size="ButtonSize.Medium" Click="@InsertRowAsync" Disabled="@(toInsert != null || toUpdate != null)"/>
+<RadzenButton ButtonStyle="ButtonStyle.Secondary" class="mt-2" Text="Add Value" Variant="Variant.Flat" Icon="add_circle_outline" Size="ButtonSize.Medium" Click="@InsertRowAsync" Disabled="@(ToInsert != null || ToUpdate != null)"/>

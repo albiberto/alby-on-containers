@@ -1,9 +1,12 @@
+@inherits GridBase<Descr>
+
+@using Abstract
 @using AlbyOnContainers.ProductDataManager.Models
 @using AlbyOnContainers.ProductDataManager.Components
 
 <RadzenTemplateForm Data="@Product">
     <div class="container-fluid">
-        <div class="row" class="mt-2">
+        <div class="row mt-2">
             
             @foreach (var join in types)
             {
@@ -18,6 +21,7 @@
                     </div>
                 </div>
             }
+            
         </div>
     </div>
 </RadzenTemplateForm>

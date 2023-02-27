@@ -1,16 +1,18 @@
 ﻿@page "/descr-types"
+@inherits DataLoadGridBase<DescrType>
 
 @using AlbyOnContainers.ProductDataManager.Models
 @using AlbyOnContainers.ProductDataManager.Components
+@using AlbyOnContainers.ProductDataManager.Pages.Abstract
 
-<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Description" Click="@InsertRowAsync" Disabled="@(isLoading || toInsert is not null || toUpdate is not null)"/>
+<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Description" Click="@InsertRowAsync" Disabled="@(IsLoading || ToInsert is not null || ToUpdate is not null)"/>
 
-<RadzenDataGrid @ref="grid"
+<RadzenDataGrid @ref="Grid"
                 TItem="DescrType"
-                Data="@elemens" IsLoading="isLoading" LoadData="@LoadDataAsync" Count="@count"
+                Data="@Elements" IsLoading="IsLoading" LoadData="@LoadDataAsync" Count="@Count"
                 AllowAlternatingRows="true"
                 AllowColumnResize="true"
-                AllowFiltering="true" FilterMode="FilterMode.Simple"
+                AllowFiltering="true" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 AllowPaging="true" PageSize="5"
                 AllowSorting="true"
                 EditMode="DataGridEditMode.Single"

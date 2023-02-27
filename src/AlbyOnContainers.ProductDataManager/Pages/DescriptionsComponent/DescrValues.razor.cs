@@ -20,13 +20,13 @@ public partial class DescrValues
         await Context.AddAsync(values);
         await Context.SaveChangesAsync();
         
-        toInsert = null;
+        ToInsert = null;
     }
 
     async Task OnUpdateRowAsync(DescrValue order)
     {
-        if (order.Equals(toInsert)) toInsert = null;
-        toUpdate = null;
+        if (order.Equals(ToInsert)) ToInsert = null;
+        ToUpdate = null;
         
         Context.Update(order);
         await Context.SaveChangesAsync();
@@ -41,20 +41,20 @@ public partial class DescrValues
             return;
         }
         
-        if (value.Equals(toInsert)) toInsert = null;
-        if (value.Equals(toUpdate)) toUpdate = null;
+        if (value.Equals(ToInsert)) ToInsert = null;
+        if (value.Equals(ToUpdate)) ToUpdate = null;
 
         if (DescrType.DescrValues.Contains(value))
         {
             Context.Remove(value);
             await Context.SaveChangesAsync();
 
-            await grid.Reload();
+            await Grid.Reload();
         }
         else
         {
-            grid.CancelEditRow(value);
-            await grid.Reload();
+            Grid.CancelEditRow(value);
+            await Grid.Reload();
         }
     }
 }

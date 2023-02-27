@@ -1,72 +1,23 @@
 ﻿namespace AlbyOnContainers.ProductDataManager.Pages.DescriptionsComponent;
 
-using Models;
-using Radzen;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Extensions;
+using Models;
 
 public partial class DescrTypes
 {
-    async Task LoadDataAsync(LoadDataArgs args)
+    protected override IQueryable<DescrType> OnLoadData() =>
+            Context.DescrTypes
+                .Include(type => type.CategoryDescrTypes)
+                .ThenInclude(join => join.Category)
+                .Include(type => type.DescrValues)
+                .AsQueryable();
+
+    protected override async Task<bool> OnDeleteRowAsync(DescrType element)
     {
-        isLoading = true;
-        await Task.Yield();
-
-        var query = Context.DescrTypes
-            .Include(type => type.CategoryDescrTypes)
-            .ThenInclude(join => join.Category)
-            .Include(type => type.DescrValues)
-            .AsQueryable();
-
-        var result = await query.LoadDataAsync(args);
-
-        elemens = result.Entities;
-        count = result.Count;
+        if (!await Context.DescrValues.AnyAsync(value => value.DescrTypeId == element.Id)) return true;
         
-        isLoading = false;
-    }
+        await DialogService.Alert("This record is currently binding to value/values and it cannot be deleted.", "Cannot Delete");
+        return false;
 
-    async Task OnCreateRowAsync(DescrType type)
-    {
-        toInsert = null;
-
-        await Context.AddAsync(type);
-        await Context.SaveChangesAsync();
-    }
-
-    async Task OnUpdateRowAsync(DescrType type)
-    {
-        if (type.Equals(toInsert)) toInsert = null;
-        toUpdate = null;
-        
-        Context.Update(type);
-        await Context.SaveChangesAsync();
-    }
-    
-    async Task DeleteRowAsync(DescrType type)
-    {
-        if (await DialogService.Confirm("Are you sure you want to delete this record?") == false) return;
-        if (await Context.DescrValues.AnyAsync(value => value.DescrTypeId == type.Id))
-        {
-            await DialogService.Alert("This record is currently binding to value/values and it cannot be deleted.", "Cannot Delete");
-            return;
-        }
-
-        if (type.Equals(toInsert)) toInsert = null;
-        if (type.Equals(toUpdate)) toUpdate = null;
-
-        if (elemens.Contains(type))
-        {
-            Context.Remove(type);
-            await Context.SaveChangesAsync();
-
-            await grid.Reload();
-        }
-        else
-        {
-            grid.CancelEditRow(type);
-            await grid.Reload();
-        }
     }
 }
