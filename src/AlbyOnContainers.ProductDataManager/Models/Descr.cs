@@ -8,10 +8,11 @@ public class Descr : Entity
     {
     }
     
-    public Descr(Guid productId, Guid valueId)
+    public Descr(Guid productId, Guid valueId, Guid typeId)
     {
         ProductId = productId;
         DescrValueId = valueId;
+        DescrTypeId = typeId;
     }
     
     public Guid ProductId { get; set; }
@@ -19,4 +20,7 @@ public class Descr : Entity
     
     public Guid DescrValueId { get; set; }
     public DescrValue DescrValue { get; set; }
+    
+    public Guid DescrTypeId { get; set; }
+    public DescrType DescrType { get; set; }
 }

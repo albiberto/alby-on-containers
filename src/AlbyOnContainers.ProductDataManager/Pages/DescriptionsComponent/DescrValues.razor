@@ -12,7 +12,7 @@
     AllowSorting="true"
     AllowPaging="true" PageSize="5"
     EditMode="DataGridEditMode.Single"
-    RowUpdate="@OnCreateRowAsync"
+    RowUpdate="@OnUpdateRowAsync"
     RowCreate="@OnCreateRowAsync"
     Sort="@Reset" Page="@Reset" Filter="@Reset">
     <EmptyTemplate>
@@ -20,10 +20,10 @@
     </EmptyTemplate>
     <Columns>
         <RadzenDataGridColumn TItem="DescrValue" Property="Id" Title="ID" Width="275px"/>
-        <RadzenDataGridColumn TItem="DescrValue" Property="Name" Title="Name">
+        <RadzenDataGridColumn TItem="DescrValue" Property="Value" Title="Value">
             <EditTemplate Context="value">
-                <RadzenTextBox @bind-Value="value.Name" Name="DescrTypeName" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Name is required" Component="DescrTypeName" Popup="true"/>
+                <RadzenTextBox @bind-Value="value.Value" Name="Value" Style="width:100%; display: block"/>
+                <RadzenRequiredValidator Text="Value is required" Component="Value" Popup="true"/>
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="DescrValue" Property="Description" Title="Description">

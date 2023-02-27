@@ -1,8 +1,6 @@
-@inherits GridBase<Attr>
-
-@using Abstract;
 @using AlbyOnContainers.ProductDataManager.Models
 @using AlbyOnContainers.ProductDataManager.Components
+@inherits AlbyOnContainers.ProductDataManager.Pages.Abstract.GridBase<AlbyOnContainers.ProductDataManager.Models.Attr>
 
 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Attribute" Click="@InsertRowAsync" Disabled="@(ToInsert is not null || ToUpdate is not null)"/>
 
@@ -22,17 +20,29 @@
         <NoRecords/>
     </EmptyTemplate>
     <Columns>
-        <RadzenDataGridColumn TItem="Attr" Property="Id" Title="ID" Width="275px"/>
-        <RadzenDataGridColumn TItem="Attr" Property="Name" Title="Name">
+        <RadzenDataGridColumn TItem="Attr" Property="Name" Title="Type">
             <EditTemplate Context="type">
-                <RadzenTextBox @bind-Value="type.Name" Name="DescrTypeName" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Name is required" Component="DescrTypeName" Popup="true"/>
+                <RadzenDropDownDataGrid
+                    TValue="Guid"
+                    AllowClear="true"
+                    Placeholder="Select ..."
+                    Data="@Types"
+                    style="width: 100%;"
+                    AllowColumnResize="true"
+                    AllowFilteringByAllStringColumns="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                    TextProperty="Name"
+                    ValueProperty="Id">
+                    <Columns>
+                        <RadzenDropDownDataGridColumn Property="Name" Title="Name"/>
+                        <RadzenDropDownDataGridColumn Property="Description" Title="Description"/>
+                    </Columns>
+                </RadzenDropDownDataGrid>
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Attr" Property="Description" Title="Description">
+        <RadzenDataGridColumn TItem="Attr" Property="Value" Title="Value">
             <EditTemplate Context="type">
-                <RadzenTextBox @bind-Value="type.Description" Name="DescrTypeDescription" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Description is required" Component="DescrTypeDescription" Popup="true"/>
+                <RadzenTextBox @bind-Value="type.Value" Name="Value" Style="width:100%; display: block"/>
+                <RadzenRequiredValidator Text="Name is required" Component="Value" Popup="true"/>
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Attr" Context="type" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">

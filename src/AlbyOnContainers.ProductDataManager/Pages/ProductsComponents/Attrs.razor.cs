@@ -11,5 +11,18 @@ public partial class Attrs
 {
     [Parameter]public Product Product { get; set; }
 
-    protected override void OnParametersSet() => Elements = Product.Attrs;
+    ICollection<AttrType> Types { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Elements = Product.Attrs;
+        
+        Types = await Context.CategoryAttrTypes
+            .Include(join => join.AttrType)
+            .Where(join => join.CategoryId == Product.CategoryId)
+            .OrderBy(join => join.AttrType.Name)
+            .Select(join => join.AttrType)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

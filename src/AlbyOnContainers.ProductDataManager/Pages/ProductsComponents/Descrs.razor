@@ -1,7 +1,7 @@
 @using AlbyOnContainers.ProductDataManager.Models
 @inherits AlbyOnContainers.ProductDataManager.Pages.Abstract.GridBase<AlbyOnContainers.ProductDataManager.Models.Descr>
 
-<RadzenTemplateForm Submit="@((Product product) => OnSubmit(product))">
+<RadzenTemplateForm Data="@Product" Submit="@((Product product) => OnSubmit(product))">
     <div class="container-fluid">
 
         @foreach (var chunk in Types.Chunk(2))
@@ -16,17 +16,23 @@
                                 <RadzenLabel Text="@join.DescrType.Name"/>
                             </div>
                             <div class="col-md-10">
-                                <RadzenDropDown 
+                                <RadzenDropDownDataGrid
                                     TValue="Guid"
-                                    Value="Product.Descrs.FirstOrDefault(descr => descr.DescrValue.DescrType.Equals(join.DescrType))?.Id"
-                                    ValueChanged="UpsertAsync"
-                                    AllowClear="true" 
-                                    Placeholder="Select something" 
-                                    Data="@join.DescrType.DescrValues" 
-                                    style="width: 100%;" 
-                                    TextProperty="Name" 
-                                    ValueProperty="Id" 
-                                    Name="Description" />
+                                    Value="Product.Descrs.FirstOrDefault(descr => descr.DescrTypeId == join.DescrTypeId)?.DescrValueId"
+                                    ValueChanged="valueId => ValueChange(valueId, join.DescrTypeId)"
+                                    AllowClear="true"
+                                    Placeholder="Select ..."
+                                    Data="@join.DescrType.DescrValues.OrderBy(value => value.Value)"
+                                    style="width: 100%;"
+                                    AllowColumnResize="true"
+                                    AllowFilteringByAllStringColumns="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                    TextProperty="Value"
+                                    ValueProperty="Id">
+                                    <Columns>
+                                         <RadzenDropDownDataGridColumn Property="Value" Title="Value"/>
+                                        <RadzenDropDownDataGridColumn Property="Description" Title="Description"/>                                        
+                                    </Columns>
+                                </RadzenDropDownDataGrid>
                             </div>
                         </div>
                     </div>
@@ -34,5 +40,11 @@
             </div>
         }
 
+        <div class="row justify-content-end">
+            <div class="col-md-12 d-flex align-items-end justify-content-end" style="margin-top: 16px;">
+                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel"/>
+            </div>
+        </div>
     </div>
 </RadzenTemplateForm>

@@ -3,6 +3,7 @@ using System;
 using AlbyOnContainers.ProductDataManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AlbyOnContainers.ProductDataManager.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    partial class ProductContextModelSnapshot : ModelSnapshot
+    [Migration("20230228000436_Second Migration")]
+    partial class SecondMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -222,9 +225,6 @@ namespace AlbyOnContainers.ProductDataManager.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("DescrTypeId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("DescrValueId")
                         .HasColumnType("uuid");
 
@@ -241,8 +241,6 @@ namespace AlbyOnContainers.ProductDataManager.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DescrTypeId");
 
                     b.HasIndex("DescrValueId");
 
@@ -434,12 +432,6 @@ namespace AlbyOnContainers.ProductDataManager.Migrations
 
             modelBuilder.Entity("AlbyOnContainers.ProductDataManager.Models.Descr", b =>
                 {
-                    b.HasOne("AlbyOnContainers.ProductDataManager.Models.DescrType", "DescrType")
-                        .WithMany()
-                        .HasForeignKey("DescrTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("AlbyOnContainers.ProductDataManager.Models.DescrValue", "DescrValue")
                         .WithMany("Descrs")
                         .HasForeignKey("DescrValueId")
@@ -451,8 +443,6 @@ namespace AlbyOnContainers.ProductDataManager.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("DescrType");
 
                     b.Navigation("DescrValue");
 

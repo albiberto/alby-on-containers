@@ -1,21 +1,11 @@
 namespace AlbyOnContainers.ProductDataManager.Models.Abstract;
 
 using System;
-using System.ComponentModel.DataAnnotations;
 
 public abstract class Entity : Auditable, IEquatable<Entity>
 {
-    [Required]
     public Guid? Id { get; set; }
 
-    [Required]
-    [ConcurrencyCheck]
-    public string Name { get; set; }
-    
-    [Required]
-    [ConcurrencyCheck]
-    public string Description { get; set; }
-    
     public bool Equals(Entity other)
     {
         if (ReferenceEquals(null, other)) return false;

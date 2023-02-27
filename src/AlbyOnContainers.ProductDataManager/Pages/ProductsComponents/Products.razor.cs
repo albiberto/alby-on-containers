@@ -10,6 +10,8 @@ public partial class Products
         Context.Products
             .Include(product => product.Descrs)
             .ThenInclude(join => join.DescrValue)
+            .ThenInclude(value => value.DescrType)
+            .ThenInclude(type => type.CategoryDescrTypes)
             .Include(product => product.Attrs)
             .AsQueryable();
 }

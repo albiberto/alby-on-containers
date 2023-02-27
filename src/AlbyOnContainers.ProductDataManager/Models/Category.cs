@@ -2,12 +2,13 @@ namespace AlbyOnContainers.ProductDataManager.Models;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Abstract;
 
 public class Category : Entity
 {
-    [ConcurrencyCheck]
+    public string Name { get; set; }
+    public string Description { get; set; }
+    
     public Guid? ParentId { get; set; }
     public Category Parent { get; set; }
 
