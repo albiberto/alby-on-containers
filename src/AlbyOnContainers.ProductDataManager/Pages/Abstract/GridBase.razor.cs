@@ -13,10 +13,12 @@ public abstract class GridBase<T> :ComponentBase where T: Entity, new()
     [Inject] protected ProductContext Context { get; set; }
     [Inject] protected DialogService DialogService { get; set; }
 
-    protected RadzenDataGrid<T> Grid;
-
     protected IEnumerable<T> Elements { get; set; }
 
+    #region Grid
+
+    protected RadzenDataGrid<T> Grid;
+    
     protected T ToInsert;
     protected T ToUpdate;   
     
@@ -54,6 +56,8 @@ public abstract class GridBase<T> :ComponentBase where T: Entity, new()
         ToInsert = null;
         ToUpdate = null;
     }
+    
+    #endregion
 
     #region DbContext
     

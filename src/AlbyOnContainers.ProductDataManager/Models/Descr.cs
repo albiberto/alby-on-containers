@@ -4,6 +4,16 @@ using Abstract;
 
 public class Descr : Entity
 {
+    public Descr()
+    {
+    }
+    
+    public Descr(Guid productId, Guid valueId)
+    {
+        ProductId = productId;
+        DescrValueId = valueId;
+    }
+    
     public Guid ProductId { get; set; }
     public Product Product { get; set; }
     

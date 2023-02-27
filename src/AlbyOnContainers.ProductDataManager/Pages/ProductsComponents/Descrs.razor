@@ -1,27 +1,38 @@
-@inherits GridBase<Descr>
-
-@using Abstract
 @using AlbyOnContainers.ProductDataManager.Models
-@using AlbyOnContainers.ProductDataManager.Components
+@inherits AlbyOnContainers.ProductDataManager.Pages.Abstract.GridBase<AlbyOnContainers.ProductDataManager.Models.Descr>
 
-<RadzenTemplateForm Data="@Product">
+<RadzenTemplateForm Submit="@((Product product) => OnSubmit(product))">
     <div class="container-fluid">
-        <div class="row mt-2">
-            
-            @foreach (var join in types)
-            {
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-4 align-items-center d-flex">
-                            <RadzenLabel Text="@join.DescrType.Name"/>
-                        </div>
-                        <div class="col-md-8">
-                            <RadzenDropDown @bind-Value="Product.Descrs" AllowClear="true" Placeholder="Select something" Data="@join.DescrType.DescrValues" style="width: 100%;" TextProperty="Name" ValueProperty="Id" Name="Description"></RadzenDropDown>
+
+        @foreach (var chunk in Types.Chunk(2))
+        {
+            <div class="row mt-1">
+
+                @foreach (var join in chunk)
+                {
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="@join.DescrType.Name"/>
+                            </div>
+                            <div class="col-md-10">
+                                <RadzenDropDown 
+                                    TValue="Guid"
+                                    Value="Product.Descrs.FirstOrDefault(descr => descr.DescrValue.DescrType.Equals(join.DescrType))?.Id"
+                                    ValueChanged="UpsertAsync"
+                                    AllowClear="true" 
+                                    Placeholder="Select something" 
+                                    Data="@join.DescrType.DescrValues" 
+                                    style="width: 100%;" 
+                                    TextProperty="Name" 
+                                    ValueProperty="Id" 
+                                    Name="Description" />
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-            
-        </div>
+                }
+            </div>
+        }
+
     </div>
 </RadzenTemplateForm>
