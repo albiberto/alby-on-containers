@@ -1,52 +1,23 @@
 @using AlbyOnContainers.ProductDataManager.Models
 @using AlbyOnContainers.ProductDataManager.Components
 
-<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Description" Click="@InsertRowAsync" Disabled="@(toInsert is not null || toUpdate is not null)"/>
-
-<RadzenDataGrid @ref="grid"
-                TItem="Descr"
-                Data="@Product.Descrs"
-                AllowAlternatingRows="true"
-                AllowColumnResize="true"
-                AllowFiltering="true" FilterMode="FilterMode.Simple"
-                AllowPaging="true" PageSize="5"
-                AllowSorting="true"
-                EditMode="DataGridEditMode.Single"
-                RowUpdate="@OnUpdateRowAsync"
-                RowCreate="@OnCreateRowAsync"
-                Sort="@Reset" Page="@Reset" Filter="@Reset">
-    <EmptyTemplate>
-        <NoRecords/>
-    </EmptyTemplate>
-    <Columns>
-        <RadzenDataGridColumn TItem="Descr" Property="Id" Title="ID" Width="275px"/>
-        <RadzenDataGridColumn TItem="Descr" Property="Name" Title="Name">
-            <EditTemplate Context="type">
-                <RadzenTextBox @bind-Value="type.Name" Name="DescrTypeName" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Name is required" Component="DescrTypeName" Popup="true"/>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Descr" Property="Description" Title="Description">
-            <EditTemplate Context="type">
-                <RadzenTextBox @bind-Value="type.Description" Name="DescrTypeDescription" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Description is required" Component="DescrTypeDescription" Popup="true"/>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Descr" Context="type" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
-            <Template Context="type">
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRowAsync(type))" @onclick:stopPropagation="true">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowAsync(type))" @onclick:stopPropagation="true">
-                </RadzenButton>
-            </Template>
-            <EditTemplate Context="type">
-                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => SaveRowAsync(type))">
-                </RadzenButton>
-                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => CancelEdit(type))">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowAsync(type))">
-                </RadzenButton>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+<RadzenTemplateForm Data="@Product">
+    <div class="container-fluid">
+        <div class="row" class="mt-2">
+            
+            @foreach (var join in types)
+            {
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="@join.DescrType.Name"/>
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenDropDown @bind-Value="Product.Descrs" AllowClear="true" Placeholder="Select something" Data="@join.DescrType.DescrValues" style="width: 100%;" TextProperty="Name" ValueProperty="Id" Name="Description"></RadzenDropDown>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</RadzenTemplateForm>
