@@ -43,7 +43,7 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Category" Context="category" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
                     <Template Context="category">
-                        <RadzenButton Icon="add" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(_ => InsertRow())" @onclick:stopPropagation="true"></RadzenButton>
+                        <RadzenButton Icon="add" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(_ => InsertRow(category))" @onclick:stopPropagation="true"></RadzenButton>
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(_ => EditRow(category))" @onclick:stopPropagation="true"></RadzenButton>
                         <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" Click="@(_ => DeleteRow(category))" @onclick:stopPropagation="true">
                         </RadzenButton>

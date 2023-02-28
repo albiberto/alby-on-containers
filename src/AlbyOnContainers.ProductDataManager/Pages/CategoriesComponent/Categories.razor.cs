@@ -119,10 +119,17 @@ public partial class Categories
         }
     }
 
-    private async Task InsertRow()
+    private async Task InsertRow(Category category)
     {
         _categoryToInsert = new();
-        await _grid.InsertRow(_categoryToInsert);
+        category.Categories.Add(_categoryToInsert);
+
+        await _grid.Reload();
+        StateHasChanged();
+
+        // _grid.Value.Insert(1, _categoryToInsert);
+
+        // await _grid.InsertRow(_categoryToInsert);
     }
 
     private async Task OnCreateRow(Category category)
