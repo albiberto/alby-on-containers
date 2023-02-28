@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Data;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
 using Models.Abstract;
 using Radzen;
 
@@ -12,6 +13,7 @@ public abstract class GridBase<T> :ComponentBase where T: Entity, new()
 {
     [Inject] protected ProductContext Context { get; set; }
     [Inject] protected DialogService DialogService { get; set; }
+    [Inject] protected IStringLocalizer<T> L { get; set; }
 
     protected IEnumerable<T> Elements { get; set; }
 
@@ -24,7 +26,7 @@ public abstract class GridBase<T> :ComponentBase where T: Entity, new()
     
     protected async Task InsertRowAsync()
     {
-        ToInsert = new T();
+        ToInsert = new();
         await Grid.InsertRow(ToInsert);
     }
     

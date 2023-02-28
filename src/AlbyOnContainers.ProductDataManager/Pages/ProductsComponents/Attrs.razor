@@ -2,64 +2,106 @@
 @using AlbyOnContainers.ProductDataManager.Components
 @inherits AlbyOnContainers.ProductDataManager.Pages.Abstract.GridBase<AlbyOnContainers.ProductDataManager.Models.Attr>
 
-<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Attribute" Click="@InsertRowAsync" Disabled="@(ToInsert is not null || ToUpdate is not null)"/>
+<div class="d-flex flex-row mb-2">
+    <RadzenButton
+        ButtonStyle=ButtonStyle.Primary
+        Icon="add_circle_outline"
+        Text="Add Attribute"
+        Click=InsertRowAsync
+        Disabled="@(ToInsert is not null || ToUpdate is not null)"/>
+</div>
 
-<RadzenDataGrid @ref="Grid"
+<div class="d-flex flex-row">
+
+    <RadzenDataGrid @ref=Grid
+                    TItem="Attr"
+                    Data=@Elements
+                    RowCreate=@OnCreateRowAsync RowUpdate=@OnUpdateRowAsync EditMode=DataGridEditMode.Single
+                    Sort=@Reset Page=@Reset Filter=@Reset
+                    AllowFiltering="true" FilterMode=FilterMode.Simple FilterCaseSensitivity=FilterCaseSensitivity.CaseInsensitive
+                    AllowPaging="true" PageSize="5"
+                    AllowSorting="true"
+                    AllowAlternatingRows="true"
+                    AllowColumnResize="true">
+        <EmptyTemplate>
+            <NoRecords/>
+        </EmptyTemplate>
+        <Columns>
+
+            <RadzenDataGridColumn TItem="Attr" Property="Name" Title="Type">
+                <EditTemplate Context="type">
+                    <RadzenDropDownDataGrid
+                        TValue="Guid"
+                        AllowClear="true"
+                        Placeholder="Select ..."
+                        Data="@Types"
+                        style="width: 100%;"
+                        AllowColumnResize="true"
+                        AllowFilteringByAllStringColumns="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                        TextProperty="Name"
+                        ValueProperty="Id">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="Name" Title="Name"/>
+                            <RadzenDropDownDataGridColumn Property="Description" Title="Description"/>
+                        </Columns>
+                    </RadzenDropDownDataGrid>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Attr" Property="Value" Title="Value">
+                <EditTemplate Context="type">
+                    <RadzenTextBox @bind-Value="type.Value" Name="Value" Style="width:100%; display: block"/>
+                    <RadzenRequiredValidator Text="Name is required" Component="Value" Popup="true"/>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn
                 TItem="Attr"
-                Data="@Elements"
-                AllowAlternatingRows="true"
-                AllowColumnResize="true"
-                AllowFiltering="true" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                AllowPaging="true" PageSize="5"
-                AllowSorting="true"
-                EditMode="DataGridEditMode.Single"
-                RowUpdate="@OnUpdateRowAsync"
-                RowCreate="@OnCreateRowAsync"
-                Sort="@Reset" Page="@Reset" Filter="@Reset">
-    <EmptyTemplate>
-        <NoRecords/>
-    </EmptyTemplate>
-    <Columns>
-        <RadzenDataGridColumn TItem="Attr" Property="Name" Title="Type">
-            <EditTemplate Context="type">
-                <RadzenDropDownDataGrid
-                    TValue="Guid"
-                    AllowClear="true"
-                    Placeholder="Select ..."
-                    Data="@Types"
-                    style="width: 100%;"
-                    AllowColumnResize="true"
-                    AllowFilteringByAllStringColumns="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
-                    TextProperty="Name"
-                    ValueProperty="Id">
-                    <Columns>
-                        <RadzenDropDownDataGridColumn Property="Name" Title="Name"/>
-                        <RadzenDropDownDataGridColumn Property="Description" Title="Description"/>
-                    </Columns>
-                </RadzenDropDownDataGrid>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Attr" Property="Value" Title="Value">
-            <EditTemplate Context="type">
-                <RadzenTextBox @bind-Value="type.Value" Name="Value" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Name is required" Component="Value" Popup="true"/>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Attr" Context="type" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
-            <Template Context="type">
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRowAsync(type))" @onclick:stopPropagation="true">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowAsync(type))" @onclick:stopPropagation="true">
-                </RadzenButton>
-            </Template>
-            <EditTemplate Context="type">
-                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => SaveRowAsync(type))">
-                </RadzenButton>
-                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => CancelEdit(type))">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowAsync(type))">
-                </RadzenButton>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+                Filterable="false"
+                Sortable="false"
+                TextAlign=TextAlign.Right>
+                <Template Context="element">
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Light
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Icon="edit"
+                        Click=@(_ => EditRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Danger
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Shade=Shade.Lighter
+                        Icon="delete"
+                        Click=@(_ => DeleteRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                </Template>
+                <EditTemplate Context="element">
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Success
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Icon="check"
+                        Click=@(_ => SaveRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Light
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Icon="close"
+                        Click=@(_ => CancelEdit(element))
+                    @onclick:stopPropagation="true"/>
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Danger
+                        Variant=Variant.Flat
+                        Shade=Shade.Lighter
+                        Size=ButtonSize.Medium
+                        Icon="delete"
+                        Click=@(_ => DeleteRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+
+</div>

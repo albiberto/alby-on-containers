@@ -1,68 +1,116 @@
 @page "/products"
-@inherits DataLoadGridBase<Product>
-
-@using Abstract
 @using AlbyOnContainers.ProductDataManager.Models
 @using AlbyOnContainers.ProductDataManager.Components
+@inherits AlbyOnContainers.ProductDataManager.Pages.Abstract.DataLoadGridBase<AlbyOnContainers.ProductDataManager.Models.Product>
 
-<RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mb-2" Text="Add Products" Click="@InsertRowAsync" Disabled="@(IsLoading || ToInsert is not null || ToUpdate is not null)"/>
+<div class="d-flex flex-row mb-2">
+    <RadzenButton
+        ButtonStyle=ButtonStyle.Primary
+        Icon="add_circle_outline"
+        Text="Add Product"
+        Click=InsertRowAsync
+        Disabled="@(IsLoading || ToInsert is not null || ToUpdate is not null)"/>
+</div>
 
-<RadzenDataGrid @ref="Grid"
+<div class="d-flex flex-row">
+    <RadzenDataGrid @ref=Grid
+                    TItem=Product
+                    IsLoading=IsLoading LoadData=LoadDataAsync Data=@Elements Count=Count
+                    RowCreate=OnCreateRowAsync RowUpdate=OnUpdateRowAsync EditMode=DataGridEditMode.Single
+                    Sort=Reset Page=Reset Filter=Reset
+                    AllowFiltering="true" FilterMode=FilterMode.Simple FilterCaseSensitivity=FilterCaseSensitivity.CaseInsensitive
+                    AllowPaging="true" PageSize="5"
+                    AllowSorting="true"
+                    AllowAlternatingRows="true"
+                    AllowColumnResize="true">
+        
+        <EmptyTemplate>
+            <NoRecords/>
+        </EmptyTemplate>
+
+        <Template Context="product">
+            <RadzenTabs>
+                <Tabs>
+                    <RadzenTabsItem Text="Attributes">
+                        <Attrs Product="product"></Attrs>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Descriptions">
+                        <Descrs Product="product"></Descrs>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
+        </Template>
+        
+        <Columns>
+            <RadzenDataGridColumn TItem="Product" Property="Id" Title="ID" Width="275px"/>
+            <RadzenDataGridColumn TItem="Product" Property="Name" Title="Name">
+                <EditTemplate Context="element">
+                    <RadzenTextBox @bind-Value="element.Name" Name="DescrTypeName" Style="width:100%; display: block"/>
+                    <RadzenRequiredValidator Text="Name is required" Component="DescrTypeName" Popup="true"/>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            
+            <RadzenDataGridColumn TItem="Product" Property="Description" Title="Description">
+                <EditTemplate Context="element">
+                    <RadzenTextBox @bind-Value="element.Description" Name="DescrTypeDescription" Style="width:100%; display: block"/>
+                    <RadzenRequiredValidator Text="Description is required" Component="DescrTypeDescription" Popup="true"/>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            
+            <RadzenDataGridColumn TItem="Product" Property="Category.Name" Title="Category">
+                <EditTemplate Context="element">
+                    <DropDownSingleDataGrid @bind-Value="element.Category"/>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn
                 TItem="Product"
-                Data="@Elements" IsLoading="IsLoading" LoadData="@LoadDataAsync" Count="@Count"
-                AllowAlternatingRows="true"
-                AllowColumnResize="true"
-                AllowFiltering="true" FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                AllowPaging="true" PageSize="5"
-                AllowSorting="true"
-                EditMode="DataGridEditMode.Single"
-                RowUpdate="@OnUpdateRowAsync"
-                RowCreate="@OnCreateRowAsync"
-                Sort="@Reset" Page="@Reset" Filter="@Reset">
-    <EmptyTemplate>
-        <NoRecords/>
-    </EmptyTemplate>
-    <Template Context="product">
-        <RadzenTabs>
-            <Tabs>
-                <RadzenTabsItem Text="Attributes">
-                    <Attrs Product="product"></Attrs>
-                </RadzenTabsItem>
-                <RadzenTabsItem Text="Descriptions">
-                    <Descrs Product="product"></Descrs>
-                </RadzenTabsItem>
-            </Tabs>
-        </RadzenTabs>
-    </Template>
-    <Columns>
-        <RadzenDataGridColumn TItem="Product" Property="Id" Title="ID" Width="275px"/>
-        <RadzenDataGridColumn TItem="Product" Property="Name" Title="Name">
-            <EditTemplate Context="type">
-                <RadzenTextBox @bind-Value="type.Name" Name="DescrTypeName" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Name is required" Component="DescrTypeName" Popup="true"/>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Product" Property="Description" Title="Description">
-            <EditTemplate Context="type">
-                <RadzenTextBox @bind-Value="type.Description" Name="DescrTypeDescription" Style="width:100%; display: block"/>
-                <RadzenRequiredValidator Text="Description is required" Component="DescrTypeDescription" Popup="true"/>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Product" Context="type" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
-            <Template Context="type">
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRowAsync(type))" @onclick:stopPropagation="true">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowAsync(type))" @onclick:stopPropagation="true">
-                </RadzenButton>
-            </Template>
-            <EditTemplate Context="type">
-                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => SaveRowAsync(type))">
-                </RadzenButton>
-                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => CancelEdit(type))">
-                </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowAsync(type))">
-                </RadzenButton>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+                Filterable="false"
+                Sortable="false"
+                TextAlign=TextAlign.Right>
+                <Template Context="element">
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Light
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Icon="edit"
+                        Click=@(_ => EditRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Danger
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Shade=Shade.Lighter
+                        Icon="delete"
+                        Click=@(_ => DeleteRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                </Template>
+                <EditTemplate Context="element">
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Success
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Icon="check"
+                        Click=@(_ => SaveRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Light
+                        Variant=Variant.Flat
+                        Size=ButtonSize.Medium
+                        Icon="close"
+                        Click=@(_ => CancelEdit(element))
+                    @onclick:stopPropagation="true"/>
+                    <RadzenButton
+                        ButtonStyle=ButtonStyle.Danger
+                        Variant=Variant.Flat
+                        Shade=Shade.Lighter
+                        Size=ButtonSize.Medium
+                        Icon="delete"
+                        Click=@(_ => DeleteRowAsync(element))
+                    @onclick:stopPropagation="true"/>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+        </Columns>
+        
+    </RadzenDataGrid>
+</div>
