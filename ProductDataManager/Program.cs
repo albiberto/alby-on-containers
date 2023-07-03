@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using ProductDataManager.Infrastructure;
+using ProductDataManager.Services;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
@@ -23,7 +26,6 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<ProductContext>();
 
-await context.Database.EnsureCreatedAsync();
 await context.Database.MigrateAsync();
 
 

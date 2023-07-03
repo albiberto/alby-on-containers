@@ -13,6 +13,8 @@ public class ProductContext: DbContext
     }
 
     public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<AttrType> AttrTypes { get; set; } = null!;
+    public DbSet<CategoryAttrType> CategoryAttrTypes { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -20,5 +22,12 @@ public class ProductContext: DbContext
         {
             new AuditableInterceptor()
         });
+    }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .Entity<CategoryAttrType>()
+            .HasKey(c => new { c.CategoryId, c.TypeId });
     }
 }

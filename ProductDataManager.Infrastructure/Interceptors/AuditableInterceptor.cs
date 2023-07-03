@@ -34,4 +34,29 @@ public class AuditableInterceptor : SaveChangesInterceptor
         
         return ValueTask.FromResult(result);
     }
+
+    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+    {
+        var context = eventData.Context!;
+        
+        foreach (var entry in context.ChangeTracker.Entries<Auditable>())
+        {
+            switch (entry)
+            {
+                case { State: EntityState.Added }:
+                    entry.Entity.Created = DateTime.UtcNow;
+                    entry.Entity.CreatedBy = "Alberto";
+                    entry.Entity.LastModified = DateTime.UtcNow;
+                    entry.Entity.LastModifiedBy = "Alberto";
+                    break;
+
+                case { State: EntityState.Modified }:
+                    entry.Entity.LastModified = DateTime.UtcNow;
+                    entry.Entity.LastModifiedBy = "Alberto";
+                    break;
+            }
+        }
+        
+        return result;
+    }
 }

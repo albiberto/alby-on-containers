@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.0-preview.5.23302.2"/>
-        <PackageReference Include="Radzen.Blazor" Version="*"/>
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.0-preview.5.23302.2" />
+        <PackageReference Include="Radzen.Blazor" Version="*" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,6 +33,22 @@
             <LastGenOutput>Index.it-IT.Designer.cs</LastGenOutput>
             <DependentUpon>Index.resx</DependentUpon>
         </EmbeddedResource>
+        <EmbeddedResource Update="Pages\Categories.resx">
+          <Generator>ResXFileCodeGenerator</Generator>
+          <LastGenOutput>Categories.Designer.cs</LastGenOutput>
+          <DependentUpon>Categories.razor</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Pages\Categories.it-IT.resx">
+          <Generator>ResXFileCodeGenerator</Generator>
+          <LastGenOutput>Categories.it-IT.Designer.cs</LastGenOutput>
+          <DependentUpon>Categories.resx</DependentUpon>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Pages\AttrTypes.razor.cs">
+        <DependentUpon>AttryTypes.razor</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
