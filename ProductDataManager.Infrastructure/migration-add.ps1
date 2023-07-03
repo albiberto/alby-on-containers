@@ -1,0 +1,1 @@
+﻿dotnet ef migrations add AddCategory -s ProductDataManager/ProductDataManager.csproj

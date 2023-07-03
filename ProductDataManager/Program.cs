@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using ProductDataManager.Infrastructure;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +12,20 @@ builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
 builder.Services.AddLocalization();
 
+builder.Services.AddDbContext<ProductContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("ProductConnection"), options =>
+        options.MigrationsAssembly(typeof(ProductContext).Assembly.FullName));
+});
+
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetRequiredService<ProductContext>();
+
+await context.Database.EnsureCreatedAsync();
+await context.Database.MigrateAsync();
+
 
 if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
