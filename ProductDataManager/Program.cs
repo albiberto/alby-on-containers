@@ -10,6 +10,7 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
+builder.Services.AddLocalization();
 
 var app = builder.Build();
 
@@ -22,9 +23,10 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-
+app.UseRequestLocalization(options => options.AddSupportedCultures("en", "it-IT").AddSupportedUICultures("en", "it-IT").SetDefaultCulture("en"));
 app.UseRouting();
 
+app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
