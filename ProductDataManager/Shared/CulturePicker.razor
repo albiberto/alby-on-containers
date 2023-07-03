@@ -1,16 +1,15 @@
+@using Microsoft.Extensions.Localization
 @using System.Globalization
-@using Microsoft.AspNetCore.Components;
-
-@inject Microsoft.Extensions.Localization.IStringLocalizer<CulturePicker> L
+@inject IStringLocalizer<CulturePicker> L
 @inject NavigationManager NavigationManager
 
-<RadzenDropDown 
-    @bind-Value="@culture" 
-    TValue="string" 
-    Data="@(new [] { new { Text = "English", Value = "en" }, new { Text = "Italiano (Italia)", Value = "it-IT" } })"
-    TextProperty="Text" 
-    ValueProperty="Value" 
-    Change="@ChangeCulture" />
+<RadzenDropDown
+    @bind-Value="@culture"
+    TValue="string"
+    Data="@(new[] { new { Text = "English", Value = "en" }, new { Text = "Italiano (Italia)", Value = "it-IT" } })"
+    TextProperty="Text"
+    ValueProperty="Value"
+    Change="@ChangeCulture"/>
 
 @code
 {
@@ -24,6 +23,6 @@
 
         var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={redirect}";
 
-        NavigationManager.NavigateTo("Culture/SetCulture" + query, forceLoad: true);
+        NavigationManager.NavigateTo("Culture/SetCulture" + query, true);
     }
 }

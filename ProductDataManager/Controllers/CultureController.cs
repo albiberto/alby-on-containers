@@ -1,24 +1,17 @@
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+namespace ProductDataManager.Controllers;
+
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Sample.Controllers
+[Route("Culture/[action]")] public class CultureController : Controller
 {
-    [Route("Culture/[action]")]
-    public partial class CultureController : Controller
+    public IActionResult SetCulture(string? culture, string redirectUri)
     {
-        public IActionResult SetCulture(string culture, string redirectUri)
-        {
-            if (culture != null)
-            {
-                Response.Cookies.Append(
-                    CookieRequestCultureProvider.DefaultCookieName,
-                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
-            }
+        if (culture is not null)
+            Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new(culture)));
 
-            return LocalRedirect(redirectUri);
-        }
+        return LocalRedirect(redirectUri);
     }
 }

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,15 +13,14 @@ builder.Services.AddLocalization();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
-{
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-}
 
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-app.UseRequestLocalization(options => options.AddSupportedCultures("en", "it-IT").AddSupportedUICultures("en", "it-IT").SetDefaultCulture("en"));
+app.UseRequestLocalization(options =>
+    options.AddSupportedCultures("en", "it-IT").AddSupportedUICultures("en", "it-IT").SetDefaultCulture("en"));
 app.UseRouting();
 
 app.MapControllers();
