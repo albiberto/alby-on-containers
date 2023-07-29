@@ -12,7 +12,7 @@ using ProductDataManager.Infrastructure;
 namespace ProductDataManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20230729135054_AddCategory")]
+    [Migration("20230729151828_AddCategory")]
     partial class AddCategory
     {
         /// <inheritdoc />
@@ -27,7 +27,7 @@ namespace ProductDataManager.Infrastructure.Migrations
 
             modelBuilder.Entity("ProductDataManager.Infrastructure.Domain.AttrType", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -64,7 +64,7 @@ namespace ProductDataManager.Infrastructure.Migrations
 
             modelBuilder.Entity("ProductDataManager.Infrastructure.Domain.Category", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 

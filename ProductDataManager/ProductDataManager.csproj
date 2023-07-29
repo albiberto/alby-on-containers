@@ -4,6 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>Preview</LangVersion>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
@@ -47,7 +48,10 @@
 
     <ItemGroup>
       <Compile Update="Pages\AttrTypes.razor.cs">
-        <DependentUpon>AttryTypes.razor</DependentUpon>
+        <DependentUpon>AttrTypes.razor</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\AttrTypes.model.razor.cs">
+        <DependentUpon>AttrTypes.razor</DependentUpon>
       </Compile>
     </ItemGroup>
 

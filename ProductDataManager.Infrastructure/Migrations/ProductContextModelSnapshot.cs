@@ -24,7 +24,7 @@ namespace ProductDataManager.Infrastructure.Migrations
 
             modelBuilder.Entity("ProductDataManager.Infrastructure.Domain.AttrType", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -61,7 +61,7 @@ namespace ProductDataManager.Infrastructure.Migrations
 
             modelBuilder.Entity("ProductDataManager.Infrastructure.Domain.Category", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 

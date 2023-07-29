@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 public class ProductContext: DbContext
 {
+    readonly IEnumerable<IInterceptor> interceptors;
 
-    public ProductContext(DbContextOptions<ProductContext> options) : base(options)
+    public ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : base(options)
     {
+        this.interceptors = interceptors;
     }
 
     public DbSet<Category> Categories { get; set; } = null!;
@@ -18,10 +20,9 @@ public class ProductContext: DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(new List<IInterceptor>
-        {
-            new AuditableInterceptor()
-        });
+        optionsBuilder.AddInterceptors(interceptors);
+        
+        base.OnConfiguring(optionsBuilder);
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

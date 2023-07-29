@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProductDataManager.Infrastructure;
+using ProductDataManager.Infrastructure.Interceptors;
 using ProductDataManager.Services;
 using Radzen;
 
@@ -21,13 +23,14 @@ builder.Services.AddDbContext<ProductContext>(options =>
         options.MigrationsAssembly(typeof(ProductContext).Assembly.FullName));
 });
 
+builder.Services.AddSingleton<IInterceptor, AuditableInterceptor>();
+
 var app = builder.Build();
 
 using var scope = app.Services.CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<ProductContext>();
 
 await context.Database.MigrateAsync();
-
 
 if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
