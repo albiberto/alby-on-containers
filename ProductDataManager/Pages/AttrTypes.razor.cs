@@ -6,34 +6,51 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
 using Radzen.Blazor;
+using System.Linq.Dynamic.Core;
+using System.Linq;
 
 public partial class AttrTypes
 {
-    [Inject] protected ProductContext Context { get; set; } = null!;
-    [Inject] protected DialogService DialogService { get; set; } = null!;
+    [Inject] ProductContext Context { get; set; } = null!;
+    [Inject] DialogService DialogService { get; set; } = null!;
 
-    protected IEnumerable<Model> Elements { get; set; } = Array.Empty<Model>();
-    protected IEnumerable<Category> Categories { get; set; } = Array.Empty<Category>();
+    IEnumerable<AttrType> Types { get; set; }
+    int count;
 
-    protected override async Task OnInitializedAsync()
+    IEnumerable<Category> Categories { get; set; } = Array.Empty<Category>();
+    IEnumerable<Category> SelectedCategories { get; set; } = Array.Empty<Category>();
+    
+    protected override void OnInitialized() => Categories = Context.Categories.AsNoTracking().ToList();
+
+    void LoadData(LoadDataArgs args)
     {
-        var join = await Context.CategoryAttrTypes
-            .Include(join => join.Type)
-            .Include(join => join.Category)
-            .GroupBy(k => k.Type)
-            .ToDictionaryAsync(k => k.Key, k => k.Select(v => v.Category));
-        
-        Elements = join.Select(j => new Model(j));
-        Categories = Context.Categories;
+        var query = Context.AttrTypes
+            .Include(join => join.CategoryAttrTypes)
+            .ThenInclude(join => join.Category)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(args.Filter))
+        {
+            query = query.Where(args.Filter);
+            count = query.Count();
+        }
+        else
+        {
+            count = query.Count();
+        }
+
+        if (!string.IsNullOrEmpty(args.OrderBy)) query = query.OrderBy(args.OrderBy);
+
+        Types = query
+            .Skip(args.Skip ?? 0)
+            .Take(args.Top ?? 10);
     }
-
-    #region Grid
-
-    protected RadzenDataGrid<Model> Grid = null!;
+    
+    protected RadzenDataGrid<AttrType> Grid = null!;
     protected RadzenDropDownDataGrid<IEnumerable<Category>> CategoryGrid = null!;
 
-    protected Model? ToInsert;
-    protected Model? ToUpdate;
+    protected AttrType? ToInsert;
+    protected AttrType? ToUpdate;
 
     protected async Task InsertRowAsync()
     {
@@ -41,13 +58,13 @@ public partial class AttrTypes
         await Grid.InsertRow(ToInsert);
     }
 
-    protected async Task EditRowAsync(Model element)
+    protected async Task EditRowAsync(AttrType element)
     {
         ToUpdate = element;
         await Grid.EditRow(element);
     }
 
-    protected async Task CancelEdit(Model element)
+    protected async Task CancelEdit(AttrType element)
     {
         if (element.Equals(ToInsert)) ToInsert = null;
 
@@ -62,64 +79,11 @@ public partial class AttrTypes
         orderEntry.State = EntityState.Unchanged;
     }
 
-    protected Task SaveRowAsync(Model element)
-    {
-        return Grid.UpdateRow(element);
-    }
+    protected Task SaveRowAsync(AttrType element) => Grid.UpdateRow(element);
 
     protected void Reset()
     {
         ToInsert = null;
         ToUpdate = null;
     }
-
-    #endregion
-
-    #region DbContext
-
-    protected void OnCreateRowAsync(Model model)
-    {
-        ToInsert = default;
-        
-        Context.AttachRange(model.ToEntity());
-        Context.SaveChanges();
-    }   
-
-    protected async Task OnUpdateRowAsync(Model element)
-    {
-        if (element.Equals(ToInsert)) ToInsert = null;
-        ToUpdate = null;
-
-        Context.Update(element);
-        await Context.SaveChangesAsync();
-    }
-
-    protected virtual Task<bool> OnDeleteRowAsync(Model element)
-    {
-        return Task.FromResult(true);
-    }
-
-    protected async Task DeleteRowAsync(Model element)
-    {
-        if (await DialogService.Confirm("Are you sure you want to delete this record?") == false) return;
-        if (!await OnDeleteRowAsync(element)) return;
-
-        if (element.Equals(ToInsert)) ToInsert = null;
-        if (element.Equals(ToUpdate)) ToUpdate = null;
-
-        if (Elements.Contains(element))
-        {
-            Context.Remove(element);
-            await Context.SaveChangesAsync();
-
-            await Grid.Reload();
-        }
-        else
-        {
-            Grid.CancelEditRow(element);
-            await Grid.Reload();
-        }
-    }
-
-    #endregion
 }

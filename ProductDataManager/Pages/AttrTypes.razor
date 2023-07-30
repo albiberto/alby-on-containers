@@ -1,7 +1,7 @@
 ﻿@page "/attr-types"
 @using Microsoft.Extensions.Localization
 @using ProductDataManager.Infrastructure.Domain
-@inject IStringLocalizer<Model> L
+@inject IStringLocalizer<AttrType> L
 
 <div class="d-flex flex-row mb-2">
     <RadzenButton
@@ -14,10 +14,10 @@
 
 <div class="d-flex flex-row">
     <RadzenDataGrid @ref=Grid
-                    TItem=Model
-                    Data="Elements"
+                    TItem=AttrType
+                    Data="Types" LoadData="@LoadData" Count="count"
                     EditMode=DataGridEditMode.Single
-                    RowCreate=OnCreateRowAsync RowUpdate=OnUpdateRowAsync
+                    RowCreate=OnCreateRow RowUpdate=OnUpdateRow
                     Sort=Reset Page=Reset Filter=Reset
                     AllowFiltering="true" FilterMode=FilterMode.Simple FilterCaseSensitivity=FilterCaseSensitivity.CaseInsensitive
                     AllowPaging="true" PageSize="5"
@@ -31,29 +31,29 @@
 
         <Columns>
 
-            <RadzenDataGridColumn TItem="Model" Property="Type.Name" Title="Name">
+            <RadzenDataGridColumn TItem="AttrType" Property="Type.Name" Title="Name">
                 <EditTemplate Context="join">
                     <RadzenTextBox @bind-Value="join.Name" Name="CategoryName" Style="width:100%; display: block;"/>
-                    <RadzenRequiredValidator Text="AttrTypes.Model Name is required" Component="CategoryName" Popup="true"/>
+                    <RadzenRequiredValidator Text="AttrTypes.AttrType Name is required" Component="CategoryName" Popup="true"/>
                 </EditTemplate>
             </RadzenDataGridColumn>
-            
-            <RadzenDataGridColumn TItem="Model" Property="Type.Description" Title="Description">
+
+            <RadzenDataGridColumn TItem="AttrType" Property="Type.Description" Title="Description">
                 <EditTemplate Context="join">
                     <RadzenTextBox @bind-Value="join.Description" Name="CategoryDescription" Style="width:100%; display: block;"/>
-                    <RadzenRequiredValidator Text="AttrTypes.Model Description is required" Component="CategoryDescription" Popup="true"/>
+                    <RadzenRequiredValidator Text="AttrTypes.AttrType Description is required" Component="CategoryDescription" Popup="true"/>
                 </EditTemplate>
             </RadzenDataGridColumn>
-            
-            <RadzenDataGridColumn TItem=Model
-                Title="Categories"
-                Filterable="false"
-                Sortable="false">
-                
+
+            <RadzenDataGridColumn TItem=AttrType
+                                  Title="Categories"
+                                  Filterable="false"
+                                  Sortable="false">
+
                 <Template Context="model">
-                    @string.Join(", ", model.Categories.Select(c => c.Name))
+                    @string.Join(", ", model.CategoryAttrTypes.Select(join => join.Category.Name))
                 </Template>
-                
+
                 <EditTemplate Context="model">
                     <RadzenDropDownDataGrid
                         @ref="CategoryGrid"
@@ -61,37 +61,36 @@
                         AllowFiltering="true"
                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         AllowClear="true"
-                        @bind-Value=@model.Categories
+                        @bind-Value=@Categories
                         Multiple="true"
                         Placeholder="Select..."
                         Data=@Categories
                         TextProperty="Name">
-                                        <Columns>
-                                            <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
-                                                <HeaderTemplate>
-                                                    <RadzenCheckBox 
-                                                        Disabled="@(!CategoryGrid.AllowSelectAll)" 
-                                                        TriState="false" 
-                                                        TValue="bool" 
-                                                        Value="@(Categories.Any(c => model.Categories.Contains(c)))"
-                                                        Change="@(args => model.Categories = args ? CategoryGrid.View.Cast<Category>() : model.Categories = Enumerable.Empty<Category>())"/>
-                                                </HeaderTemplate>
-                                                <Template Context="data">
-                                                    <RadzenCheckBox 
-                                                        TriState="false" 
-                                                        Value="@(model.Categories.Contains(((Category)data)))"
-                                                        TValue="bool" Change=@(args => CategoryGrid.SelectItem(data)) 
-                                                        @onclick:stopPropagation/>
-                                                </Template>
-                                            </RadzenDropDownDataGridColumn>
-                                            <RadzenDropDownDataGridColumn Property="Name" Title="Name" Width="80px"/>
-                                        </Columns>
-                                    </RadzenDropDownDataGrid>
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+                                <HeaderTemplate>
+                                    <RadzenCheckBox
+                                        Disabled="@(!CategoryGrid.AllowSelectAll)"
+                                        TriState="false"
+                                        TValue="bool"
+                                        Value="@(model.CategoryAttrTypes.Select(join => join.Category).Any(c => Categories.Contains(c)))"
+                                        Change="@(args => SelectedCategories = args ? CategoryGrid.View.Cast<Category>() : Categories = Enumerable.Empty<Category>())"/>
+                                </HeaderTemplate>
+                                <Template Context="data">
+                                    <RadzenCheckBox
+                                        TriState="false"
+                                        Value="@(model.CategoryAttrTypes.Select(join => join.Category).Contains((Category)data))"
+                                        TValue="bool" Change=@(_ => CategoryGrid.SelectItem(data)) @onclick:stopPropagation/>
+                                </Template>
+                            </RadzenDropDownDataGridColumn>
+                            <RadzenDropDownDataGridColumn Property="Name" Title="Name" Width="80px"/>
+                        </Columns>
+                    </RadzenDropDownDataGrid>
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-                        <RadzenDataGridColumn
-                TItem=Model
+            <RadzenDataGridColumn
+                TItem=AttrType
                 Filterable="false"
                 Sortable="false"
                 TextAlign=TextAlign.Right>
@@ -102,7 +101,7 @@
                         Size=ButtonSize.Medium
                         Icon="edit"
                         Click=@(_ => EditRowAsync(element))
-                    @onclick:stopPropagation="true"/>
+                                         @onclick:stopPropagation="true"/>
                     <RadzenButton
                         ButtonStyle=ButtonStyle.Danger
                         Variant=Variant.Flat
@@ -110,7 +109,7 @@
                         Shade=Shade.Lighter
                         Icon="delete"
                         Click=@(_ => DeleteRowAsync(element))
-                    @onclick:stopPropagation="true"/>
+                                         @onclick:stopPropagation="true"/>
                 </Template>
                 <EditTemplate Context="element">
                     <RadzenButton
@@ -119,14 +118,14 @@
                         Size=ButtonSize.Medium
                         Icon="check"
                         Click=@(_ => SaveRowAsync(element))
-                    @onclick:stopPropagation="true"/>
+                                         @onclick:stopPropagation="true"/>
                     <RadzenButton
                         ButtonStyle=ButtonStyle.Light
                         Variant=Variant.Flat
                         Size=ButtonSize.Medium
                         Icon="close"
                         Click=@(_ => CancelEdit(element))
-                    @onclick:stopPropagation="true"/>
+                                         @onclick:stopPropagation="true"/>
                     <RadzenButton
                         ButtonStyle=ButtonStyle.Danger
                         Variant=Variant.Flat
@@ -134,7 +133,7 @@
                         Size=ButtonSize.Medium
                         Icon="delete"
                         Click=@(_ => DeleteRowAsync(element))
-                    @onclick:stopPropagation="true"/>
+                                         @onclick:stopPropagation="true"/>
                 </EditTemplate>
             </RadzenDataGridColumn>
         </Columns>

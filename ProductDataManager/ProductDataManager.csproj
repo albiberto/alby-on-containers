@@ -53,6 +53,10 @@
       <Compile Update="Pages\AttrTypes.razor.model.cs">
         <DependentUpon>AttrTypes.razor</DependentUpon>
       </Compile>
+      <Compile Update="Pages\AttrTypes.razor.context.cs">
+        <DependentUpon>AttrTypes.razor</DependentUpon>
+      </Compile>
     </ItemGroup>
+
 
 </Project>

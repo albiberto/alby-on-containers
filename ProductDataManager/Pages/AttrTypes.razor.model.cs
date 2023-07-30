@@ -6,6 +6,7 @@ public partial class AttrTypes
 {
     public class Model(KeyValuePair<AttrType, IEnumerable<Category>>? join = default)
     {
+        public Guid Id { get; } = join.HasValue ? join.Value.Key.Id : Guid.Empty;
         public string Name { get; set; } = join.HasValue ? join.Value.Key.Name : string.Empty;
         public string Description { get; set; } = join.HasValue ? join.Value.Key.Description : string.Empty;
 
@@ -19,11 +20,11 @@ public partial class AttrTypes
                 Name = Name,
                 Description = Description
             };
-            
+
             return Categories.Select(category => new CategoryAttrType
             {
                 CategoryId = category.Id,
-                Category =category,
+                Category = category,
                 Type = type
             });
         }
