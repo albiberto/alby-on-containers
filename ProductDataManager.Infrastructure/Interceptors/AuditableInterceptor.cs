@@ -35,7 +35,7 @@ public class AuditableInterceptor : SaveChangesInterceptor
         return ValueTask.FromResult(result);
     }
 
-    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         var context = eventData.Context!;
         

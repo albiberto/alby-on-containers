@@ -11,26 +11,20 @@ public partial class AttrTypes
 
         public IEnumerable<Category> Categories { get; set; } = join.HasValue ? join.Value.Value : Enumerable.Empty<Category>();
 
-        public IEnumerable<CategoryAttrType> Build()
+        public IEnumerable<CategoryAttrType> ToEntity()
         {
+            var type = new AttrType
+            {
+                Id = join.HasValue ? join.Value.Key.Id : Guid.Empty,
+                Name = Name,
+                Description = Description
+            };
+            
             return Categories.Select(category => new CategoryAttrType
             {
                 CategoryId = category.Id,
-                Category = category,
-                Created = DateTime.UtcNow,
-                CreatedBy = "Alberto",
-                LastModified = DateTime.UtcNow,
-                LastModifiedBy = "Alberto",
-                Type = new()
-                {
-                    Id = join.HasValue ? join.Value.Key.Id : Guid.Empty,
-                    Name = Name,
-                    Description = Description,
-                    Created = DateTime.UtcNow,
-                    CreatedBy = "Alberto",
-                    LastModified = DateTime.UtcNow,
-                    LastModifiedBy = "Alberto"
-                }
+                Category =category,
+                Type = type
             });
         }
     }

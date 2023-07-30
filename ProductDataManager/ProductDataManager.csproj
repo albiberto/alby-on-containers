@@ -50,7 +50,7 @@
       <Compile Update="Pages\AttrTypes.razor.cs">
         <DependentUpon>AttrTypes.razor</DependentUpon>
       </Compile>
-      <Compile Update="Pages\AttrTypes.model.razor.cs">
+      <Compile Update="Pages\AttrTypes.razor.model.cs">
         <DependentUpon>AttrTypes.razor</DependentUpon>
       </Compile>
     </ItemGroup>

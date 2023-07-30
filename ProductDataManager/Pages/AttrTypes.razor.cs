@@ -79,15 +79,9 @@ public partial class AttrTypes
 
     protected void OnCreateRowAsync(Model model)
     {
-        ToInsert = null;
-
-        var toAdd = model.Build();
-
-        foreach (var add in toAdd)
-        {
-            Context.CategoryAttrTypes.Add(add);
-        }
-
+        ToInsert = default;
+        
+        Context.AttachRange(model.ToEntity());
         Context.SaveChanges();
     }   
 
