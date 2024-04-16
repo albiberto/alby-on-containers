@@ -1,0 +1,52 @@
+﻿@page "/categories"
+@using ProductDataManager.Infrastructure.Domain
+@rendermode InteractiveServer
+
+<MudPopoverProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<PageTitle>Categories</PageTitle>
+<MudText Typo="Typo.h3" GutterBottom="true">Categories</MudText>
+
+@if (!Elements.Any())
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true"/>
+}
+else
+{
+    <MudDataGrid Dense="true" Bordered="false" Items="Elements" ReadOnly="@false" EditMode="@DataGridEditMode.Cell" Elevation="0">
+        <Columns>
+            <HierarchyColumn T="Category" ButtonDisabledFunc="@(x => !x.Categories.Any())" />
+            <PropertyColumn Property="x => x.Name" Title="Name"/>
+            <PropertyColumn Property="x => x.Description" Title="Description" />
+        </Columns>
+        <ChildRowContent>
+            @if (context.Item.Categories.Any())
+            {
+                @CategoriesDisplay(context.Item.Categories.ToHashSet())
+            }
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Category" />
+        </PagerContent>
+    </MudDataGrid>
+}
+
+@code{
+
+    private static RenderFragment<HashSet<Category>> CategoriesDisplay = categories =>
+        @<MudDataGrid Dense="true" Bordered="false" Items="@categories" ReadOnly="@false" EditMode="@DataGridEditMode.Cell" FixedHeader="true" HeaderClass="d-none" Elevation="0">
+            <Columns>
+                <HierarchyColumn T="Category" ButtonDisabledFunc="@(x => !x.Categories.Any())" />
+                <PropertyColumn Property="x => x.Name" Title="Name"/>
+                <PropertyColumn Property="x => x.Description" Title="Description" />
+            </Columns>
+            <ChildRowContent>
+                @if (context.Item.Categories.Any())
+                {
+                    @CategoriesDisplay(context.Item.Categories.ToHashSet())
+                }
+            </ChildRowContent>
+    </MudDataGrid>;
+}
