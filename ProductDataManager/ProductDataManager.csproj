@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Design" Version="1.1.6" />
+        <PackageReference Include="MudBlazor" Version="6.*"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\ProductDataManager.Infrastructure\ProductDataManager.Infrastructure.csproj" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\ProductDataManager.Infrastructure\ProductDataManager.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>
