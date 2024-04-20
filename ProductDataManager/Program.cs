@@ -1,13 +1,19 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProductDataManager.Components;
 using MudBlazor.Services;
+using ProductDataManager.Components.Validators;
 using ProductDataManager.Infrastructure;
+using ProductDataManager.Infrastructure.Interceptors;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<CategoryValidator, CategoryValidator>();
+builder.Services.AddSingleton<IInterceptor, AuditableInterceptor>();
 
 builder.Services.AddDbContext<ProductContext>(options =>
 {

@@ -2,7 +2,7 @@
 
 public abstract class Entity : Auditable, IEquatable<Entity>
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     public bool Equals(Entity? other)
     {

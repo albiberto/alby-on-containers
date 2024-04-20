@@ -1,5 +1,4 @@
 ﻿@page "/categories"
-@using ProductDataManager.Infrastructure.Domain
 @rendermode InteractiveServer
 
 <MudPopoverProvider/>
@@ -9,44 +8,27 @@
 <PageTitle>Categories</PageTitle>
 <MudText Typo="Typo.h3" GutterBottom="true">Categories</MudText>
 
-@if (!Elements.Any())
-{
-    <MudProgressCircular Color="Color.Default" Indeterminate="true"/>
-}
-else
-{
-    <MudDataGrid Dense="true" Bordered="false" Items="Elements" ReadOnly="@false" EditMode="@DataGridEditMode.Cell" Elevation="0">
-        <Columns>
-            <HierarchyColumn T="Category" ButtonDisabledFunc="@(x => !x.Categories.Any())" />
-            <PropertyColumn Property="x => x.Name" Title="Name"/>
-            <PropertyColumn Property="x => x.Description" Title="Description" />
-        </Columns>
-        <ChildRowContent>
-            @if (context.Item.Categories.Any())
-            {
-                @CategoriesDisplay(context.Item.Categories.ToHashSet())
-            }
-        </ChildRowContent>
-        <PagerContent>
-            <MudDataGridPager T="Category" />
-        </PagerContent>
-    </MudDataGrid>
-}
+<div class="d-flex flex-row-reverse">
+    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddCategoryAsync()">Add</MudButton>
+</div>
 
-@code{
+<MudTreeView Items="@Forest" Dense="true" Hover="true" ExpandOnClick="true" MultiSelection="true">
+    <ItemTemplate>
+        <MudTreeViewItem
+            @bind-Expanded="@context.IsExpanded"
+            Items="@context.Items.OrderBy(i => i.Name).ToHashSet()">
 
-    private static RenderFragment<HashSet<Category>> CategoriesDisplay = categories =>
-        @<MudDataGrid Dense="true" Bordered="false" Items="@categories" ReadOnly="@false" EditMode="@DataGridEditMode.Cell" FixedHeader="true" HeaderClass="d-none" Elevation="0">
-            <Columns>
-                <HierarchyColumn T="Category" ButtonDisabledFunc="@(x => !x.Categories.Any())" />
-                <PropertyColumn Property="x => x.Name" Title="Name"/>
-                <PropertyColumn Property="x => x.Description" Title="Description" />
-            </Columns>
-            <ChildRowContent>
-                @if (context.Item.Categories.Any())
-                {
-                    @CategoriesDisplay(context.Item.Categories.ToHashSet())
-                }
-            </ChildRowContent>
-    </MudDataGrid>;
-}
+            <Content>
+                <div class="d-flex flex-row" style="width: 100%">
+
+                    <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="@context.HasChild"/>
+                    <MudTextField @bind-Value="@context.Name" Label="Category Name" Variant="Variant.Text"/>
+                    <MudTextField @bind-Value="@context.Description" Label="Description" Variant="Variant.Text"/>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Add" OnClick="@(() => AddCategoryAsync(context.Id))">Add</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Save" OnClick="@(() => UpdateCategoryAsync(context))">Save</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Delete" OnClick="@(() => DeleteAsync(context))">Delete</MudButton>
+                </div>
+            </Content>
+        </MudTreeViewItem>
+    </ItemTemplate>
+</MudTreeView>
