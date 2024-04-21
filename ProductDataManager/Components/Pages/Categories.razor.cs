@@ -22,10 +22,16 @@ public partial class Categories
     [Parameter] public bool Any { get; set; }
     [Parameter] public EventCallback<bool> AnyChanged { get; set; }
 
+    // TODO: Implement search functionality
+    string filter = string.Empty;
+    
     protected override async Task OnInitializedAsync()
     {
+        // TODO: Manage multiple includes
         var result =  await Context.Categories
+            .AsNoTracking()
             .Where(c => c.ParentId == null)
+            .AsNoTracking()
             .Include(c => c.Categories)
             .ThenInclude(c => c.Categories)
             .ThenInclude(c => c.Categories)
@@ -58,15 +64,12 @@ public partial class Categories
         async Task AddCategory()
         {
             var model = (CategoryDialog.Model)result.Data;
-            var category = new Category
-            {
-                ParentId = parentId,
-                Name = model.Name,
-                Description = model.Description
-            };
+            var category = new Category(model.Name, model.Description, parentId);
             
+            // TODO: Add in non connected mode
             var entity = await Context.Categories.AddAsync(category);
             await Context.SaveChangesAsync();
+            
             Forest.AddToForest(entity.Entity);
         }
     }
@@ -86,14 +89,11 @@ public partial class Categories
 
         async Task UpdateAsync()
         {
-            var category = await Context.Categories.FindAsync(data.Id);
-            if (category != null)
-            {
-                category.Name = data.Name;
-                category.Description = data.Description;
-
-                await Context.SaveChangesAsync();
-            }
+            var category = new Category(data.Name, data.Description, data.Parent?.Id, data.Id);
+            
+            // TODO: Update in non connected mode
+            Context.Update(category);
+            await Context.SaveChangesAsync();
         }
     }
 
@@ -101,7 +101,7 @@ public partial class Categories
     {
         if(data.Items.Count > 0)
         {
-            Snackbar.Add("Category has subcategories", Severity.Info);
+            Snackbar.Add("Category has subcategories", Severity.Error);
             return;
         }
         

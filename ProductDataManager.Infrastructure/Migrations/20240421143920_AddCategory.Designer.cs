@@ -12,7 +12,7 @@ using ProductDataManager.Infrastructure;
 namespace ProductDataManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20240416090441_AddCategory")]
+    [Migration("20240421143920_AddCategory")]
     partial class AddCategory
     {
         /// <inheritdoc />
@@ -27,16 +27,14 @@ namespace ProductDataManager.Infrastructure.Migrations
 
             modelBuilder.Entity("ProductDataManager.Infrastructure.Domain.AttrType", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Created")
-                        .IsConcurrencyToken()
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
-                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -44,16 +42,14 @@ namespace ProductDataManager.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("LastModified")
-                        .IsConcurrencyToken()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsConcurrencyToken()
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -64,29 +60,18 @@ namespace ProductDataManager.Infrastructure.Migrations
 
             modelBuilder.Entity("ProductDataManager.Infrastructure.Domain.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Created")
-                        .IsConcurrencyToken()
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
-                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastModified")
-                        .IsConcurrencyToken()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -96,6 +81,13 @@ namespace ProductDataManager.Infrastructure.Migrations
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -112,21 +104,17 @@ namespace ProductDataManager.Infrastructure.Migrations
                     b.Property<Guid>("TypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Created")
-                        .IsConcurrencyToken()
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
-                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("LastModified")
-                        .IsConcurrencyToken()
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("LastModifiedBy")
-                        .IsConcurrencyToken()
+                    b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("text");
 

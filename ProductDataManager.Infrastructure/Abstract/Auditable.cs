@@ -2,21 +2,17 @@
 
 using System.ComponentModel.DataAnnotations;
 
-public abstract class Auditable
+public record Auditable
 {
     [Required]
-    [ConcurrencyCheck]
-    public DateTime Created { get; set; }
+    public DateTime CreatedAt { get; set; }
     
     [Required]
-    [ConcurrencyCheck]
-    public string CreatedBy { get; set; }
+    public string CreatedBy { get; set; } = null!;
 
     [Required]
-    [ConcurrencyCheck]
-    public DateTime LastModified  { get; set; }
+    public DateTime UpdatedAt  { get; set; }
     
     [Required]
-    [ConcurrencyCheck]
-    public string LastModifiedBy  { get; set; }
+    public string UpdatedBy  { get; set; } = null!;
 }

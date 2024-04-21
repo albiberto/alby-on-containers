@@ -17,10 +17,10 @@ public partial class Categories
             Id = category.Id;
             Name = category.Name;
             Description = category.Description;
-            Created = category.Created;
+            Created = category.CreatedAt;
             CreatedBy = category.CreatedBy;
-            LastModified = category.LastModified;
-            LastModifiedBy = category.LastModifiedBy;
+            LastModified = category.UpdatedAt;
+            LastModifiedBy = category.UpdatedBy;
             Items = [];
         }
 

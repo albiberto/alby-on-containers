@@ -2,11 +2,8 @@
 
 using Abstract;
 
-public class CategoryAttrType : Auditable
+public record CategoryAttrType(Guid CategoryId, Guid TypeId) : Auditable
 {
-    public Guid CategoryId { get; set; }
-    public Category Category { get; set; } = new();
-
-    public AttrType Type { get; set; } = new();
-    public Guid TypeId { get; set; }
+    public Category? Category { get; set; }
+    public AttrType? Type { get; set; }
 }

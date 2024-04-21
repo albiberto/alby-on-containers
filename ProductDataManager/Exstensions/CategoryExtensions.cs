@@ -67,4 +67,18 @@ public static class CategoryExtensions
             if (node.HasChild) node.Items.RemoveFromTree(category);
         }
     }
+    
+    public static HashSet<Categories.Data> SearchInForest(this IEnumerable<Categories.Data> forest, string word) => 
+        forest.SelectMany(root => root.SearchInTree(word)).ToHashSet();
+
+    static IEnumerable<Categories.Data> SearchInTree(this Categories.Data node, string word)
+    {
+        var result = new List<Categories.Data>();
+
+        if (node.Name.Contains(word) || node.Description.Contains(word)) result.Add(node);
+
+        foreach (var child in node.Items) result.AddRange(SearchInTree(child, word));
+
+        return result;
+    }
 }

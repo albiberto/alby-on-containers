@@ -12,51 +12,47 @@ public class AuditableInterceptor : SaveChangesInterceptor
 {
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
-        var context = eventData.Context!;
-        
-        foreach (var entry in context.ChangeTracker.Entries<Auditable>())
-        {
-            switch (entry)
-            {
-                case { State: EntityState.Added }:
-                    entry.Entity.Created = DateTime.UtcNow;
-                    entry.Entity.CreatedBy = "Alberto";
-                    entry.Entity.LastModified = DateTime.UtcNow;
-                    entry.Entity.LastModifiedBy = "Alberto";
-                    break;
+        SaveChanges(eventData);
 
-                case { State: EntityState.Modified }:
-                    entry.Entity.LastModified = DateTime.UtcNow;
-                    entry.Entity.LastModifiedBy = "Alberto";
-                    break;
-            }
-        }
-        
         return ValueTask.FromResult(result);
+    }
+
+    static void SaveChanges(DbContextEventData eventData)
+    {
+        var context = eventData.Context!;
+
+        SaveChanges(context);
     }
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         var context = eventData.Context!;
         
+        SaveChanges(context);
+        
+        return result;
+    }
+
+    static void SaveChanges(DbContext context)
+    {
         foreach (var entry in context.ChangeTracker.Entries<Auditable>())
         {
             switch (entry)
             {
                 case { State: EntityState.Added }:
-                    entry.Entity.Created = DateTime.UtcNow;
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
                     entry.Entity.CreatedBy = "Alberto";
-                    entry.Entity.LastModified = DateTime.UtcNow;
-                    entry.Entity.LastModifiedBy = "Alberto";
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedBy = "Alberto";
                     break;
 
                 case { State: EntityState.Modified }:
-                    entry.Entity.LastModified = DateTime.UtcNow;
-                    entry.Entity.LastModifiedBy = "Alberto";
+                    entry.Property("CreatedAt").IsModified = false;
+                    entry.Property("CreatedBy").IsModified = false;
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedBy = "Alberto";
                     break;
             }
         }
-        
-        return result;
     }
 }

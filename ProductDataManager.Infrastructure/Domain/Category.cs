@@ -2,12 +2,8 @@
 
 using Abstract;
 
-public class Category : Entity
+public record Category(string Name, string Description, Guid? ParentId = default, Guid? Id = default) : Entity(Id)
 {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    
-    public Guid? ParentId { get; set; }
     public Category? Parent { get; set; }
 
     public ICollection<Category> Categories { get; set; } = new HashSet<Category>();

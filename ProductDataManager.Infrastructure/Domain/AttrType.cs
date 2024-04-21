@@ -2,10 +2,7 @@
 
 using Abstract;
 
-public class AttrType : Entity
+public record AttrType(string Name, string Description, Guid? Id) : Entity(Id)
 {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-
     public ICollection<CategoryAttrType> CategoryAttrTypes { get; set; } = new HashSet<CategoryAttrType>();
 }
