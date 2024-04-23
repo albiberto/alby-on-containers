@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Options;
 using MudBlazor;
 using ProductDataManager.Infrastructure.Domain;
@@ -10,36 +9,19 @@ namespace ProductDataManager.Components.Pages;
 
 public partial class Categories
 {
-    public class Data
+    public class Data(Category category)
     {
-        public Data(Category category)
-        {
-            Id = category.Id;
-            Name = category.Name;
-            Description = category.Description;
-            Created = category.CreatedAt;
-            CreatedBy = category.CreatedBy;
-            LastModified = category.UpdatedAt;
-            LastModifiedBy = category.UpdatedBy;
-            Items = [];
-        }
+        public Guid? Id { get; } = category.Id;
 
-        public Guid? Id { get; set; }
+        public string Name { get; set; } = category.Name ?? string.Empty;
+        public string Description { get; set; } = category.Description ?? string.Empty;
+        public Guid? ParentId { get; set; } = category.ParentId;
 
-        public Data? Parent { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public DateTime Created { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime LastModified { get; set; }
-        public string LastModifiedBy { get; set; }
-
-        public HashSet<Data> Items { get; init; } = [];
-
+        public HashSet<Data> Items { get; set; } = new();
+        public bool HasChild => Items.Any();
+        
         public bool IsExpanded { get; set; } = true;
-        public bool? IsChecked { get; set; } = false;
-        public bool HasChild => Items.Count > 0;
-
+        
         public int Total => Go(this);
         
         static int Go(Data data)
@@ -47,12 +29,26 @@ public partial class Categories
             if (!data.HasChild) return 1;
 
             int total = 0;
-            foreach (var child in data.Items)
-            {
-                total += Go(child);
-            }
+            foreach (var child in data.Items) total += Go(child);
 
             return total;
         }
+        
+        public HashSet<Guid?> LeafIds => GetLeafIds(this).Append(Id).ToHashSet();
+        
+        private static IEnumerable<Guid?> GetLeafIds(Data data)
+        {
+            if (!data.HasChild) yield return data.Id;
+
+            foreach (var child in data.Items)
+            {
+                foreach (var id in GetLeafIds(child))
+                {
+                    yield return id;
+                }
+            }
+        }
     }
+
+    public record Parent(Guid? Id, string Name);
 }

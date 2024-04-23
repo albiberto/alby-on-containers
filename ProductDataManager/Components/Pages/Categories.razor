@@ -1,6 +1,5 @@
 ﻿@page "/categories"
 @using ProductDataManager.Exstensions
-@rendermode InteractiveServer
 
 <MudPopoverProvider/>
 <MudDialogProvider/>
@@ -11,7 +10,7 @@
 
 <div class="d-flex flex-row-reverse">
     <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddCategoryAsync()">Add</MudButton>
-    <MudTextField @bind-Value="@filter" HelperText="Filter by category name" Label="Normal" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"/>
+    <MudTextField T="string" Value="@filter" ValueChanged="@(value => FilterChanged(value))"  HelperText="Filter by category name" Label="Normal" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"/>
 </div>
 
 <MudTreeView Items="@Forest" Dense="true" Hover="true" ExpandOnClick="true" MultiSelection="true">
@@ -22,10 +21,15 @@
 
             <Content>
                 <div class="d-flex flex-row" style="width: 100%">
-
                     <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="@context.HasChild"/>
                     <MudTextField @bind-Value="@context.Name" Label="Category Name" Variant="Variant.Text"/>
                     <MudTextField @bind-Value="@context.Description" Label="Description" Variant="Variant.Text"/>
+                    <MudSelect Placeholder="Change parent ..." @bind-Value="@context.ParentId" AdornmentColor="Color.Primary" Disabled="@(Parents.Count(parent => !context.LeafIds.Contains(parent.Id)) < 1)">
+                        @foreach(var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
+                        {
+                            <MudSelectItem Value="@parent.Id" >@parent.Name</MudSelectItem>
+                        }
+                    </MudSelect>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Add" OnClick="@(() => AddCategoryAsync(context.Id))">Add</MudButton>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Save" OnClick="@(() => UpdateCategoryAsync(context))">Save</MudButton>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Delete" OnClick="@(() => DeleteAsync(context))">Delete</MudButton>
