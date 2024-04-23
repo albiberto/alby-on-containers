@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using ProductDataManager.Components.Shared;
 using ProductDataManager.Exstensions;
-using ProductDataManager.Infrastructure;
 using ProductDataManager.Infrastructure.Domain;
 
 namespace ProductDataManager.Components.Pages;
@@ -12,40 +9,45 @@ namespace ProductDataManager.Components.Pages;
 public partial class Categories
 {
     List<Category> categories = [];
-
-    string filter = string.Empty;
-
-    void FilterChanged(string value)
-    {
-        filter = value;
-        UpdateForest();
-    }
-    
-    [Inject] public required ProductContext Context { get; set; }
-    [Inject] public required IDialogService DialogService { get; set; }
-    [Inject] public required ISnackbar Snackbar { get; set; }
-    [Inject] public required ILogger<Categories> Logger { get; set; }
-
     HashSet<Data> Forest { get; set; } = [];
+    HashSet<Parent> Parents { get; set; } = [];
+    string filter = string.Empty;
     
-    void UpdateForest() => Forest =  categories
-        .Where(c => c.ParentId == null)
-        .Select(c => c.ConvertToData(Selector))
-        .Where(Selector)
-        .OrderByDescending(c => c.Name)
-        .ToHashSet();
-
-    HashSet<Parent> Parents => categories.Select(category => new Parent(category.Id!.Value, category.Name))
-        .Append(new(default, "Macro")).ToHashSet();
-
-    Func<Data, bool> Selector => data => string.IsNullOrEmpty(filter)
-                                         || data.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-                                         || data.Description.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-                                         || data.HasChild;
-
     protected override async Task OnInitializedAsync()
     {
         categories = await Context.Categories.ToListAsync();
+        UpdateForest();
+    }
+    
+    void UpdateForest()
+    {
+        var currentFilter = Selector(filter);
+
+        Forest = categories
+            .Where(c => c.ParentId == null)
+            .Select(c => c.ConvertToData(currentFilter))
+            .Where(currentFilter)
+            .OrderByDescending(c => c.Name)
+            .ToHashSet();
+        
+        Parents = categories
+            .Select(category => new Parent(category.Id!.Value, category.Name))
+            .Append(new(default, "Macro"))
+            .ToHashSet();
+        
+        StateHasChanged();
+        return;
+
+        static Func<Data, bool> Selector(string filter) =>
+            data => string.IsNullOrEmpty(filter)
+                    || data.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+                    || data.Description.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+                    || data.HasChild;
+    }
+    
+    void FilterChanged(string value)
+    {
+        filter = value;
         UpdateForest();
     }
 
@@ -71,10 +73,9 @@ public partial class Categories
             var model = (CategoryDialog.Model)result.Data;
             var category = new Category(model.Name, model.Description, parentId);
 
-            var entity = await Context.Categories.AddAsync(category);
+            await Context.Categories.AddAsync(category);
             await Context.SaveChangesAsync();
 
-            categories.Add(entity.Entity);
             UpdateForest();
         }
     }
@@ -93,14 +94,9 @@ public partial class Categories
             
             current.Update(data.Name, data.Description, data.ParentId);
             await Context.SaveChangesAsync();
-            
-            foreach (var category in categories)
-            foreach (var child in category.Categories.Where(child => child.ParentId != category.Id || child.ParentId is null)) category.Categories.RemoveWhere(c => c.Id == child.Id);
 
             UpdateForest();
-
             Snackbar.Add("Category Updated!", Severity.Success);
-            StateHasChanged();
         }
         catch (Exception e)
         {
@@ -109,40 +105,36 @@ public partial class Categories
         }
     }
 
-    async Task DeleteAsync(Data data)
+    async Task DeleteCategoryAsync(Data data)
     {
         if (data.Items.Count > 0)
         {
             Snackbar.Add("Category has subcategories", Severity.Error);
             return;
         }
-
-        var parameters = new DialogParameters<ConfirmDeleteDialog>
-        {
-            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
-            { x => x.ButtonText, "Delete" },
-            { x => x.Color, Color.Error }
-        };
-
-        var options = new DialogOptions { CloseButton = true, Position = DialogPosition.Center, MaxWidth = MaxWidth.ExtraExtraLarge };
-
-        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Delete", parameters, options);
+        
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Delete Category");
+        
         var result = await dialog.Result;
-
         if (result.Canceled) return;
 
-        var current = await Context.Categories.FindAsync(data.Id);
-        
-        if(current is null)
+        try
         {
-            Snackbar.Add("Error while deleting category", Severity.Error);
-            return;
+            await DeleteAsync();
+            Snackbar.Add("Category Deleted!", Severity.Success);
         }
-        
-        Context.Categories.Remove(current);
-        await Context.SaveChangesAsync();
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error while deleting category");
+            Snackbar.Add("Error while deleting category", Severity.Error);
+        }
 
-        categories.Remove(current);
-        UpdateForest();
+        async Task DeleteAsync()
+        {
+            Context.Categories.Remove(data.Category);
+            await Context.SaveChangesAsync();
+
+            UpdateForest();
+        }
     }
 }

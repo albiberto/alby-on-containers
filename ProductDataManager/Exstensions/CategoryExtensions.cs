@@ -5,16 +5,14 @@ namespace ProductDataManager.Exstensions;
 
 public static class CategoryExtensions
 {
-    public static Categories.Data ConvertToData(this Category? parent, Func<Categories.Data, bool> selector)
+    public static Categories.Data ConvertToData(this Category category, Func<Categories.Data, bool> selector)
     {
-        var data = new Categories.Data(parent);
-
-        foreach (var child in parent.Categories)
-        {
-            var current = ConvertToData(child, selector);
-
-            if (selector(current)) data.Items.Add(current);
-        }
+        var data = new Categories.Data(category);
+        var children = category.Categories
+            .Select(child => ConvertToData(child, selector))
+            .Where(selector);
+        
+        foreach (var child in children) data.Items.Add(child);
 
         return data;
     }

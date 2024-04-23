@@ -1,19 +1,11 @@
 ﻿namespace ProductDataManager.Infrastructure;
 
 using Domain;
-using Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-public class ProductContext: DbContext
+public class ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : DbContext(options)
 {
-    readonly IEnumerable<IInterceptor> interceptors;
-
-    public ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : base(options)
-    {
-        this.interceptors = interceptors;
-    }
-
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<AttrType> AttrTypes { get; set; } = null!;
     public DbSet<CategoryAttrType> CategoryAttrTypes { get; set; } = null!;

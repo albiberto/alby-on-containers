@@ -1,6 +1,4 @@
-﻿using System.Collections.Frozen;
-
-namespace ProductDataManager.Infrastructure.Domain;
+﻿namespace ProductDataManager.Infrastructure.Domain;
 
 using Abstract;
 
@@ -12,8 +10,8 @@ public record Category(string Name, string Description, Guid? ParentId = default
 
     public Category? Parent { get; private set; }
     
-    public HashSet<Category> Categories { get; } = [];
-    public HashSet<CategoryAttrType> CategoryAttrTypes { get; } = [];
+    public ICollection<Category> Categories { get; private set; } = [];
+    public ICollection<CategoryAttrType> CategoryAttrTypes { get; private set; } = [];
 
     public void Update(string name, string description, Guid? parentId)
     {
