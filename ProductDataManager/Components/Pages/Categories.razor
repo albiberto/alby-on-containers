@@ -3,7 +3,7 @@
 <PageTitle>Categories</PageTitle>
 <MudText Typo="Typo.h3" GutterBottom="true">Categories</MudText>
 
-<div class="d-flex flex-row-reverse">
+<div class="d-flex flex-row-reverse mb-6">
     <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddCategoryAsync()">Add</MudButton>
     <MudTextField T="string" Value="@filter" ValueChanged="@(value => FilterChanged(value))"  HelperText="Filter by category name" Label="Normal" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"/>
 </div>
@@ -16,8 +16,18 @@
 
             <Content>
                 <div class="d-flex flex-row" style="width: 100%">
-                    <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="@context.HasChild"/>
                     
+                    @if (context.HasChild)
+                    {
+                        <MudBadge Content="context.Items.Count" Origin="Origin.TopLeft"  Color="Color.Default" Class="mx-6 my-4">
+                            <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="true"/>
+                        </MudBadge>   
+                    }
+                    else
+                    {
+                    <span style="margin-left: 45px"><MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="false"/></span>
+                    }
+
                     @if (context.NameIsDirty)
                     {
                         <MudTextField @bind-Value="@context.Name" Label="Category Name" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.Warning" AdornmentColor="Color.Warning"/>
@@ -39,24 +49,24 @@
                     @if (context.ParentIdIsDirty)
                     {
                         <MudSelect Placeholder="Change parent ..." @bind-Value="@context.ParentId" Disabled="@(Parents.Count(parent => !context.LeafIds.Contains(parent.Id)) < 1)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.Warning" AdornmentColor="Color.Warning">
-                            @foreach(var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
+                            @foreach (var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
                             {
-                                <MudSelectItem Value="@parent.Id" >@parent.Name</MudSelectItem>
+                                <MudSelectItem Value="@parent.Id">@parent.Name</MudSelectItem>
                             }
-                        </MudSelect>   
+                        </MudSelect>
                     }
                     else
                     {
                         <MudSelect Placeholder="Change parent ..." @bind-Value="@context.ParentId" AdornmentColor="Color.Primary" Disabled="@(Parents.Count(parent => !context.LeafIds.Contains(parent.Id)) < 1)">
-                            @foreach(var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
+                            @foreach (var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
                             {
-                                <MudSelectItem Value="@parent.Id" >@parent.Name</MudSelectItem>
+                                <MudSelectItem Value="@parent.Id">@parent.Name</MudSelectItem>
                             }
-                        </MudSelect>                        
+                        </MudSelect>
                     }
 
                     <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Add" OnClick="@(() => AddCategoryAsync(context.Id))">Add</MudButton>
-                    <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Save" OnClick="@(() => UpdateCategoryAsync(context))">Save</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Save" OnClick="@(() => UpdateCategoryAsync(context))" Disabled="!context.IsDirty">Save</MudButton>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Delete" OnClick="@(() => DeleteCategoryAsync(context))">Delete</MudButton>
                 </div>
             </Content>

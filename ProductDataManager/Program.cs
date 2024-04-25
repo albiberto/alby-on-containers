@@ -4,6 +4,7 @@ using ProductDataManager.Components;
 using MudBlazor.Services;
 using ProductDataManager.Components.Validators;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
+using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 using ProductDataManager.Infrastructure;
 using ProductDataManager.Infrastructure.Interceptors;
 using ProductDataManager.Infrastructure.Repositories;
@@ -14,7 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped<CategoryValidator, CategoryValidator>();
+builder.Services.AddScoped<CategoryValidator>();
+builder.Services.AddScoped<DescriptionValidator>();
 builder.Services.AddSingleton<IInterceptor, AuditableInterceptor>();
 
 builder.Services.AddDbContext<ProductContext>(options =>
@@ -24,6 +26,7 @@ builder.Services.AddDbContext<ProductContext>(options =>
 });
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IDescriptionRepository, DescriptionsRepository>();
 
 builder.Services.AddMudServices();
 

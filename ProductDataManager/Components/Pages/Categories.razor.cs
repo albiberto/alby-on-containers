@@ -41,7 +41,7 @@ public partial class Categories
         {
             return data => string.IsNullOrEmpty(filter)
                            || data.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-                           || data.Description.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+                           || data.ParentName.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
                            || data.HasChild;
         }
     }

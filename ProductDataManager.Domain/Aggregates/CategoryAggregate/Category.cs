@@ -1,4 +1,5 @@
-﻿using ProductDataManager.Domain.SeedWork;
+﻿using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
+using ProductDataManager.Domain.SeedWork;
 
 namespace ProductDataManager.Domain.Aggregates.CategoryAggregate;
 
@@ -11,6 +12,8 @@ public record Category(string Name, string Description, Guid? ParentId = default
     public Category? Parent { get; private set; }
     
     public ICollection<Category> Categories { get; private set; } = [];
+    
+    public ICollection<DescriptionType> DescriptionTypes { get; private set; } = [];
 
     public void Update(string name, string description, Guid? parentId)
     {

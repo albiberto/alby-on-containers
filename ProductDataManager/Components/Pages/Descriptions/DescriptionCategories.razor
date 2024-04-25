@@ -1,0 +1,10 @@
+﻿@using ProductDataManager.Domain.Aggregates.CategoryAggregate
+
+<MudDataGrid T="Category" Items="@Categories" SortMode="SortMode.Multiple" Filterable="true" FilterMode="DataGridFilterMode.Simple">
+    <Columns>
+        <PropertyColumn Property="x => x.Name" Title="Category Name" Sortable="true" Filterable="true" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="Category" />
+    </PagerContent>
+</MudDataGrid>

@@ -6,28 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProductDataManager.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCategory : Migration
+    public partial class Initial_Migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "AttrTypes",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedBy = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AttrTypes", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
@@ -52,11 +35,13 @@ namespace ProductDataManager.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CategoryAttrTypes",
+                name: "DescriptionTypes",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TypeId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -64,20 +49,62 @@ namespace ProductDataManager.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CategoryAttrTypes", x => new { x.CategoryId, x.TypeId });
+                    table.PrimaryKey("PK_DescriptionTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CategoryDescriptionType",
+                columns: table => new
+                {
+                    CategoriesId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DescriptionTypesId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoryDescriptionType", x => new { x.CategoriesId, x.DescriptionTypesId });
                     table.ForeignKey(
-                        name: "FK_CategoryAttrTypes_AttrTypes_TypeId",
-                        column: x => x.TypeId,
-                        principalTable: "AttrTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CategoryAttrTypes_Categories_CategoryId",
-                        column: x => x.CategoryId,
+                        name: "FK_CategoryDescriptionType_Categories_CategoriesId",
+                        column: x => x.CategoriesId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoryDescriptionType_DescriptionTypes_DescriptionTypesId",
+                        column: x => x.DescriptionTypesId,
+                        principalTable: "DescriptionTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "DescriptionValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    DescriptionTypeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DescriptionValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DescriptionValues_DescriptionTypes_DescriptionTypeId",
+                        column: x => x.DescriptionTypeId,
+                        principalTable: "DescriptionTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_Name",
+                table: "Categories",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_ParentId",
@@ -85,22 +112,30 @@ namespace ProductDataManager.Infrastructure.Migrations
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CategoryAttrTypes_TypeId",
-                table: "CategoryAttrTypes",
-                column: "TypeId");
+                name: "IX_CategoryDescriptionType_DescriptionTypesId",
+                table: "CategoryDescriptionType",
+                column: "DescriptionTypesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DescriptionValues_DescriptionTypeId",
+                table: "DescriptionValues",
+                column: "DescriptionTypeId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CategoryAttrTypes");
+                name: "CategoryDescriptionType");
 
             migrationBuilder.DropTable(
-                name: "AttrTypes");
+                name: "DescriptionValues");
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "DescriptionTypes");
         }
     }
 }

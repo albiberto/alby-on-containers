@@ -24,9 +24,12 @@ public partial class Categories
         public string Description { get; set; } = category.Description ?? string.Empty;
         public Guid? ParentId { get; set; } = category.ParentId;
         
+        public string ParentName { get; set; } = category.Parent?.Name ?? string.Empty;
+        
         public bool NameIsDirty => !string.Equals(Category.Name, Name, StringComparison.InvariantCultureIgnoreCase);
         public bool DescriptionIsDirty => !string.Equals(Category.Description, Description, StringComparison.InvariantCultureIgnoreCase);
         public bool ParentIdIsDirty => Category.ParentId != ParentId;
+        public bool IsDirty => NameIsDirty || DescriptionIsDirty || ParentIdIsDirty;
 
         public HashSet<Data> Items { get; } = [];
         
@@ -46,6 +49,7 @@ public partial class Categories
             return total;
         }
         
+        // TODO: Fix this
         public HashSet<Guid?> LeafIds => GetLeafIds(this).Append(Id).ToHashSet();
         
         private static IEnumerable<Guid?> GetLeafIds(Data data)

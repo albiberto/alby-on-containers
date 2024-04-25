@@ -2,12 +2,15 @@
 using ProductDataManager.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 
 namespace ProductDataManager.Infrastructure;
 
 public class ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : DbContext(options), IUnitOfWork
 {
-    public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Category> Categories { get; private set; } = null!;
+    public DbSet<DescriptionType> DescriptionTypes { get; private set; } = null!;
+    public DbSet<DescriptionValue> DescriptionValues { get; private set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
