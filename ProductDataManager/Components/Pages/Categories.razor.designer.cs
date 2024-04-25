@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using MudBlazor;
+using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Infrastructure;
-using ProductDataManager.Infrastructure.Domain;
 
 namespace ProductDataManager.Components.Pages;
 
@@ -10,7 +10,7 @@ namespace ProductDataManager.Components.Pages;
 
 public partial class Categories
 {
-    [Inject] public required ProductContext Context { get; set; }
+    [Inject] public required ICategoryRepository Repository { get; set; }
     [Inject] public required IDialogService DialogService { get; set; }
     [Inject] public required ISnackbar Snackbar { get; set; }
     [Inject] public required ILogger<Categories> Logger { get; set; }

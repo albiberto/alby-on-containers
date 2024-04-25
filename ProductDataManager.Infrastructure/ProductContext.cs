@@ -1,14 +1,13 @@
-﻿namespace ProductDataManager.Infrastructure;
-
-using Domain;
+﻿using ProductDataManager.Domain.Aggregates.CategoryAggregate;
+using ProductDataManager.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-public class ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : DbContext(options)
+namespace ProductDataManager.Infrastructure;
+
+public class ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : DbContext(options), IUnitOfWork
 {
     public DbSet<Category> Categories { get; set; } = null!;
-    public DbSet<AttrType> AttrTypes { get; set; } = null!;
-    public DbSet<CategoryAttrType> CategoryAttrTypes { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -20,7 +19,8 @@ public class ProductContext(DbContextOptions<ProductContext> options, IEnumerabl
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .Entity<CategoryAttrType>()
-            .HasKey(c => new { c.CategoryId, c.TypeId });
+            .Entity<Category>()
+            .HasIndex(c => c.Name)
+            .IsUnique();
     }
 }

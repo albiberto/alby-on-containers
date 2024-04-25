@@ -1,6 +1,6 @@
-﻿namespace ProductDataManager.Infrastructure.Abstract;
+﻿using System.ComponentModel.DataAnnotations;
 
-using System.ComponentModel.DataAnnotations;
+namespace ProductDataManager.Domain.SeedWork;
 
 public record Auditable
 {

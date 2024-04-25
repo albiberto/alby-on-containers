@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProductDataManager.Components;
 using MudBlazor.Services;
 using ProductDataManager.Components.Validators;
+using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Infrastructure;
 using ProductDataManager.Infrastructure.Interceptors;
+using ProductDataManager.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,8 @@ builder.Services.AddDbContext<ProductContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ProductConnection"), o =>
         o.MigrationsAssembly(typeof(ProductContext).Assembly.FullName));
 });
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 builder.Services.AddMudServices();
 

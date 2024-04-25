@@ -1,12 +1,8 @@
-﻿namespace ProductDataManager.Infrastructure.Interceptors;
-
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Abstract;
+﻿using ProductDataManager.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+namespace ProductDataManager.Infrastructure.Interceptors;
 
 public class AuditableInterceptor : SaveChangesInterceptor 
 {

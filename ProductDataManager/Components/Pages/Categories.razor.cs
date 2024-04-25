@@ -1,24 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MudBlazor;
+﻿using MudBlazor;
 using ProductDataManager.Components.Shared;
+using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Exstensions;
-using ProductDataManager.Infrastructure.Domain;
 
 namespace ProductDataManager.Components.Pages;
 
 public partial class Categories
 {
     List<Category> categories = [];
+    string filter = string.Empty;
     HashSet<Data> Forest { get; set; } = [];
     HashSet<Parent> Parents { get; set; } = [];
-    string filter = string.Empty;
-    
+
     protected override async Task OnInitializedAsync()
     {
-        categories = await Context.Categories.ToListAsync();
+        categories = await Repository.GetAllAsync();
         UpdateForest();
     }
-    
+
     void UpdateForest()
     {
         var currentFilter = Selector(filter);
@@ -29,22 +28,24 @@ public partial class Categories
             .Where(currentFilter)
             .OrderByDescending(c => c.Name)
             .ToHashSet();
-        
+
         Parents = categories
             .Select(category => new Parent(category.Id!.Value, category.Name))
             .Append(new(default, "Macro"))
             .ToHashSet();
-        
+
         StateHasChanged();
         return;
 
-        static Func<Data, bool> Selector(string filter) =>
-            data => string.IsNullOrEmpty(filter)
-                    || data.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-                    || data.Description.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-                    || data.HasChild;
+        static Func<Data, bool> Selector(string filter)
+        {
+            return data => string.IsNullOrEmpty(filter)
+                           || data.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+                           || data.Description.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+                           || data.HasChild;
+        }
     }
-    
+
     void FilterChanged(string value)
     {
         filter = value;
@@ -55,12 +56,22 @@ public partial class Categories
     {
         var dialog = await DialogService.ShowAsync<CategoryDialog>("Add Macro Category");
         var result = await dialog.Result;
+        
+        var model = (CategoryDialog.Model)result.Data;
+
+        if (categories.Select(category => category.Name).Contains(model.Name))
+        {
+            Snackbar.Add("Category already exists", Severity.Error);
+            return;
+        }
 
         if (!result.Canceled)
             try
             {
-                await AddCategory();
-                Snackbar.Add("Category Added!", Severity.Success);
+                var category = await Repository.AddAsync(model.Name, model.Description, parentId);
+                await Repository.UnitOfWork.SaveChangesAsync();
+                
+                if(parentId is null) categories.Add(category);
             }
             catch (Exception e)
             {
@@ -68,41 +79,25 @@ public partial class Categories
                 Snackbar.Add("Error while saving category", Severity.Error);
             }
 
-        async Task AddCategory()
-        {
-            var model = (CategoryDialog.Model)result.Data;
-            var category = new Category(model.Name, model.Description, parentId);
-
-            await Context.Categories.AddAsync(category);
-            await Context.SaveChangesAsync();
-
-            UpdateForest();
-        }
+        UpdateForest();
+        Snackbar.Add("Category Added!", Severity.Success);
     }
 
     async Task UpdateCategoryAsync(Data data)
     {
         try
         {
-            var current = await Context.Categories.FindAsync(data.Id);
-            
-            if(current is null)
-            {
-                Snackbar.Add("Error while updating category", Severity.Error);
-                return;
-            }
-            
-            current.Update(data.Name, data.Description, data.ParentId);
-            await Context.SaveChangesAsync();
-
-            UpdateForest();
-            Snackbar.Add("Category Updated!", Severity.Success);
+            await Repository.UpdateAsync(data.Id!.Value, data.Name, data.Description, data.ParentId);
+            await Repository.UnitOfWork.SaveChangesAsync();
         }
         catch (Exception e)
         {
             Logger.LogError(e, "Error while updating category");
             Snackbar.Add("Error while updating category", Severity.Error);
         }
+
+        UpdateForest();
+        Snackbar.Add("Category Updated!", Severity.Success);
     }
 
     async Task DeleteCategoryAsync(Data data)
@@ -112,29 +107,26 @@ public partial class Categories
             Snackbar.Add("Category has subcategories", Severity.Error);
             return;
         }
-        
+
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Delete Category");
-        
+
         var result = await dialog.Result;
-        if (result.Canceled) return;
 
-        try
-        {
-            await DeleteAsync();
-            Snackbar.Add("Category Deleted!", Severity.Success);
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while deleting category");
-            Snackbar.Add("Error while deleting category", Severity.Error);
-        }
+        if (!result.Canceled)
+            try
+            {
+                await Repository.DeleteAsync(data.Id!.Value);
+                await Repository.UnitOfWork.SaveChangesAsync();
+                
+                if(data.ParentId is null) categories.RemoveAll(c => c.Id == data.Id);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Error while deleting category");
+                Snackbar.Add("Error while deleting category", Severity.Error);
+            }
 
-        async Task DeleteAsync()
-        {
-            Context.Categories.Remove(data.Category);
-            await Context.SaveChangesAsync();
-
-            UpdateForest();
-        }
+        UpdateForest();
+        Snackbar.Add("Category Deleted!", Severity.Success);
     }
 }

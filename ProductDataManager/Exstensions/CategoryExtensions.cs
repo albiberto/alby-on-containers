@@ -1,5 +1,5 @@
 ﻿using ProductDataManager.Components.Pages;
-using ProductDataManager.Infrastructure.Domain;
+using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 
 namespace ProductDataManager.Exstensions;
 
