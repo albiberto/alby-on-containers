@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using ProductDataManager.Components.Shared;
+using ProductDataManager.Components.Shared.Dialogs;
 
-namespace ProductDataManager.Components.Validators;
+namespace ProductDataManager.Validators;
 
 public class CategoryValidator: AbstractValidator<CategoryDialog.Model>
 {

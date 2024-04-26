@@ -19,6 +19,10 @@
     --bs-nav-link-hover-color: var(--mud-palette-primary-darken) !important;
 }
 
+.strikethrough {
+    text-decoration: line-through;
+}
+
 .mud-dialog-container{
     left: 0 !important;
 }

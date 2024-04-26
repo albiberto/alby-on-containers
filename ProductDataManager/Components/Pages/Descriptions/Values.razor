@@ -1,0 +1,14 @@
+﻿@using ProductDataManager.Components.Pages.Descriptions.Model;
+
+<div class="d-flex flex-row-reverse mb-6">
+    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddDescriptionValueAsync()">Add</MudButton>
+</div>
+
+<MudDataGrid T="Value" Items="@Items" SortMode="SortMode.Multiple" Filterable="true" FilterMode="DataGridFilterMode.Simple">
+    <Columns>
+        <PropertyColumn Property="value => value.Name" Title="Name" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="Value" />
+    </PagerContent>
+</MudDataGrid>

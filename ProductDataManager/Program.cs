@@ -2,12 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProductDataManager.Components;
 using MudBlazor.Services;
-using ProductDataManager.Components.Validators;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 using ProductDataManager.Infrastructure;
 using ProductDataManager.Infrastructure.Interceptors;
 using ProductDataManager.Infrastructure.Repositories;
+using ProductDataManager.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +16,6 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<CategoryValidator>();
-builder.Services.AddScoped<DescriptionValidator>();
 builder.Services.AddSingleton<IInterceptor, AuditableInterceptor>();
 
 builder.Services.AddDbContext<ProductContext>(options =>

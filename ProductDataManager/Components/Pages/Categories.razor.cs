@@ -1,5 +1,6 @@
 ﻿using MudBlazor;
 using ProductDataManager.Components.Shared;
+using ProductDataManager.Components.Shared.Dialogs;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Exstensions;
 
@@ -107,6 +108,12 @@ public partial class Categories
             Snackbar.Add("Category has subcategories", Severity.Error);
             return;
         }
+        
+        // if (data.Items.Count > 0)
+        // {
+        //     Snackbar.Add("Description has related products", Severity.Error);
+        //     return;
+        // }
 
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Delete Category");
 
@@ -119,14 +126,14 @@ public partial class Categories
                 await Repository.UnitOfWork.SaveChangesAsync();
                 
                 if(data.ParentId is null) categories.RemoveAll(c => c.Id == data.Id);
+                UpdateForest();
+                
+                Snackbar.Add("Category Deleted!", Severity.Success);
             }
             catch (Exception e)
             {
                 Logger.LogError(e, "Error while deleting category");
                 Snackbar.Add("Error while deleting category", Severity.Error);
             }
-
-        UpdateForest();
-        Snackbar.Add("Category Deleted!", Severity.Success);
     }
 }

@@ -30,40 +30,28 @@
 
                     @if (context.NameIsDirty)
                     {
-                        <MudTextField @bind-Value="@context.Name" Label="Category Name" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.Warning" AdornmentColor="Color.Warning"/>
+                        <MudTextField Class="pr-4" @bind-Value="@context.Name" Label="Category Name" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.Clear" AdornmentColor="Color.Dark" OnAdornmentClick="@context.CleanName"/>
                     }
                     else
                     {
-                        <MudTextField @bind-Value="@context.Name" Label="Category Name" Variant="Variant.Text"/>
+                        <MudTextField Class="pr-4" @bind-Value="@context.Name" Label="Category Name" Variant="Variant.Text"/>
                     }
 
                     @if (context.DescriptionIsDirty)
                     {
-                        <MudTextField @bind-Value="@context.Description" Label="Description" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.Warning" AdornmentColor="Color.Warning"/>
+                        <MudTextField Class="pr-4" @bind-Value="@context.Description" Label="Description" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.Clear" AdornmentColor="Color.Dark" OnAdornmentClick="@context.CleanDescription"/>
                     }
                     else
                     {
-                        <MudTextField @bind-Value="@context.Description" Label="Description" Variant="Variant.Text"/>
+                        <MudTextField Class="pr-4" @bind-Value="@context.Description" Label="Description" Variant="Variant.Text"/>
                     }
 
-                    @if (context.ParentIdIsDirty)
-                    {
-                        <MudSelect Placeholder="Change parent ..." @bind-Value="@context.ParentId" Disabled="@(Parents.Count(parent => !context.LeafIds.Contains(parent.Id)) < 1)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.Warning" AdornmentColor="Color.Warning">
-                            @foreach (var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
-                            {
-                                <MudSelectItem Value="@parent.Id">@parent.Name</MudSelectItem>
-                            }
-                        </MudSelect>
-                    }
-                    else
-                    {
-                        <MudSelect Placeholder="Change parent ..." @bind-Value="@context.ParentId" AdornmentColor="Color.Primary" Disabled="@(Parents.Count(parent => !context.LeafIds.Contains(parent.Id)) < 1)">
-                            @foreach (var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
-                            {
-                                <MudSelectItem Value="@parent.Id">@parent.Name</MudSelectItem>
-                            }
-                        </MudSelect>
-                    }
+                    <MudSelect Class="pr-4" Clearable="true" OnClearButtonClick="context.CleanParentId" Placeholder="Change parent ..." @bind-Value="@context.ParentId" Disabled="@(Parents.Count(parent => !context.LeafIds.Contains(parent.Id)) < 1)">
+                        @foreach (var parent in Parents.Where(parent => !context.LeafIds.Contains(parent.Id)).ToHashSet())
+                        {
+                            <MudSelectItem Value="@parent.Id">@parent.Name</MudSelectItem>
+                        }
+                    </MudSelect>
 
                     <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Add" OnClick="@(() => AddCategoryAsync(context.Id))">Add</MudButton>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mr-2" StartIcon="@Icons.Material.Outlined.Save" OnClick="@(() => UpdateCategoryAsync(context))" Disabled="!context.IsDirty">Save</MudButton>

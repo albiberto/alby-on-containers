@@ -25,5 +25,22 @@ public class ProductContext(DbContextOptions<ProductContext> options, IEnumerabl
             .Entity<Category>()
             .HasIndex(c => c.Name)
             .IsUnique();
+        
+        modelBuilder
+            .Entity<DescriptionType>()
+            .HasIndex(c => c.Name)
+            .IsUnique();
+
+        modelBuilder
+            .Entity<DescriptionType>()
+            .Property(type => type.Name)
+            .HasMaxLength(30);
+        
+        modelBuilder
+            .Entity<DescriptionType>()
+            .Property(type => type.Description)
+            .HasMaxLength(100);
+
+
     }
 }

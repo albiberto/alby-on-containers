@@ -1,0 +1,18 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h5">Are you sure you want to leave this page?</MudText>
+        <MudText Typo="Typo.body1">There are pending changes that will be lost.</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="CloseDialog">Stay</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Dark" OnClick="LeavePage">Leave</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public required MudDialogInstance MudDialog { get; set; }
+
+    void CloseDialog() => MudDialog.Cancel();
+
+    void LeavePage() => MudDialog.Close(DialogResult.Ok(true));
+}

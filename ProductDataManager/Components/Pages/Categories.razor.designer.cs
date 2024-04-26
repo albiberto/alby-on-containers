@@ -26,10 +26,14 @@ public partial class Categories
         
         public string ParentName { get; set; } = category.Parent?.Name ?? string.Empty;
         
-        public bool NameIsDirty => !string.Equals(Category.Name, Name, StringComparison.InvariantCultureIgnoreCase);
-        public bool DescriptionIsDirty => !string.Equals(Category.Description, Description, StringComparison.InvariantCultureIgnoreCase);
+        public bool NameIsDirty => !string.Equals(Category.Name, Name, StringComparison.InvariantCulture);
+        public bool DescriptionIsDirty => !string.Equals(Category.Description, Description, StringComparison.InvariantCulture);
         public bool ParentIdIsDirty => Category.ParentId != ParentId;
         public bool IsDirty => NameIsDirty || DescriptionIsDirty || ParentIdIsDirty;
+        
+        public void CleanName() => Name = Category.Name ?? string.Empty;
+        public void CleanDescription() => Description = Category.Description ?? string.Empty;
+        public void CleanParentId() => ParentId = Category.ParentId;
 
         public HashSet<Data> Items { get; } = [];
         

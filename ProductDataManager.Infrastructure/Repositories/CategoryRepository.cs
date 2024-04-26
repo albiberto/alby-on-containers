@@ -35,6 +35,6 @@ public class CategoryRepository(ProductContext context) : ICategoryRepository
         
         if (current is null) throw new ArgumentException("Category not found!");
         
-        context.Remove(current);
+        context.Categories.Remove(current);
     }
 }
