@@ -24,7 +24,7 @@ public partial class Values : IDisposable
     
     [Parameter] public required Guid TypeId { get; set; }
     [Parameter] public required IEnumerable<ValueModel> ValuesModel { get; set; }
-    [Parameter] public required EventCallback<IEnumerable<ValueModel>> ValuesModelChanged { get; set; }
+    [Parameter] public required EventCallback<HashSet<ValueModel>> ValuesModelChanged { get; set; }
 
     public void Dispose()
     {

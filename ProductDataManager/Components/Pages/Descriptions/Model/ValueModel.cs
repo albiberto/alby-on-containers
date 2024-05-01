@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using MudBlazor;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 using ProductDataManager.Enums;
 using ProductDataManager.Validators;
@@ -15,6 +16,8 @@ public class ValueModel(string value, string description, Guid id, Status status
     public ValueModel(DescriptionValue value, Status state = Status.Unchanged) : this(value.Value, value.Description, value.Id!.Value, state)
     {
     }
+
+    MudDataGrid<ValueModel>? grid;
     
     public Guid Id { get; } = id;
     public string Value { get; set; } = value;

@@ -12,31 +12,32 @@
              EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
              FilterMode="DataGridFilterMode.ColumnFilterRow" Filterable="true" FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
              SortMode="SortMode.Single" RowsPerPage="10" 
-             Bordered="true" Elevation="0">
+             Bordered="true" Elevation="1">
     <ToolBarContent>
-            <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddTypeAsync()">Add</MudButton>
             <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Save" OnClick="() => SaveDescriptionTypeAsync()" Disabled="!Repository.HasChanges || types.Any(type => !type.IsValid)">Save</MudButton>
             <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.ClearAll" OnClick="() => ClearAll()" Disabled="!Repository.HasChanges">Clear All</MudButton>
     </ToolBarContent>
     <Columns>
         <HierarchyColumn T="TypeModel"/>
-        <TemplateColumn IsEditable="false" Sortable="false" Filterable="true">
+        <TemplateColumn IsEditable="false" Sortable="false" Filterable="true" CellStyle="width: 100px;">
             <FilterTemplate>
                 <StateFilter Context="context" />
             </FilterTemplate>
             <CellTemplate>
-                <MudTooltip Text="@context.Item.Status.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
-                    @if (context.Item.IsValid)
-                    {
-                        <MudIcon Icon="@context.Item.Status.GetOutlinedIcon()"/>
-                    }
-                    else
-                    {
+                <MudStack Row="true" Justify="Justify.Center">
+                    <MudTooltip Text="@context.Item.CumulativeStatus.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
+                        @if (context.Item.IsValid)
+                        {
+                            <MudIcon Icon="@context.Item.CumulativeStatus.GetOutlinedIcon()"/>
+                        }
+                        else
+                        {
                         <MudBadge Origin="@Origin.BottomRight" Color="Color.Warning" Overlap="true" Icon="@Icons.Material.Rounded.Warning">
-                            <MudIcon Icon="@context.Item.Status.GetOutlinedIcon()"/>
+                            <MudIcon Icon="@context.Item.CumulativeStatus.GetOutlinedIcon()"/>
                         </MudBadge>
-                    }
-                </MudTooltip>
+                        }
+                    </MudTooltip>
+                </MudStack>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="data => data.Name">
@@ -66,6 +67,9 @@
             </EditTemplate>
         </PropertyColumn>
         <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
+            <HeaderTemplate>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddTypeAsync()">Add</MudButton>
+            </HeaderTemplate>
             <CellTemplate>
                 @if ((context.Item.Status == Status.Modified && context.Item.IsDirty) || context.Item.Status == Status.Deleted)
                 {
@@ -79,7 +83,14 @@
         </TemplateColumn>
     </Columns>
     <ChildRowContent>
-        <Values TypeId="context.Item.Id" @bind-ValuesModel="context.Item.Values"/>
+        <MudTabs Elevation="1" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabPanel Text="Values">
+                <Values TypeId="context.Item.Id" @bind-ValuesModel="context.Item.Values"/>
+            </MudTabPanel>
+            <MudTabPanel Text="Categories">
+                <MudText>Categories</MudText>
+            </MudTabPanel>
+        </MudTabs>
     </ChildRowContent>
     <PagerContent>
         <MudDataGridPager T="TypeModel" />

@@ -5,18 +5,11 @@
 
 <MudDataGrid T="ValueModel" Items="@values" ReadOnly="@false"
              EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
-             FilterMode="DataGridFilterMode.ColumnFilterRow" Filterable="true" FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+             Filterable="false"
              SortMode="SortMode.Single" RowsPerPage="10" 
-             Bordered="true" Elevation="0">
-    <ToolBarContent>
-            <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddValueAsync()">Add</MudButton>
-    </ToolBarContent>
+             Bordered="true" Elevation="0" Dense="true">
     <Columns>
-        <HierarchyColumn T="ValueModel"/>
-        <TemplateColumn IsEditable="false" Sortable="false" Filterable="true">
-            <FilterTemplate>
-                <StateFilter Context="context" />
-            </FilterTemplate>
+        <TemplateColumn IsEditable="false" Sortable="false">
             <CellTemplate>
                 <MudTooltip Text="@context.Item.Status.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
                     @if (context.Item.IsValid)
@@ -59,6 +52,9 @@
             </EditTemplate>
         </PropertyColumn>
         <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
+            <HeaderTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Medium" Color="Color.Secondary" OnClick="AddValueAsync"/>
+            </HeaderTemplate>
             <CellTemplate>
                 @if ((context.Item.Status == Status.Modified && context.Item.IsDirty) || context.Item.Status == Status.Deleted)
                 {
@@ -71,10 +67,4 @@
             </CellTemplate>
         </TemplateColumn>
     </Columns>
-    <ChildRowContent>
-        <Values Items="context.Item.Values" TypeId="context.Item.Id"/>
-    </ChildRowContent>
-    <PagerContent>
-        <MudDataGridPager T="ValueModel" />
-    </PagerContent>
 </MudDataGrid>

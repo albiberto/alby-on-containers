@@ -85,11 +85,13 @@ public partial class Types : ComponentBase
         {
             await Repository.UnitOfWork.SaveChangesAsync();
             
-            foreach (var type in types.ToList()) 
-                if(type.Status == Status.Deleted) 
-                    types.Remove(type);
+            foreach (var type in types.ToList())
+                if (type.Status == Status.Deleted) types.Remove(type);
                 else
+                {
+                    type.Values = type.Values.Where(value => value.Status != Status.Deleted).ToHashSet();
                     type.Reload();
+                }
             
             Snackbar.Add("Changes Saved!", Severity.Success);
         }
@@ -121,11 +123,18 @@ public partial class Types : ComponentBase
         {
             Repository.Clear();
             
-            foreach (var description in types.ToList())
-                if(description.Status == Status.Added)
-                    types.Remove(description);
+            foreach (var type in types.ToList())
+                if(type.Status == Status.Added)
+                    types.Remove(type);
                 else
-                    description.Clear();
+                {
+                    type.Clear();
+                    foreach (var value in type.Values)
+                    {
+                        if (value.Status == Status.Added) type.Values.Remove(value);
+                        else value.Clear();
+                    }                    
+                }
         }
         catch (Exception e)
         {

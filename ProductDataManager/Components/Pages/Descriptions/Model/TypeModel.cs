@@ -23,7 +23,10 @@ public class TypeModel(string name, string description, Guid id, IEnumerable<Val
     
     public HashSet<ValueModel> Values { get; set; } = (values ?? []).ToHashSet();
 
-    public bool IsDirty => !string.Equals(originalName, Name, StringComparison.InvariantCulture) || !string.Equals(originalDescription, Description, StringComparison.InvariantCulture);
+    public bool IsDirty => 
+        !string.Equals(originalName, Name, StringComparison.InvariantCulture) || 
+        !string.Equals(originalDescription, Description, StringComparison.InvariantCulture) ||
+        Values.Any(value => value.IsDirty);
     
     public void Clear()
     {
@@ -48,5 +51,13 @@ public class TypeModel(string name, string description, Guid id, IEnumerable<Val
     bool IsValidDescription => StringValidators.Description().Validate(Name).IsValid;
     
     public bool IsValid => IsValidName && IsValidDescription && Values.All(value => value.IsValid);
-    public Status Status { get; set; }
+    public Status Status { get; set; } = status;
+
+    public Status CumulativeStatus
+    {
+        get
+        {
+            return Values.Any(value => value.Status != Status.Unchanged) ? Status.Modified : Status;   
+        }
+    }
 }

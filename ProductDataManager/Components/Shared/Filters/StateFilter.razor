@@ -3,25 +3,23 @@
 
 @typeparam T where T : IModelBase
 
-<MudStack Row="true" Justify="Justify.FlexEnd">
-    <MudIconButton OnClick="@OpenFilter" Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" />
-    <MudIconButton OnClick="@ClearFilterAsync" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" />
-    
-    <MudOverlay Visible="@open" OnClick="@CloseFilter" />
-    
-    <MudPopover Open="@open" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Class="pr-4">
-        <MudStack Spacing="0">
-            <MudCheckBox T="bool" Label="Select All" Size="@Size.Small" Value="@all" ValueChanged="@SelectAll" />
-            <MudStack Spacing="0" Style="overflow-y:auto;max-height:250px">
-                @foreach (var item in _states)
-                {
-                    <MudCheckBox T="bool" CheckedIcon="@item.GetFilledIcon()" UncheckedIcon="@item.GetOutlinedIcon()" Label="@($"{item.GetTooltip()}")" Size="@Size.Small" Value="@(selectedItems.Contains(item))" ValueChanged="@(value => SelectedChanged(value, item))" />
-                }
-            </MudStack>
-            
-            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="4">
-                <MudButton Color="@Color.Primary" OnClick="@ApplyFilterAsync">Filter</MudButton>
-            </MudStack>
+<MudIconButton OnClick="@OpenFilter" Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" />
+<MudIconButton OnClick="@ClearFilterAsync" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" />
+
+<MudOverlay Visible="@open" OnClick="@CloseFilter" />
+
+<MudPopover Open="@open" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.BottomCenter" Class="pr-6">
+    <MudStack Spacing="0">
+        <MudCheckBox T="bool" Label="Select All" Size="@Size.Small" Value="@all" ValueChanged="@SelectAll" />
+        <MudStack Spacing="0" Style="overflow-y:auto;max-height:250px">
+            @foreach (var item in _states)
+            {
+                <MudCheckBox T="bool" CheckedIcon="@item.GetFilledIcon()" UncheckedIcon="@item.GetOutlinedIcon()" Label="@($"{item.GetTooltip()}")" Size="@Size.Small" Value="@(selectedItems.Contains(item))" ValueChanged="@(value => SelectedChanged(value, item))" Class="pl-2"/>
+            }
         </MudStack>
-    </MudPopover>
-</MudStack>
+        
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="4">
+            <MudButton Color="@Color.Primary" OnClick="@ApplyFilterAsync">Filter</MudButton>
+        </MudStack>
+    </MudStack>
+</MudPopover>

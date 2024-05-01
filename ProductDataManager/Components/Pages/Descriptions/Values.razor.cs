@@ -13,6 +13,7 @@ public partial class Values : ComponentBase
 
     protected override void OnParametersSet()
     {
+        values.Clear();
         foreach (var value in ValuesModel) values.Add(value);
     }
 
@@ -31,13 +32,15 @@ public partial class Values : ComponentBase
             Snackbar.Add("Error while adding description", Severity.Error);
         }
     }
-
+    
     async Task UpdateValueAsync(ValueModel value)
     {
         try
         {
             await Repository.UpdateValueAsync(value.Id, value.Value, value.Description);
             value.Status = value.Status == Status.Added ? Status.Added : Status.Modified;
+            
+            await ValuesModelChanged.InvokeAsync(values.ToHashSet());
             
             if(value.Status != Status.Added) Snackbar.Add("Value tracked for update", Severity.Info);
         }
@@ -52,13 +55,20 @@ public partial class Values : ComponentBase
     {
         try
         {
-            if(value.Status == Status.Added) values.Remove(value);
-            else
+            if (value.Status != Status.Added)
             {
                 await Repository.DeleteValueAsync(value.Id);
                 value.Status = Status.Deleted;
                 
+                await ValuesModelChanged.InvokeAsync(values.ToHashSet());
+                
                 Snackbar.Add("Value tracked for deletion", Severity.Info);
+            }
+            else
+            {
+                await Repository.DeleteValueAsync(value.Id);
+                values.Remove(value);
+                await ValuesModelChanged.InvokeAsync(values.ToHashSet());
             }
         }
         catch (Exception e)
@@ -72,7 +82,7 @@ public partial class Values : ComponentBase
     {
         try
         {
-            await Repository.Clear<DescriptionType>(value.Id);
+            await Repository.Clear<DescriptionValue>(value.Id);
             
             value.Clear();
         }
@@ -83,22 +93,21 @@ public partial class Values : ComponentBase
         }
     }
 
-    void ClearAll()
+    void SaveDescriptionTypeAsync()
     {
         try
         {
-            Repository.Clear();
-            
-            foreach (var description in values.ToList())
-                if(description.Status == Status.Added)
-                    values.Remove(description);
-                else
-                    description.Clear();
+            foreach (var value in values.ToList())
+                if (value.Status == Status.Deleted)
+                {
+                    values.Remove(value);
+                } 
+                else value.Reload();
         }
         catch (Exception e)
         {
-            Logger.LogError(e, "Error while clearing all descriptions");
-            Snackbar.Add("Error while clearing all descriptions", Severity.Error);
+            Logger.LogError(e, "Error while deleting category");
+            Snackbar.Add("Error while deleting category", Severity.Error);
         }
     }
 }
