@@ -2,44 +2,103 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ProductDataManager.Components.Pages.Descriptions.Model;
-using ProductDataManager.Components.Shared;
-using ProductDataManager.Components.Shared.Dialogs;
+using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
+using ProductDataManager.Enums;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
 public partial class Values : ComponentBase
 {
-    [Parameter] public required HashSet<Value> Items { get; set; } = [];
-    [Parameter] public required Guid TypeId { get; set; } 
-
-    readonly ObservableCollection<Value> values = [];
+    readonly ObservableCollection<ValueModel> values = [];
 
     protected override void OnParametersSet()
     {
-        foreach(var value in Items) values.Add(value);
+        foreach (var value in ValuesModel) values.Add(value);
     }
 
-    async Task AddDescriptionValueAsync()
+    async Task AddValueAsync()
     {
-        var dialog = await DialogService.ShowAsync<NavigationDialog>("Add Value");
-        var result = await dialog.Result;
-        
-        // var model = (NavigationDialog.Model)result.Data;
-        //
-        // if (!result.Canceled)
-        //     try
-        //     {
-        //         var description = await Repository.AddValueAsync(model.Name, model.Description, TypeId);
-        //         await Repository.UnitOfWork.SaveChangesAsync();
-        //
-        //         Snackbar.Add("Description Added!", Severity.Success);
-        //
-        //         values.Add(new(description.Id!.Value, description.Name, description.Description));
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         Logger.LogError(e, "Error while saving description");
-        //         Snackbar.Add("Error while saving description", Severity.Error);
-        //     }
+        try
+        {
+            var entity = await Repository.AddValueAsync(TypeId);
+            values.Add(new(entity.Value, entity.Description, entity.Id!.Value, status: Status.Added));
+            
+            Snackbar.Add("Value tracked for insertion", Severity.Info);
+        }
+        catch(Exception e)
+        {
+            Logger.LogError(e, "Error while adding description");
+            Snackbar.Add("Error while adding description", Severity.Error);
+        }
+    }
+
+    async Task UpdateValueAsync(ValueModel value)
+    {
+        try
+        {
+            await Repository.UpdateValueAsync(value.Id, value.Value, value.Description);
+            value.Status = value.Status == Status.Added ? Status.Added : Status.Modified;
+            
+            if(value.Status != Status.Added) Snackbar.Add("Value tracked for update", Severity.Info);
+        }
+        catch(Exception e)
+        {
+            Logger.LogError(e, "Error while updating description");
+            Snackbar.Add("Error while updating description", Severity.Error);
+        }
+    }
+
+    async Task DeleteValueAsync(ValueModel value)
+    {
+        try
+        {
+            if(value.Status == Status.Added) values.Remove(value);
+            else
+            {
+                await Repository.DeleteValueAsync(value.Id);
+                value.Status = Status.Deleted;
+                
+                Snackbar.Add("Value tracked for deletion", Severity.Info);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error while deleting description");
+            Snackbar.Add("Error while deleting description", Severity.Error);
+        }
+    }
+
+    async Task Clear(ValueModel value)
+    {
+        try
+        {
+            await Repository.Clear<DescriptionType>(value.Id);
+            
+            value.Clear();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error while clearing description");
+            Snackbar.Add("Error while clearing description", Severity.Error);
+        }
+    }
+
+    void ClearAll()
+    {
+        try
+        {
+            Repository.Clear();
+            
+            foreach (var description in values.ToList())
+                if(description.Status == Status.Added)
+                    values.Remove(description);
+                else
+                    description.Clear();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error while clearing all descriptions");
+            Snackbar.Add("Error while clearing all descriptions", Severity.Error);
+        }
     }
 }

@@ -9,9 +9,11 @@ public interface IDescriptionRepository : IRepository<DescriptionType>
     Task<DescriptionType> AddAsync(string? name = default, string? description = default);
     Task UpdateAsync(Guid id, string name, string description);
     Task DeleteAsync(Guid id);
-    Task<DescriptionValue> AddValueAsync(string name, string description, Guid descriptionTypeId);
-    Task Clear(Guid id);
+    Task Clear<T>(Guid id) where T : Entity;
     void Clear();
-    bool HasChanges { get; }
-    Task<EntityState> GetStateAsync(Guid id);
+    public bool HasChanges { get; }
+    Task<EntityState> GetStateAsync<T>(Guid id) where T : Entity;
+    Task<DescriptionValue> AddValueAsync(Guid typeId, string? value = default, string? description = default);
+    Task UpdateValueAsync(Guid id, string name, string description);
+    Task DeleteValueAsync(Guid id);
 }

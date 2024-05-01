@@ -2,21 +2,22 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
+using ProductDataManager.Components.Pages.Descriptions.Model;
+using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 using ProductDataManager.Enums;
-using Type = ProductDataManager.Components.Pages.Descriptions.Model.Type;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
 public partial class Types : ComponentBase
 {
-    readonly ObservableCollection<Type> types = [];
+    readonly ObservableCollection<TypeModel> types = [];
 
     protected override async Task OnInitializedAsync()
     {
         var types = await Repository.GetAllAsync();
         foreach (var type in types)
         {
-            var state = type.Id.HasValue ? (await Repository.GetStateAsync(type.Id.Value)).Map() : Status.Added;
+            var state = type.Id.HasValue ? (await Repository.GetStateAsync<DescriptionType>(type.Id.Value)).Map() : Status.Added;
             this.types.Add(new(type, state));
         }
     }
@@ -33,7 +34,7 @@ public partial class Types : ComponentBase
             var entity = await Repository.AddAsync();
             types.Add(new(entity.Name, entity.Description, entity.Id!.Value, status: Status.Added));
             
-            Snackbar.Add("Entity tracked for insertion", Severity.Info);
+            Snackbar.Add("Type tracked for insertion", Severity.Info);
         }
         catch(Exception e)
         {
@@ -42,14 +43,14 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task UpdateTypeAsync(Type type)
+    async Task UpdateTypeAsync(TypeModel typeModel)
     {
         try
         {
-            await Repository.UpdateAsync(type.Id, type.Name, type.Description);
-            type.Status = type.Status == Status.Added ? Status.Added : Status.Modified;
+            await Repository.UpdateAsync(typeModel.Id, typeModel.Name, typeModel.Description);
+            typeModel.Status = typeModel.Status == Status.Added ? Status.Added : Status.Modified;
             
-            if(type.Status != Status.Added) Snackbar.Add("Entity tracked for update", Severity.Info);
+            if(typeModel.Status != Status.Added) Snackbar.Add("Type tracked for update", Severity.Info);
         }
         catch(Exception e)
         {
@@ -58,17 +59,17 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task DeleteTypeAsync(Type type)
+    async Task DeleteTypeAsync(TypeModel typeModel)
     {
         try
         {
-            if(type.Status == Status.Added) types.Remove(type);
+            if(typeModel.Status == Status.Added) types.Remove(typeModel);
             else
             {
-                await Repository.DeleteAsync(type.Id);
-                type.Status = Status.Deleted;
+                await Repository.DeleteAsync(typeModel.Id);
+                typeModel.Status = Status.Deleted;
                 
-                Snackbar.Add("Entity tracked for deletion", Severity.Info);
+                Snackbar.Add("Type tracked for deletion", Severity.Info);
             }
         }
         catch (Exception e)
@@ -99,11 +100,11 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task Clear(Type data)
+    async Task Clear(TypeModel data)
     {
         try
         {
-            await Repository.Clear(data.Id);
+            await Repository.Clear<DescriptionType>(data.Id);
             
             data.Clear();
         }

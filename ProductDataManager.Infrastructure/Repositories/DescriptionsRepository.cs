@@ -26,7 +26,7 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
     {
         var current = await context.DescriptionTypes.FindAsync(id);
 
-        if (current is null) throw new ArgumentException("DescriptionType not found!");
+        if (current is null) throw new ArgumentException("Type not found!");
             
         current.Update(name, description);
     }
@@ -35,7 +35,7 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
     {
         var current = await context.DescriptionTypes.FindAsync(id);
         
-        if (current is null) throw new ArgumentException("DescriptionType not found!");
+        if (current is null) throw new ArgumentException("Type not found!");
         
         context.DescriptionTypes.Remove(current);
     }
@@ -48,9 +48,9 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
         return value;
     }
     
-    public async Task Clear(Guid id)
+    public async Task Clear<T>(Guid id) where T : Entity
     {
-        var entry = await GetEntityAsync(id);
+        var entry = await GetEntityAsync<T>(id);
 
         if (entry.State == EntityState.Deleted)
             entry.State = EntityState.Unchanged;
@@ -61,20 +61,46 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
     public void Clear() => context.ChangeTracker.Clear();
     
     public bool HasChanges => context.ChangeTracker.Entries().Any(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
-    public async Task<EntityState> GetStateAsync(Guid id)
+    
+    public async Task<EntityState> GetStateAsync<T>(Guid id) where T : Entity
     {
-        var entity = await GetEntityAsync(id);
+        var entity = await GetEntityAsync<T>(id);
 
         return entity.State;
     }
     
-    
-    async Task<EntityEntry<DescriptionType>> GetEntityAsync(Guid id)
+    async Task<EntityEntry<T>> GetEntityAsync<T>(Guid id) where T : Entity
     {
-        var current = await context.DescriptionTypes.FindAsync(id);
+        var current = await context.FindAsync<T>(id);
 
-        if(current is null) throw new ArgumentException("DescriptionType not found!"); 
+        if(current is null) throw new ArgumentException("Entity not found!"); 
         
-        return context.DescriptionTypes.Entry(current);
+        return context.Entry(current);
+    }
+    
+    public async Task<DescriptionValue> AddValueAsync(Guid typeId, string? value = default, string? description = default)
+    {
+        var descriptionType = new DescriptionValue(value ?? string.Empty, description ?? string.Empty, typeId);
+        var entity = await context.DescriptionValues.AddAsync(descriptionType);
+
+        return entity.Entity;
+    }
+    
+    public async Task UpdateValueAsync(Guid id, string name, string description)
+    {
+        var current = await context.DescriptionValues.FindAsync(id);
+
+        if (current is null) throw new ArgumentException("Value not found!");
+            
+        current.Update(name, description);
+    }
+
+    public async Task DeleteValueAsync(Guid id)
+    {
+        var current = await context.DescriptionValues.FindAsync(id);
+        
+        if (current is null) throw new ArgumentException("Value not found!");
+        
+        context.DescriptionValues.Remove(current);
     }
 }

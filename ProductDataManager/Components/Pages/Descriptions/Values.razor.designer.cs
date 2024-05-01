@@ -1,42 +1,33 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Text.Json.Serialization;
+using FluentValidation;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 using MudBlazor;
+using ProductDataManager.Components.Pages.Descriptions.Model;
+using ProductDataManager.Components.Shared;
+using ProductDataManager.Components.Shared.Dialogs;
+using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
+using ProductDataManager.Enums;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
 #nullable enable
 
-public partial class Values
+public partial class Values : IDisposable
 {
     [Inject] public required IDescriptionRepository Repository { get; set; }
     [Inject] public required IDialogService DialogService { get; set; }
     [Inject] public required ISnackbar Snackbar { get; set; }
-    [Inject] public required ILogger<Values> Logger { get; set; }   
+    [Inject] public required ILogger<Types> Logger { get; set; }
+    [Inject] public required NavigationManager Navigation { get; set; }
     
-    public class Data
-    {
-        public Data(Guid id, string name, string description)
-        {
-            Id = id;
-            Name = name;
-            Description = description;
-            
-            OrignalName = name;
-            OrignalDescription = description;
-        }
+    [Parameter] public required Guid TypeId { get; set; }
+    [Parameter] public required IEnumerable<ValueModel> ValuesModel { get; set; }
+    [Parameter] public required EventCallback<IEnumerable<ValueModel>> ValuesModelChanged { get; set; }
 
-        public Guid? Id { get; }
-        public string OrignalName { get; }
-        public string Name { get; set; }
-        public string OrignalDescription { get; }
-        public string Description { get; set; }
-        
-        public bool IsDirty => !string.Equals(OrignalName, Name, StringComparison.InvariantCulture) || !string.Equals(OrignalDescription, Description, StringComparison.InvariantCulture);
-        
-        public void Clear()
-        {
-            Name = OrignalName;
-            Description = OrignalDescription;
-        }
+    public void Dispose()
+    {
+        Snackbar.Dispose();
     }
 }

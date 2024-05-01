@@ -1,14 +1,14 @@
 ﻿@page "/descriptions"
 
+@using ProductDataManager.Components.Pages.Descriptions.Model
 @using ProductDataManager.Enums
-@using Type = ProductDataManager.Components.Pages.Descriptions.Model.Type;
 @using ProductDataManager.Components.Shared.Filters
 @using ProductDataManager.Validators
 
 <PageTitle>Descriptions</PageTitle>
 <MudText Typo="Typo.h3" GutterBottom="true">Descriptions</MudText>
 
-<MudDataGrid T="Type" Items="@types" ReadOnly="@false"
+<MudDataGrid T="TypeModel" Items="@types" ReadOnly="@false"
              EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
              FilterMode="DataGridFilterMode.ColumnFilterRow" Filterable="true" FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
              SortMode="SortMode.Single" RowsPerPage="10" 
@@ -19,7 +19,7 @@
             <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.ClearAll" OnClick="() => ClearAll()" Disabled="!Repository.HasChanges">Clear All</MudButton>
     </ToolBarContent>
     <Columns>
-        <HierarchyColumn T="Type"/>
+        <HierarchyColumn T="TypeModel"/>
         <TemplateColumn IsEditable="false" Sortable="false" Filterable="true">
             <FilterTemplate>
                 <StateFilter Context="context" />
@@ -78,10 +78,10 @@
             </CellTemplate>
         </TemplateColumn>
     </Columns>
-    @* <ChildRowContent> *@
-    @* <Values Items="context.Item.Values" TypeId="context.Item.Id"/> *@
-    @* </ChildRowContent> *@
+    <ChildRowContent>
+        <Values TypeId="context.Item.Id" @bind-ValuesModel="context.Item.Values"/>
+    </ChildRowContent>
     <PagerContent>
-        <MudDataGridPager T="Type" />
+        <MudDataGridPager T="TypeModel" />
     </PagerContent>
 </MudDataGrid>

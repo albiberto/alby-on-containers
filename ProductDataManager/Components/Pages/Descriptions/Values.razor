@@ -1,14 +1,80 @@
-﻿@using ProductDataManager.Components.Pages.Descriptions.Model;
+﻿@using ProductDataManager.Components.Pages.Descriptions.Model
+@using ProductDataManager.Enums
+@using ProductDataManager.Components.Shared.Filters
+@using ProductDataManager.Validators
 
-<div class="d-flex flex-row-reverse mb-6">
-    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddDescriptionValueAsync()">Add</MudButton>
-</div>
-
-<MudDataGrid T="Value" Items="@Items" SortMode="SortMode.Multiple" Filterable="true" FilterMode="DataGridFilterMode.Simple">
+<MudDataGrid T="ValueModel" Items="@values" ReadOnly="@false"
+             EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
+             FilterMode="DataGridFilterMode.ColumnFilterRow" Filterable="true" FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+             SortMode="SortMode.Single" RowsPerPage="10" 
+             Bordered="true" Elevation="0">
+    <ToolBarContent>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddValueAsync()">Add</MudButton>
+    </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="value => value.Name" Title="Name" />
+        <HierarchyColumn T="ValueModel"/>
+        <TemplateColumn IsEditable="false" Sortable="false" Filterable="true">
+            <FilterTemplate>
+                <StateFilter Context="context" />
+            </FilterTemplate>
+            <CellTemplate>
+                <MudTooltip Text="@context.Item.Status.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
+                    @if (context.Item.IsValid)
+                    {
+                        <MudIcon Icon="@context.Item.Status.GetOutlinedIcon()"/>
+                    }
+                    else
+                    {
+                        <MudBadge Origin="@Origin.BottomRight" Color="Color.Warning" Overlap="true" Icon="@Icons.Material.Rounded.Warning">
+                            <MudIcon Icon="@context.Item.Status.GetOutlinedIcon()"/>
+                        </MudBadge>
+                    }
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="data => data.Value">
+            <EditTemplate>
+                <MudTextField
+                    T="string"
+                    Value="@context.Item.Value"
+                    ValueChanged="@(async name => { context.Item.Value = name; await UpdateValueAsync(context.Item); })"
+                    Variant="Variant.Text"
+                    Class=@(context.Item.Status == Status.Deleted ? "strikethrough" : "")
+                    Validation="StringValidators.Value().Validation"
+                    Immediate="true"
+                    MaxLength="30"/>
+            </EditTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="data => data.Description">
+            <EditTemplate>
+                <MudTextField
+                    T="string"
+                    Value="@context.Item.Description"
+                    ValueChanged="@(async description => { context.Item.Description = description; await UpdateValueAsync(context.Item); })"
+                    Variant="Variant.Text"
+                    Class=@(context.Item.Status == Status.Deleted ? "strikethrough" : "")
+                    Validation="StringValidators.Description().Validation"
+                    Immediate="true"
+                    MaxLength="100"/>
+            </EditTemplate>
+        </PropertyColumn>
+        <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
+            <CellTemplate>
+                @if ((context.Item.Status == Status.Modified && context.Item.IsDirty) || context.Item.Status == Status.Deleted)
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => Clear(context.Item))"/>
+                }
+                @if (context.Item.Status != Status.Deleted)
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteValueAsync(context.Item))"/>
+                }
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
+    <ChildRowContent>
+        <Values Items="context.Item.Values" TypeId="context.Item.Id"/>
+    </ChildRowContent>
     <PagerContent>
-        <MudDataGridPager T="Value" />
+        <MudDataGridPager T="ValueModel" />
     </PagerContent>
 </MudDataGrid>

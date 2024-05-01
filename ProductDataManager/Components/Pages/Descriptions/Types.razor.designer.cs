@@ -8,7 +8,6 @@ using ProductDataManager.Components.Shared.Dialogs;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 using ProductDataManager.Enums;
-using Type = ProductDataManager.Components.Pages.Descriptions.Model.Type;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 

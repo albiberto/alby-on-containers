@@ -1,4 +1,7 @@
 ﻿@using ProductDataManager.Enums
+@using ProductDataManager.Components.Pages.Descriptions.Model;
+
+@typeparam T where T : IModelBase
 
 <MudStack Row="true" Justify="Justify.FlexEnd">
     <MudIconButton OnClick="@OpenFilter" Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" />
