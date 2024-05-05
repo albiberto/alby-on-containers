@@ -11,6 +11,7 @@ public class ProductContext(DbContextOptions<ProductContext> options, IEnumerabl
     public DbSet<Category> Categories { get; private set; } = null!;
     public DbSet<DescriptionType> DescriptionTypes { get; private set; } = null!;
     public DbSet<DescriptionValue> DescriptionValues { get; private set; } = null!;
+    public DbSet<DescriptionTypeCategory> DescriptionTypesCategories { get; private set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -40,7 +41,5 @@ public class ProductContext(DbContextOptions<ProductContext> options, IEnumerabl
             .Entity<DescriptionType>()
             .Property(type => type.Description)
             .HasMaxLength(100);
-
-
     }
 }

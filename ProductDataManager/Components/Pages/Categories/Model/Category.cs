@@ -1,20 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Options;
-using MudBlazor;
-using ProductDataManager.Domain.Aggregates.CategoryAggregate;
-using ProductDataManager.Infrastructure;
+﻿using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 
-namespace ProductDataManager.Components.Pages;
+namespace ProductDataManager.Components.Pages.Categories.Model;
 
-#nullable enable
-
-public partial class Categories
-{
-    [Inject] public required ICategoryRepository Repository { get; set; }
-    [Inject] public required IDialogService DialogService { get; set; }
-    [Inject] public required ISnackbar Snackbar { get; set; }
-    [Inject] public required ILogger<Categories> Logger { get; set; }
-    
     public class Data(Category category)
     {
         public Guid? Id { get; } = category.Id;
@@ -69,6 +56,3 @@ public partial class Categories
             }
         }
     }
-
-    public record Parent(Guid? Id, string Name);
-}

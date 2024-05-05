@@ -1,12 +1,13 @@
-﻿using MudBlazor;
-using ProductDataManager.Components.Shared;
+﻿using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using ProductDataManager.Components.Pages.Categories.Model;
 using ProductDataManager.Components.Shared.Dialogs;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Exstensions;
 
-namespace ProductDataManager.Components.Pages;
+namespace ProductDataManager.Components.Pages.Categories;
 
-public partial class Categories
+public partial class Categories : ComponentBase
 {
     List<Category> categories = [];
     string filter = string.Empty;

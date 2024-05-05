@@ -8,7 +8,7 @@ public record DescriptionType(string Name, string Description, Guid? Id = defaul
     public string Name { get; private set; } = Name;
     public string Description { get; private set; } = Description;
     
-    public ICollection<Category> Categories { get; private set; } = [];
+    public ICollection<DescriptionTypeCategory> DescriptionTypesCategories { get; private set; } = [];
     public ICollection<DescriptionValue> DescriptionValues { get; private set; } = [];
     
     public void Update(string name, string description)

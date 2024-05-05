@@ -12,8 +12,8 @@ using ProductDataManager.Infrastructure;
 namespace ProductDataManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20240501011731_AddCategory")]
-    partial class AddCategory
+    [Migration("20240505202811_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,21 +24,6 @@ namespace ProductDataManager.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CategoryDescriptionType", b =>
-                {
-                    b.Property<Guid>("CategoriesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("DescriptionTypesId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("CategoriesId", "DescriptionTypesId");
-
-                    b.HasIndex("DescriptionTypesId");
-
-                    b.ToTable("CategoryDescriptionType");
-                });
 
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", b =>
                 {
@@ -119,6 +104,41 @@ namespace ProductDataManager.Infrastructure.Migrations
                     b.ToTable("DescriptionTypes");
                 });
 
+            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionTypeCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DescriptionTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("DescriptionTypeId");
+
+                    b.ToTable("DescriptionTypesCategories");
+                });
+
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionValue", b =>
                 {
                     b.Property<Guid>("Id")
@@ -157,21 +177,6 @@ namespace ProductDataManager.Infrastructure.Migrations
                     b.ToTable("DescriptionValues");
                 });
 
-            modelBuilder.Entity("CategoryDescriptionType", b =>
-                {
-                    b.HasOne("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionType", null)
-                        .WithMany()
-                        .HasForeignKey("DescriptionTypesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", b =>
                 {
                     b.HasOne("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", "Parent")
@@ -179,6 +184,25 @@ namespace ProductDataManager.Infrastructure.Migrations
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionTypeCategory", b =>
+                {
+                    b.HasOne("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", "Category")
+                        .WithMany("DescriptionTypesCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionType", "DescriptionType")
+                        .WithMany("DescriptionTypesCategories")
+                        .HasForeignKey("DescriptionTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("DescriptionType");
                 });
 
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionValue", b =>
@@ -195,10 +219,14 @@ namespace ProductDataManager.Infrastructure.Migrations
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", b =>
                 {
                     b.Navigation("Categories");
+
+                    b.Navigation("DescriptionTypesCategories");
                 });
 
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionType", b =>
                 {
+                    b.Navigation("DescriptionTypesCategories");
+
                     b.Navigation("DescriptionValues");
                 });
 #pragma warning restore 612, 618

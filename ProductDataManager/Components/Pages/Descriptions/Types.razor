@@ -1,5 +1,6 @@
 ﻿@page "/descriptions"
 
+@using System.ComponentModel.Design.Serialization
 @using ProductDataManager.Components.Pages.Descriptions.Model
 @using ProductDataManager.Enums
 @using ProductDataManager.Components.Shared.Filters
@@ -88,7 +89,7 @@
                 <Values TypeId="context.Item.Id" @bind-ValuesModel="context.Item.Values"/>
             </MudTabPanel>
             <MudTabPanel Text="Categories">
-                <MudText>Categories</MudText>
+                <TypeCategories TypeId="context.Item.Id" @bind-CategoryModel="context.Item.Categories"/>
             </MudTabPanel>
         </MudTabs>
     </ChildRowContent>

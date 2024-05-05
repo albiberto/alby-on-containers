@@ -1,13 +1,15 @@
 ﻿using ProductDataManager.Components.Pages;
+using ProductDataManager.Components.Pages.Categories;
+using ProductDataManager.Components.Pages.Categories.Model;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 
 namespace ProductDataManager.Exstensions;
 
 public static class CategoryExtensions
 {
-    public static Categories.Data ConvertToData(this Category category, Func<Categories.Data, bool> selector)
+    public static Data ConvertToData(this Category category, Func<Data, bool> selector)
     {
-        var data = new Categories.Data(category);
+        var data = new Data(category);
         var children = category.Categories
             .Select(child => ConvertToData(child, selector))
             .Where(selector);

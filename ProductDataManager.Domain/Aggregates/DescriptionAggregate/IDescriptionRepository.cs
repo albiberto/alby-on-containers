@@ -16,4 +16,6 @@ public interface IDescriptionRepository : IRepository<DescriptionType>
     Task<DescriptionValue> AddValueAsync(Guid typeId, string? value = default, string? description = default);
     Task UpdateValueAsync(Guid id, string name, string description);
     Task DeleteValueAsync(Guid id);
+    Task<DescriptionTypeCategory> AddCategory(Guid typeId, Guid categoryId);
+    Task RemoveCategory(Guid id);
 }

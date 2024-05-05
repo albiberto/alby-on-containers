@@ -13,7 +13,7 @@ public record Category(string Name, string Description, Guid? ParentId = default
     
     public ICollection<Category> Categories { get; private set; } = [];
     
-    public ICollection<DescriptionType> DescriptionTypes { get; private set; } = [];
+    public ICollection<DescriptionTypeCategory> DescriptionTypesCategories { get; private set; } = [];
 
     public void Update(string name, string description, Guid? parentId)
     {

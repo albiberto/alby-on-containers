@@ -6,13 +6,16 @@ using ProductDataManager.Validators;
 namespace ProductDataManager.Components.Pages.Descriptions.Model;
 
 [method: JsonConstructor]
-public class TypeModel(string name, string description, Guid id, IEnumerable<ValueModel>? values = default, Status status = Status.Unchanged) : IModelBase
+public class TypeModel(string name, string description, Guid id, IEnumerable<ValueModel>? values = default, IEnumerable<CategoryModel>? join = default, Status status = Status.Unchanged) : IModelBase
 {
     string originalName = name;
     string originalDescription = description;
     Status originalStatus = status;
 
-    public TypeModel(DescriptionType type, Status state) : this(type.Name, type.Description, type.Id!.Value, type.DescriptionValues.Select(value => new ValueModel(value)), state)
+    public TypeModel(DescriptionType type, Status state) : this(type.Name, type.Description, type.Id!.Value, 
+        type.DescriptionValues.Select(value => new ValueModel(value)), 
+        type.DescriptionTypesCategories.Select(join => new CategoryModel(join.Id!.Value, join.CategoryId, join.Category!.Name)),
+        state)
     {
     }
     
@@ -22,6 +25,7 @@ public class TypeModel(string name, string description, Guid id, IEnumerable<Val
 
     
     public HashSet<ValueModel> Values { get; set; } = (values ?? []).ToHashSet();
+    public HashSet<CategoryModel> Categories { get; set; } = (join ?? []).ToHashSet();
 
     public bool IsDirty => 
         !string.Equals(originalName, Name, StringComparison.InvariantCulture) || 

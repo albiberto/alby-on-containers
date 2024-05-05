@@ -1,0 +1,6 @@
+﻿<MudCheckBox T="bool" Label="Select All" Value="@all" ValueChanged="@SelectAll" />
+
+@foreach (var category in Categories)
+{
+    <MudCheckBox Class="mt-2" Label="@category.CategoryName" Value="@(CategoryModel.Contains(category))" ValueChanged="@(value => SelectedChanged(value, category))" T="bool" />
+}

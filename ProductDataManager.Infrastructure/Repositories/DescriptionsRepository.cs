@@ -10,7 +10,8 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
     public IUnitOfWork UnitOfWork { get; } = context;
     
     public Task<List<DescriptionType>> GetAllAsync() => context.DescriptionTypes
-        .Include(type => type.Categories)
+        .Include(type => type.DescriptionTypesCategories)
+        .ThenInclude(join => join.Category)
         .Include(type => type.DescriptionValues)
         .OrderByDescending(type => type.Name).ToListAsync();
 
@@ -102,5 +103,20 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
         if (current is null) throw new ArgumentException("Value not found!");
         
         context.DescriptionValues.Remove(current);
+    }
+
+    public async Task<DescriptionTypeCategory> AddCategory(Guid typeId, Guid categoryId)
+    {
+        var join = await context.DescriptionTypesCategories.AddAsync(new(typeId, categoryId));
+        return join.Entity;
+    }
+
+    public async Task RemoveCategory(Guid id)
+    {
+        var current = await context.DescriptionTypesCategories.FindAsync(id);
+        
+        if (current is null) throw new ArgumentException("Join not found!");
+        
+        context.DescriptionTypesCategories.Remove(current);
     }
 }
