@@ -1,24 +1,19 @@
-﻿@using ProductDataManager.Enums
-@using ProductDataManager.Components.Pages.Descriptions.Model;
-
-@typeparam T where T : IModelBase
-
-<MudIconButton OnClick="@OpenFilter" Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" />
+﻿<MudIconButton OnClick="@OpenFilter" Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" />
 <MudIconButton OnClick="@ClearFilterAsync" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" />
 
 <MudOverlay Visible="@open" OnClick="@CloseFilter" />
 
 <MudPopover Open="@open" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.BottomCenter" Class="pr-6">
     <MudStack Spacing="0">
-        <MudCheckBox T="bool" Label="Select All" Size="@Size.Small" Value="@all" ValueChanged="@SelectAll" />
+        <MudCheckBox T="bool" Label="Select All" Size="@Size.Small" Value="@models.All(model => model.Checked)" ValueChanged="@SelectAll" />
         <MudStack Spacing="0" Style="overflow-y:auto;max-height:250px">
-            @foreach (var item in _states)
+            @foreach (var model in models)
             {
-                <MudCheckBox T="bool" CheckedIcon="@item.GetFilledIcon()" UncheckedIcon="@item.GetOutlinedIcon()" Label="@($"{item.GetTooltip()}")" Size="@Size.Small" Value="@(selectedItems.Contains(item))" ValueChanged="@(value => SelectedChanged(value, item))" Class="pl-2"/>
+                <MudCheckBox T="bool" CheckedIcon="@model.FilledIcon" UncheckedIcon="@model.OutlinedIcon" Label="@($"{model.Tooltip}")" Size="@Size.Small" Value="@model.Checked" ValueChanged="@(value => SelectedChanged(value, model))" Class="pl-2"/>
             }
         </MudStack>
         
-        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="4">
+        <MudStack Row="@true" Justify="Justify.FlexEnd" Spacing="4">
             <MudButton Color="@Color.Primary" OnClick="@ApplyFilterAsync">Filter</MudButton>
         </MudStack>
     </MudStack>

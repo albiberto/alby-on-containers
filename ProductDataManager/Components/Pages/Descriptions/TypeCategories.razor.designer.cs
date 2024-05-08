@@ -13,9 +13,6 @@ public partial class TypeCategories : ComponentBase
     [Inject] public required IDescriptionRepository DescriptionRepository { get; set; }
     [Inject] public required ISnackbar Snackbar { get; set; }
     
-    [Parameter] public required Guid TypeId { get; set; }
-    [Parameter] public required HashSet<CategoryModel> CategoryModel { get; set; }
-    [Parameter] public required EventCallback<HashSet<CategoryModel>> CategoryModelChanged { get; set; }
-
-    bool all;
+    [Parameter] public required AggregateModel Aggregate { get; set; }
+    [Parameter] public required EventCallback<AggregateModel> AggregateChanged { get; set; }
 }

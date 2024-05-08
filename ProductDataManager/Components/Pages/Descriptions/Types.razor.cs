@@ -1,28 +1,18 @@
 ﻿using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using ProductDataManager.Components.Pages.Descriptions.Model;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
-using ProductDataManager.Enums;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
 public partial class Types : ComponentBase
 {
-    readonly ObservableCollection<TypeModel> types = [];
-
-    protected override async Task OnInitializedAsync()
-    {
-        var types = await Repository.GetAllAsync();
-        foreach (var type in types)
-        {
-            var state = type.Id.HasValue ? (await Repository.GetStateAsync<DescriptionType>(type.Id.Value)).Map() : Status.Added;
-            this.types.Add(new(type, state));
-        }
-    }
+    AggregatesModel Model { get; set; } = new();
+    protected override async Task OnInitializedAsync() => Model = new(await DescriptionRepository.GetAllAsync(), await CategoryRepository.GetAllAsync());
 
     protected override void OnAfterRender(bool firstRender)
+    
     {
         if (firstRender) registration = Navigation.RegisterLocationChangingHandler(OnLocationChanging);
     }
@@ -31,8 +21,8 @@ public partial class Types : ComponentBase
     {
         try
         {
-            var entity = await Repository.AddAsync();
-            types.Add(new(entity.Name, entity.Description, entity.Id!.Value, status: Status.Added));
+            var entity = await DescriptionRepository.AddAsync();
+            Model.Add(entity.Id!.Value);
             
             Snackbar.Add("Type tracked for insertion", Severity.Info);
         }
@@ -43,14 +33,14 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task UpdateTypeAsync(TypeModel typeModel)
+    async Task UpdateTypeAsync(AggregateModel aggregate)
     {
         try
         {
-            await Repository.UpdateAsync(typeModel.Id, typeModel.Name, typeModel.Description);
-            typeModel.Status = typeModel.Status == Status.Added ? Status.Added : Status.Modified;
+            await DescriptionRepository.UpdateAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
+            Model.Modified(aggregate);
             
-            if(typeModel.Status != Status.Added) Snackbar.Add("Type tracked for update", Severity.Info);
+            if(!aggregate.Type.Status.IsAdded) Snackbar.Add("Type tracked for update", Severity.Info);
         }
         catch(Exception e)
         {
@@ -59,18 +49,14 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task DeleteTypeAsync(TypeModel typeModel)
+    async Task DeleteTypeAsync(AggregateModel aggregate)
     {
         try
         {
-            if(typeModel.Status == Status.Added) types.Remove(typeModel);
-            else
-            {
-                await Repository.DeleteAsync(typeModel.Id);
-                typeModel.Status = Status.Deleted;
-                
-                Snackbar.Add("Type tracked for deletion", Severity.Info);
-            }
+            await DescriptionRepository.DeleteAsync(aggregate.Type.Id);
+            Model.Delete(aggregate);    
+            
+            if(!aggregate.Status.IsAdded) Snackbar.Add("Type tracked for deletion", Severity.Info);
         }
         catch (Exception e)
         {
@@ -78,20 +64,27 @@ public partial class Types : ComponentBase
             Snackbar.Add("Error while deleting description", Severity.Error);
         }
     }
-
-    async Task SaveDescriptionTypeAsync()
+    
+    async Task Clear(AggregateModel aggregate)
     {
         try
         {
-            await Repository.UnitOfWork.SaveChangesAsync();
-            
-            foreach (var type in types.ToList())
-                if (type.Status == Status.Deleted) types.Remove(type);
-                else
-                {
-                    type.Values = type.Values.Where(value => value.Status != Status.Deleted).ToHashSet();
-                    type.Reload();
-                }
+            await DescriptionRepository.Clear<DescriptionType>(aggregate.Type.Id);
+            aggregate.Type.Clear();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error while clearing description");
+            Snackbar.Add("Error while clearing description", Severity.Error);
+        }
+    }
+
+    async Task SaveAsync()
+    {
+        try
+        {
+            await DescriptionRepository.UnitOfWork.SaveChangesAsync();
+            Model.Save();
             
             Snackbar.Add("Changes Saved!", Severity.Success);
         }
@@ -102,39 +95,15 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task Clear(TypeModel data)
-    {
-        try
-        {
-            await Repository.Clear<DescriptionType>(data.Id);
-            
-            data.Clear();
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while clearing description");
-            Snackbar.Add("Error while clearing description", Severity.Error);
-        }
-    }
+    public bool DisableSave => !DescriptionRepository.HasChanges || !Model.IsValid;
+    public bool DisableClearAll => !DescriptionRepository.HasChanges;
 
     void ClearAll()
     {
         try
         {
-            Repository.Clear();
-            
-            foreach (var type in types.ToList())
-                if(type.Status == Status.Added)
-                    types.Remove(type);
-                else
-                {
-                    type.Clear();
-                    foreach (var value in type.Values)
-                    {
-                        if (value.Status == Status.Added) type.Values.Remove(value);
-                        else value.Clear();
-                    }                    
-                }
+            DescriptionRepository.Clear();
+            Model.Clear();
         }
         catch (Exception e)
         {

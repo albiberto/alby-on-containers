@@ -1,61 +1,41 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ProductDataManager.Components.Pages.Descriptions.Model;
-using ProductDataManager.Enums;
+using ProductDataManager.Components.Shared.Filters.Model;
 
 namespace ProductDataManager.Components.Shared.Filters;
 
-public partial class StateFilter<T> : ComponentBase where T : IModelBase
+public partial class StateFilter
 {
-    [Parameter] public required FilterContext<T> Context { get; set; }
+    [Parameter] public required FilterContext<AggregateModel> Context { get; set; }
     
-    static HashSet<Status> _states = Enum.GetValues(typeof(Status)).Cast<Status>().ToHashSet();
+    HashSet<FilterModel> models = Enum.GetValues(typeof(Value)).Cast<Value>().Select(value => new FilterModel(value)).ToHashSet();
     
-    HashSet<Status> selectedItems = _states.ToHashSet();
-    
-    FilterDefinition<T> FilterDefinition => new()
+    FilterDefinition<AggregateModel> FilterDefinition => new()
     {
-        FilterFunction = type => selectedItems.Contains(type.Status)
+        FilterFunction = type => models.Where(model => model.Checked).Select(model => model.Value).Contains(type.Status.Current),
     };
 
     void OpenFilter() => open = true;
     void CloseFilter() => open = false;
     
-    void SelectAll(bool value)
+    void SelectAll(bool value = false)
     {
-        all = value;
-
-        if (value)
-        {
-            selectedItems = _states.ToHashSet();
-        }
-        else
-        {
-            selectedItems.Clear();
-        }
+        foreach (var model in models) model.Set(value);
     }
     
     async Task ClearFilterAsync()
     {
-        selectedItems = _states.ToHashSet();
+        SelectAll();
         await Context.Actions.ClearFilterAsync(FilterDefinition);
         open = false;
-        all = true;
     }
 
+    static void SelectedChanged(bool value, FilterModel model) => model.Set(value);
+    
     async Task ApplyFilterAsync()
     {
         await Context.Actions.ApplyFilterAsync(FilterDefinition);
         open = false;
-    }
-    
-    void SelectedChanged(bool value, Status item)
-    {
-        if (value)
-            selectedItems.Add(item);
-        else
-            selectedItems.Remove(item);
-
-        all = selectedItems.Count == _states.Count;
     }
 }

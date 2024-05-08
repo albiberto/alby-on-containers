@@ -1,29 +1,21 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Frozen;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ProductDataManager.Components.Pages.Descriptions.Model;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
-using ProductDataManager.Enums;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
 public partial class Values : ComponentBase
 {
-    readonly ObservableCollection<ValueModel> values = [];
-
-    protected override void OnParametersSet()
-    {
-        values.Clear();
-        foreach (var value in ValuesModel) values.Add(value);
-    }
-
     async Task AddValueAsync()
     {
         try
         {
-            var entity = await Repository.AddValueAsync(TypeId);
-            values.Add(new(entity.Value, entity.Description, entity.Id!.Value, status: Status.Added));
+            var entity = await Repository.AddValueAsync(Aggregate.Type.Id);
+            Aggregate.AddValue(entity.Id!.Value);
             
+            await AggregateChanged.InvokeAsync(Aggregate);
             Snackbar.Add("Value tracked for insertion", Severity.Info);
         }
         catch(Exception e)
@@ -38,11 +30,10 @@ public partial class Values : ComponentBase
         try
         {
             await Repository.UpdateValueAsync(value.Id, value.Value, value.Description);
-            value.Status = value.Status == Status.Added ? Status.Added : Status.Modified;
+            value.Status.Modified();
             
-            await ValuesModelChanged.InvokeAsync(values.ToHashSet());
-            
-            if(value.Status != Status.Added) Snackbar.Add("Value tracked for update", Severity.Info);
+            await AggregateChanged.InvokeAsync(Aggregate);
+            if(value.Status.IsModified) Snackbar.Add("Value tracked for update", Severity.Info);
         }
         catch(Exception e)
         {
@@ -55,21 +46,11 @@ public partial class Values : ComponentBase
     {
         try
         {
-            if (value.Status != Status.Added)
-            {
-                await Repository.DeleteValueAsync(value.Id);
-                value.Status = Status.Deleted;
-                
-                await ValuesModelChanged.InvokeAsync(values.ToHashSet());
-                
-                Snackbar.Add("Value tracked for deletion", Severity.Info);
-            }
-            else
-            {
-                await Repository.DeleteValueAsync(value.Id);
-                values.Remove(value);
-                await ValuesModelChanged.InvokeAsync(values.ToHashSet());
-            }
+            await Repository.DeleteValueAsync(value.Id);
+            Aggregate.RemoveValue(value);
+            
+            await AggregateChanged.InvokeAsync(Aggregate);
+            Snackbar.Add("Value tracked for deletion", Severity.Info);
         }
         catch (Exception e)
         {
@@ -97,12 +78,9 @@ public partial class Values : ComponentBase
     {
         try
         {
-            foreach (var value in values.ToList())
-                if (value.Status == Status.Deleted)
-                {
-                    values.Remove(value);
-                } 
-                else value.Reload();
+            foreach (var value in Aggregate.Values.ToFrozenSet())
+                if (value.Status.IsDeleted) Aggregate.RemoveValue(value);
+                else value.Save();
         }
         catch (Exception e)
         {

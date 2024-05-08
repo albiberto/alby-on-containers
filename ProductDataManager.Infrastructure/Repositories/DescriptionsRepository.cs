@@ -105,13 +105,13 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
         context.DescriptionValues.Remove(current);
     }
 
-    public async Task<DescriptionTypeCategory> AddCategory(Guid typeId, Guid categoryId)
+    public async Task<DescriptionTypeCategory> AddCategoryAsync(Guid typeId, Guid categoryId)
     {
         var join = await context.DescriptionTypesCategories.AddAsync(new(typeId, categoryId));
         return join.Entity;
     }
 
-    public async Task RemoveCategory(Guid id)
+    public async Task RemoveCategoryAsync(Guid id)
     {
         var current = await context.DescriptionTypesCategories.FindAsync(id);
         

@@ -7,7 +7,6 @@ using ProductDataManager.Components.Shared;
 using ProductDataManager.Components.Shared.Dialogs;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
-using ProductDataManager.Enums;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
@@ -15,7 +14,8 @@ namespace ProductDataManager.Components.Pages.Descriptions;
 
 public partial class Types : IDisposable
 {
-    [Inject] public required IDescriptionRepository Repository { get; set; }
+    [Inject] public required IDescriptionRepository DescriptionRepository { get; set; }
+    [Inject] public required ICategoryRepository CategoryRepository { get; set; }
     [Inject] public required IDialogService DialogService { get; set; }
     [Inject] public required ISnackbar Snackbar { get; set; }
     [Inject] public required ILogger<Types> Logger { get; set; }
@@ -25,14 +25,14 @@ public partial class Types : IDisposable
     
     async ValueTask OnLocationChanging(LocationChangingContext context)
     {
-        if(!Repository.HasChanges) return;
+        if(!DescriptionRepository.HasChanges) return;
         
         var dialog = await DialogService.ShowAsync<NavigationDialog>("Leave page?", Constants.DialogOptions);
         var result = await dialog.Result;
 
         if (!result.Canceled)
         {
-            Repository.Clear();
+            DescriptionRepository.Clear();
             return;            
         }
 

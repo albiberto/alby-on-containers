@@ -1,70 +1,17 @@
-﻿using Microsoft.AspNetCore.Components;
-using MudBlazor;
+﻿using MudBlazor;
 using ProductDataManager.Components.Pages.Descriptions.Model;
-using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
-public partial class TypeCategories : ComponentBase
+public partial class TypeCategories
 {
-    HashSet<CategoryModel> Categories { get; set; } = [];
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        var categories = await CategoryRepository.GetAllAsync();
-        Categories = categories
-            .Where(category => !CategoryModel.Select(model => model.CategoryId).Contains(category.Id!.Value))
-            .Select(category => new CategoryModel(default, category.Id!.Value, category.Name)).ToHashSet()
-            .Concat(CategoryModel)
-            .ToHashSet();
-        
-        all = CategoryModel.Count == Categories.Count;
-    }
-
-    async Task SelectAll(bool value)
-    {
-        all = value;
-
-        if (value)
-        {
-
-            try
-            {
-                await BulkAddJoinAsync(Categories.Where(category => !CategoryModel.Contains(category)));
-                CategoryModel = Categories.Select(category => category).ToHashSet();
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failed to add categories to description type");
-                Snackbar.Add("Failed to add categories to description type", Severity.Error);
-            }
-        }
-        else
-        {
-            try
-            {
-                BulkRemoveJoin(Categories.Where(category => CategoryModel.Contains(category)));
-                CategoryModel.Clear();
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failed to add categories to description type");
-                Snackbar.Add("Failed to add categories to description type", Severity.Error);
-            }
-        }
-
-        await CategoryModelChanged.InvokeAsync(CategoryModel);
-    }
-
-    async Task SelectedChanged(bool value, CategoryModel model)
+    async Task SelectedChanged(bool value, JoinModel join)
     {
         if (value)
         {
             try
             {
-                await AddJoinAsync(model);
-                CategoryModel.Add(model);
+                await AddAsync(join);
             }
             catch (Exception e)
             {
@@ -78,8 +25,7 @@ public partial class TypeCategories : ComponentBase
         {
             try
             {
-                RemoveJoin(model);
-                CategoryModel.Remove(model);
+                await RemoveAsync(join);
             }
             catch (Exception e)
             {
@@ -90,29 +36,48 @@ public partial class TypeCategories : ComponentBase
             Snackbar.Add("Category removed from description type", Severity.Success);
         }
 
-        all = CategoryModel.Count == Categories.Count;
-        await CategoryModelChanged.InvokeAsync(CategoryModel);
+        await AggregateChanged.InvokeAsync(Aggregate);
+    }
+    
+    async Task SelectAll(bool value)
+    {
+        if (value)
+        {
+            try
+            {
+                foreach (var join in Aggregate.Joins.Where(join => !join.Checked)) await AddAsync(join);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to add categories to description type");
+                Snackbar.Add("Failed to add categories to description type", Severity.Error);
+            }
+        }
+        else
+        {
+            try
+            {
+                foreach (var join in Aggregate.Joins.Where(join => join.Checked)) await RemoveAsync(join);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Failed to add categories to description type");
+                Snackbar.Add("Failed to add categories to description type", Severity.Error);
+            }
+        }
+
+        await AggregateChanged.InvokeAsync(Aggregate);
+    }
+    
+    async Task RemoveAsync(JoinModel join)
+    {
+        await DescriptionRepository.RemoveCategoryAsync(join.Id!.Value);
+        join.Update();
     }
 
-    async Task AddJoinAsync(CategoryModel model)
+    async Task AddAsync(JoinModel join)
     {
-        var entity = await DescriptionRepository.AddCategory(TypeId, model.CategoryId);
-        model.UpdateJoinId(entity.Id!.Value);
-        
-    }
-
-    async Task BulkAddJoinAsync(IEnumerable<CategoryModel> missing)
-    {
-        foreach (var category in missing) await AddJoinAsync(category);
-    }
-
-    void RemoveJoin(CategoryModel model)
-    {
-        DescriptionRepository.RemoveCategory(model.Id!.Value);
-    }
-
-    void BulkRemoveJoin(IEnumerable<CategoryModel> missing)
-    {
-        foreach (var category in missing) RemoveJoin(category);
+        var entity = await DescriptionRepository.AddCategoryAsync(Aggregate.Type.Id, join.CategoryId);
+        join.Update(entity.Id);
     }
 }

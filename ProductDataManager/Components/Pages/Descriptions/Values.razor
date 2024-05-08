@@ -1,9 +1,7 @@
 ﻿@using ProductDataManager.Components.Pages.Descriptions.Model
-@using ProductDataManager.Enums
-@using ProductDataManager.Components.Shared.Filters
 @using ProductDataManager.Validators
 
-<MudDataGrid T="ValueModel" Items="@values" ReadOnly="@false"
+<MudDataGrid T="ValueModel" Items="@Aggregate.Values" ReadOnly="@false"
              EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
              Filterable="false"
              SortMode="SortMode.Single" RowsPerPage="10" 
@@ -11,15 +9,15 @@
     <Columns>
         <TemplateColumn IsEditable="false" Sortable="false">
             <CellTemplate>
-                <MudTooltip Text="@context.Item.Status.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
+                <MudTooltip Text="@context.Item.Status.Current.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
                     @if (context.Item.IsValid)
                     {
-                        <MudIcon Icon="@context.Item.Status.GetOutlinedIcon()"/>
+                        <MudIcon Icon="@context.Item.Status.Current.GetOutlinedIcon()"/>
                     }
                     else
                     {
                         <MudBadge Origin="@Origin.BottomRight" Color="Color.Warning" Overlap="true" Icon="@Icons.Material.Rounded.Warning">
-                            <MudIcon Icon="@context.Item.Status.GetOutlinedIcon()"/>
+                            <MudIcon Icon="@context.Item.Status.Current.GetOutlinedIcon()"/>
                         </MudBadge>
                     }
                 </MudTooltip>
@@ -32,7 +30,7 @@
                     Value="@context.Item.Value"
                     ValueChanged="@(async name => { context.Item.Value = name; await UpdateValueAsync(context.Item); })"
                     Variant="Variant.Text"
-                    Class=@(context.Item.Status == Status.Deleted ? "strikethrough" : "")
+                    Class=@(context.Item.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Value().Validation"
                     Immediate="true"
                     MaxLength="30"/>
@@ -45,7 +43,7 @@
                     Value="@context.Item.Description"
                     ValueChanged="@(async description => { context.Item.Description = description; await UpdateValueAsync(context.Item); })"
                     Variant="Variant.Text"
-                    Class=@(context.Item.Status == Status.Deleted ? "strikethrough" : "")
+                    Class=@(context.Item.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Description().Validation"
                     Immediate="true"
                     MaxLength="100"/>
@@ -56,11 +54,11 @@
                 <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Medium" Color="Color.Secondary" OnClick="AddValueAsync"/>
             </HeaderTemplate>
             <CellTemplate>
-                @if ((context.Item.Status == Status.Modified && context.Item.IsDirty) || context.Item.Status == Status.Deleted)
+                @if ((context.Item.Status.IsModified && context.Item.IsDirty) || context.Item.Status.IsDeleted)
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => Clear(context.Item))"/>
                 }
-                @if (context.Item.Status != Status.Deleted)
+                @if (context.Item.Status.IsDeleted)
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteValueAsync(context.Item))"/>
                 }

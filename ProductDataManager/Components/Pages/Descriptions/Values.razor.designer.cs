@@ -8,7 +8,6 @@ using ProductDataManager.Components.Shared;
 using ProductDataManager.Components.Shared.Dialogs;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
-using ProductDataManager.Enums;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
@@ -22,9 +21,8 @@ public partial class Values : IDisposable
     [Inject] public required ILogger<Types> Logger { get; set; }
     [Inject] public required NavigationManager Navigation { get; set; }
     
-    [Parameter] public required Guid TypeId { get; set; }
-    [Parameter] public required IEnumerable<ValueModel> ValuesModel { get; set; }
-    [Parameter] public required EventCallback<HashSet<ValueModel>> ValuesModelChanged { get; set; }
+    [Parameter] public required AggregateModel Aggregate { get; set; }
+    [Parameter] public required EventCallback<AggregateModel> AggregateChanged { get; set; }
 
     public void Dispose()
     {

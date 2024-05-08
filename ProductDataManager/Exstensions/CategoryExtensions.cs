@@ -1,6 +1,4 @@
-﻿using ProductDataManager.Components.Pages;
-using ProductDataManager.Components.Pages.Categories;
-using ProductDataManager.Components.Pages.Categories.Model;
+﻿using ProductDataManager.Components.Pages.Categories.Model;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 
 namespace ProductDataManager.Exstensions;
