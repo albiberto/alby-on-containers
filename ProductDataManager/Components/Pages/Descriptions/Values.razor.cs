@@ -29,8 +29,12 @@ public partial class Values : ComponentBase
     {
         try
         {
-            await Repository.UpdateValueAsync(value.Id, value.Value, value.Description);
-            value.Status.Modified();
+            if (value.IsDirty)
+            {
+                await Repository.UpdateValueAsync(value.Id, value.Value, value.Description);
+                value.Status.Modified();
+            }
+            else await ClearAsync(value);
             
             await AggregateChanged.InvokeAsync(Aggregate);
             if(value.Status.IsModified) Snackbar.Add("Value tracked for update", Severity.Info);
@@ -59,13 +63,14 @@ public partial class Values : ComponentBase
         }
     }
 
-    async Task Clear(ValueModel value)
+    async Task ClearAsync(ValueModel value)
     {
         try
         {
             await Repository.Clear<DescriptionValue>(value.Id);
-            
             value.Clear();
+            
+            await AggregateChanged.InvokeAsync(Aggregate);
         }
         catch (Exception e)
         {

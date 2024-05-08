@@ -37,8 +37,12 @@ public partial class Types : ComponentBase
     {
         try
         {
-            await DescriptionRepository.UpdateAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
-            Model.Modified(aggregate);
+            if (aggregate.Type.IsDirty)
+            {
+                await DescriptionRepository.UpdateAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
+                Model.Modified(aggregate);
+            }
+            else await ClearAsync(aggregate);
             
             if(!aggregate.Type.Status.IsAdded) Snackbar.Add("Type tracked for update", Severity.Info);
         }
@@ -65,7 +69,7 @@ public partial class Types : ComponentBase
         }
     }
     
-    async Task Clear(AggregateModel aggregate)
+    async Task ClearAsync(AggregateModel aggregate)
     {
         try
         {

@@ -77,9 +77,12 @@
             <CellTemplate>
                 @if ((context.Item.Type.Status.IsModified && context.Item.Type.IsDirty) || context.Item.Type.Status.IsDeleted)
                 {
-                    <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => Clear(context.Item))"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => ClearAsync(context.Item))"/>
                 }
-                <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteTypeAsync(context.Item))"/>
+                @if (context.Item.Status is { IsDeleted: false })
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteTypeAsync(context.Item))"/>
+                }
             </CellTemplate>
         </TemplateColumn>
     </Columns>

@@ -53,10 +53,8 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
     {
         var entry = await GetEntityAsync<T>(id);
 
-        if (entry.State == EntityState.Deleted)
-            entry.State = EntityState.Unchanged;
-        else
-            entry.CurrentValues.SetValues(entry.OriginalValues);
+        if (entry.State != EntityState.Deleted) entry.CurrentValues.SetValues(entry.OriginalValues);
+        entry.State = EntityState.Unchanged;            
     }
 
     public void Clear() => context.ChangeTracker.Clear();
