@@ -10,6 +10,7 @@ public class AggregateModel(
     Guid id,
     string name,
     string description,
+    bool mandatory,
     IEnumerable<ValueModel>? values = default,
     IEnumerable<JoinModel>? joins = default,
     Status? status = default)
@@ -18,6 +19,7 @@ public class AggregateModel(
         type.Id!.Value,
         type.Name,
         type.Description,
+        type.Mandatory,
         type.DescriptionValues.Select(value => new ValueModel(value)),
         categories.Select(category =>
         {
@@ -27,9 +29,9 @@ public class AggregateModel(
     {
     }
 
-    public static AggregateModel New(Guid id) => new(id, string.Empty, string.Empty, status: new(Value.Added));
+    public static AggregateModel New(Guid id) => new(id, string.Empty, string.Empty, false, status: new(Value.Added));
 
-    public TypeModel Type { get; } = new(id, name, description, status);
+    public TypeModel Type { get; } = new(id, name, description, mandatory, status);
     public ObservableCollection<ValueModel> Values { get; set; } = new(values ?? []);
     public ObservableCollection<JoinModel> Joins { get; set; } = new(joins ?? []);
 

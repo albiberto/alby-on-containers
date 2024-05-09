@@ -15,21 +15,21 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
         .Include(type => type.DescriptionValues)
         .OrderByDescending(type => type.Name).ToListAsync();
 
-    public async Task<DescriptionType> AddAsync(string? name = default, string? description = default)
+    public async Task<DescriptionType> AddAsync(string? name = default, string? description = default, bool mandatory = false)
     {
-        var descriptionType = new DescriptionType(name ?? string.Empty, description ?? string.Empty);
+        var descriptionType = new DescriptionType(name ?? string.Empty, description ?? string.Empty, mandatory);
         var entity = await context.DescriptionTypes.AddAsync(descriptionType);
 
         return entity.Entity;
     }
     
-    public async Task UpdateAsync(Guid id, string name, string description)
+    public async Task UpdateAsync(Guid id, string name, string description, bool mandatory)
     {
         var current = await context.DescriptionTypes.FindAsync(id);
 
         if (current is null) throw new ArgumentException("Type not found!");
             
-        current.Update(name, description);
+        current.Update(name, description, mandatory);
     }
 
     public async Task DeleteAsync(Guid id)

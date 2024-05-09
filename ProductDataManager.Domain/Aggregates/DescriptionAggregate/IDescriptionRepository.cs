@@ -6,8 +6,8 @@ namespace ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 public interface IDescriptionRepository : IRepository<DescriptionType>
 {
     Task<List<DescriptionType>> GetAllAsync();
-    Task<DescriptionType> AddAsync(string? name = default, string? description = default);
-    Task UpdateAsync(Guid id, string name, string description);
+    Task<DescriptionType> AddAsync(string? name = default, string? description = default, bool mandatory = false);
+    Task UpdateAsync(Guid id, string name, string description, bool mandatory);
     Task DeleteAsync(Guid id);
     Task Clear<T>(Guid id) where T : Entity;
     void Clear();

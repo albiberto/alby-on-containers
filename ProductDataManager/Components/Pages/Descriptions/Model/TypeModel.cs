@@ -4,18 +4,22 @@ using ProductDataManager.Validators;
 namespace ProductDataManager.Components.Pages.Descriptions.Model;
 
 [method: JsonConstructor]
-public record TypeModel(Guid Id, string Name, string Description, Status? Status = default)
+public record TypeModel(Guid Id, string Name, string Description, bool Mandatory, Status? Status = default)
 {
     string originalName = Name;
     string originalDescription = Description;
+    bool originalMandatory = Mandatory;
     
     public string Name { get; set; } = Name;
     public string Description { get; set; } = Description;
     
+    public bool Mandatory { get; set; } = Mandatory;
+    
     public Status Status { get; } = Status ?? new();
 
     public bool IsDirty => !string.Equals(originalName, Name, StringComparison.InvariantCulture) ||
-                           !string.Equals(originalDescription, Description, StringComparison.InvariantCulture);
+                           !string.Equals(originalDescription, Description, StringComparison.InvariantCulture) ||
+                           Mandatory != originalMandatory;
 
     public void Save()
     {
@@ -23,6 +27,7 @@ public record TypeModel(Guid Id, string Name, string Description, Status? Status
 
         originalName = Name;
         originalDescription = Description;
+        originalMandatory = Mandatory;
     }
     
     public void Clear()
@@ -31,6 +36,7 @@ public record TypeModel(Guid Id, string Name, string Description, Status? Status
         
         Name = originalName;
         Description = originalDescription;
+        Mandatory = originalMandatory;
     }
 
     bool IsValidName => StringValidators.Name().Validate(Name).IsValid;

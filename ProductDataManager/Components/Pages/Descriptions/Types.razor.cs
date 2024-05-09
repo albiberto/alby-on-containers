@@ -39,7 +39,7 @@ public partial class Types : ComponentBase
         {
             if (aggregate.Type.IsDirty)
             {
-                await DescriptionRepository.UpdateAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
+                await DescriptionRepository.UpdateAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description, aggregate.Type.Mandatory);
                 Model.Modified(aggregate);
             }
             else await ClearAsync(aggregate);

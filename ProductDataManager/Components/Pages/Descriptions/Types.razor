@@ -69,6 +69,15 @@
                     MaxLength="100"/>
             </EditTemplate>
         </PropertyColumn>
+
+        <PropertyColumn Property="data => data.Type.Mandatory">
+            <EditTemplate>
+                <MudCheckBox
+                    T="bool"
+                    Value="context.Item.Type.Mandatory"
+                    ValueChanged="@(async mandatory => { context.Item.Type.Mandatory = mandatory; await UpdateTypeAsync(context.Item); })"/>
+            </EditTemplate>
+        </PropertyColumn>
         
         <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
             <HeaderTemplate>
