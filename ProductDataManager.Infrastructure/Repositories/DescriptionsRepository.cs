@@ -41,42 +41,6 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
         context.DescriptionTypes.Remove(current);
     }
     
-    public async Task<DescriptionValue> AddValueAsync(string name, string description, Guid descriptionTypeId)
-    {
-        var value = new DescriptionValue(name, description, descriptionTypeId);
-        await context.DescriptionValues.AddAsync(value);
-        
-        return value;
-    }
-    
-    public async Task Clear<T>(Guid id) where T : Entity
-    {
-        var entry = await GetEntityAsync<T>(id);
-
-        if (entry.State != EntityState.Deleted) entry.CurrentValues.SetValues(entry.OriginalValues);
-        entry.State = EntityState.Unchanged;            
-    }
-
-    public void Clear() => context.ChangeTracker.Clear();
-    
-    public bool HasChanges => context.ChangeTracker.Entries().Any(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
-    
-    public async Task<EntityState> GetStateAsync<T>(Guid id) where T : Entity
-    {
-        var entity = await GetEntityAsync<T>(id);
-
-        return entity.State;
-    }
-    
-    async Task<EntityEntry<T>> GetEntityAsync<T>(Guid id) where T : Entity
-    {
-        var current = await context.FindAsync<T>(id);
-
-        if(current is null) throw new ArgumentException("Entity not found!"); 
-        
-        return context.Entry(current);
-    }
-    
     public async Task<DescriptionValue> AddValueAsync(Guid typeId, string? value = default, string? description = default)
     {
         var descriptionType = new DescriptionValue(value ?? string.Empty, description ?? string.Empty, typeId);
@@ -117,4 +81,21 @@ public class DescriptionsRepository(ProductContext context) : IDescriptionReposi
         
         context.DescriptionTypesCategories.Remove(current);
     }
+    
+    
+    public async Task Clear<T>(Guid id) where T : Entity
+    {
+        var current = await context.FindAsync<T>(id);
+
+        if(current is null) throw new ArgumentException("Entity not found!"); 
+        
+        var entry = context.Entry(current);
+
+        if (entry.State != EntityState.Deleted) entry.CurrentValues.SetValues(entry.OriginalValues);
+        entry.State = EntityState.Unchanged;            
+    }
+
+    public void Clear() => context.ChangeTracker.Clear();
+    
+    public bool HasChanges => context.ChangeTracker.Entries().Any(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
 }

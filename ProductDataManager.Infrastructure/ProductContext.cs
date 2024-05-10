@@ -2,6 +2,7 @@
 using ProductDataManager.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 
 namespace ProductDataManager.Infrastructure;
@@ -12,6 +13,8 @@ public class ProductContext(DbContextOptions<ProductContext> options, IEnumerabl
     public DbSet<DescriptionType> DescriptionTypes { get; private set; } = null!;
     public DbSet<DescriptionValue> DescriptionValues { get; private set; } = null!;
     public DbSet<DescriptionTypeCategory> DescriptionTypesCategories { get; private set; } = null!;
+    public DbSet<AttributeCluster> AttributeCluster { get; private set; } = null!;
+    public DbSet<AttributeType> AttributeType { get; private set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

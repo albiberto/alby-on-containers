@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProductDataManager.Components;
 using MudBlazor.Services;
+using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 using ProductDataManager.Infrastructure;
@@ -26,6 +27,7 @@ builder.Services.AddDbContext<ProductContext>(options =>
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDescriptionRepository, DescriptionsRepository>();
+builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
 
 builder.Services.AddMudServices();
 
