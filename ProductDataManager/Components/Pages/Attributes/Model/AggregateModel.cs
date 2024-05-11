@@ -8,7 +8,6 @@ public class AggregateModel(
     Guid id,
     string name,
     string description,
-    bool mandatory,
     IEnumerable<AttributeModel>? attrs = default,
     Status? status = default) : IStatus
 {
@@ -16,14 +15,13 @@ public class AggregateModel(
         type.Id!.Value,
         type.Name,
         type.Description,
-        type.Mandatory,
         type.Types.Select(value => new AttributeModel(value)))
     {
     }
 
-    public static AggregateModel New(Guid id) => new(id, string.Empty, string.Empty, false, status: new(Value.Added));
+    public static AggregateModel New(Guid id) => new(id, string.Empty, string.Empty, status: new(Value.Added));
 
-    public AttributeTypeModel AttributeType { get; } = new(id, name, description, mandatory, status);
+    public AttributeTypeModel AttributeType { get; } = new(id, name, description, status);
     public ObservableCollection<AttributeModel> Types { get; set; } = new(attrs ?? []);
 
     public bool IsValid => AttributeType.IsValid && Types.All(value => value.IsValid);

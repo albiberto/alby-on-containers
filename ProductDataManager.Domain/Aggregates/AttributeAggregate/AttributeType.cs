@@ -2,7 +2,7 @@
 
 namespace ProductDataManager.Domain.Aggregates.AttributeAggregate;
 
-public record AttributeType(string Name, string Description, Guid? Id = default, bool Mandatory = false, bool Tech = false) : Entity(Id), IAggregateRoot
+public record AttributeType(string Name, string Description, Guid? Id = default, bool Tech = false) : Entity(Id), IAggregateRoot
 {
   public string Name { get; private set; } = Name;
   public string Description { get; private set; } = Description;
