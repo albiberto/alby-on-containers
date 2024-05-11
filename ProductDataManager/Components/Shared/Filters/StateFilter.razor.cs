@@ -2,6 +2,7 @@
 using MudBlazor;
 using ProductDataManager.Components.Pages.Descriptions.Model;
 using ProductDataManager.Components.Shared.Filters.Model;
+using ProductDataManager.Components.Shared.Model;
 
 namespace ProductDataManager.Components.Shared.Filters;
 

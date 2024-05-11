@@ -1,4 +1,5 @@
-﻿using ProductDataManager.Validators;
+﻿using ProductDataManager.Components.Shared.Model;
+using ProductDataManager.Validators;
 
 namespace ProductDataManager.Components.Pages.Attributes.Model;
 

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using ProductDataManager.Components.Shared.Model;
 using ProductDataManager.Validators;
 
 namespace ProductDataManager.Components.Pages.Descriptions.Model;

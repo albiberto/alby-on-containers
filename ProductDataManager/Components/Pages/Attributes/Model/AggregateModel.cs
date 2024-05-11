@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using ProductDataManager.Components.Shared.Model;
 using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 
 namespace ProductDataManager.Components.Pages.Attributes.Model;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 
-namespace ProductDataManager.Components.Pages.Attributes.Model;
+namespace ProductDataManager.Components.Shared.Model;
 
 public class Status(Value value)
 {
