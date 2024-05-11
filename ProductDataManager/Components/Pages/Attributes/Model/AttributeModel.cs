@@ -12,7 +12,7 @@ public record AttributeModel(Guid Id, string Name, string Description, Status? S
         string originalName = Name;
         string originalDescription = Description;
 
-    public AttributeModel(Attribute attribute, Status? state = default) : this(attribute.Id!.Value, attribute.Description, attribute.Description, state)
+    public AttributeModel(Attribute attribute, Status? state = default) : this(attribute.Id!.Value, attribute.Name, attribute.Description, state)
     {
     }
     

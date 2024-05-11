@@ -11,11 +11,12 @@ public class AggregateModel(
     IEnumerable<AttributeModel>? attrs = default,
     Status? status = default) : IStatus
 {
-    public AggregateModel(AttributeType type) : this(
+    public AggregateModel(AttributeType type) : this
+    (
         type.Id!.Value,
         type.Name,
         type.Description,
-        type.Types.Select(value => new AttributeModel(value)))
+        type.Attributes.Select(value => new AttributeModel(value)))
     {
     }
 

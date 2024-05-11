@@ -29,7 +29,7 @@
                 <MudTextField
                     T="string"
                     Value="@context.Item.Name"
-                    ValueChanged="@(async name => { context.Item.Name = name; await UpdateAttributeAsync(context.Item); })"
+                    ValueChanged="@(async name => { context.Item.Name = name.Trim(); await UpdateAttributeAsync(context.Item); })"
                     Variant="Variant.Text"
                     Class=@(context.Item.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Value().Validation"
@@ -42,7 +42,7 @@
                 <MudTextField
                     T="string"
                     Value="@context.Item.Description"
-                    ValueChanged="@(async description => { context.Item.Description = description; await UpdateAttributeAsync(context.Item); })"
+                    ValueChanged="@(async description => { context.Item.Description = description.Trim(); await UpdateAttributeAsync(context.Item); })"
                     Variant="Variant.Text"
                     Class=@(context.Item.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Description().Validation"

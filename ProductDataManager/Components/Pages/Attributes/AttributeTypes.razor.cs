@@ -9,7 +9,11 @@ public partial class AttributeTypes : ComponentBase
 {
     AggregatesModel Model { get; set; } = new();
     
-    protected override async Task OnInitializedAsync() => Model = new(await AttributeRepository.GetAllAsync());
+    protected override async Task OnInitializedAsync()
+    {
+        var types = await AttributeRepository.GetAllAsync();
+        Model = new(types);
+    }
 
     protected override void OnAfterRender(bool firstRender)
     
