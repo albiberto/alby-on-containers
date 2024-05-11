@@ -8,7 +8,7 @@ public class AttributeRepository(ProductContext context) : IAttributeRepository
 {
     public IUnitOfWork UnitOfWork { get; } = context;
 
-    public Task<List<AttributeCluster>> GetAllAsync() => context.AttributeCluster.Include(cluster => cluster).ToListAsync();
+    public Task<List<AttributeCluster>> GetAllAsync() => context.AttributeCluster.Include(cluster => cluster.Types).ToListAsync();
 
     public async Task<AttributeCluster> AddAsync(string? name = default, string? description = default)
     {

@@ -2,6 +2,7 @@
 @using ProductDataManager.Components.Pages.Attributes.Model
 @using ProductDataManager.Components.Shared.Model
 @using ProductDataManager.Validators
+@using ProductDataManager.Components.Shared.Filters
 
 
 <PageTitle>Descriptions</PageTitle>
@@ -21,9 +22,9 @@
         <HierarchyColumn T="AggregateModel"/>
         
         <TemplateColumn IsEditable="false" Sortable="false" Filterable="true" CellStyle="width: 100px;">
-            @* <FilterTemplate> *@
-            @*     <StateFilter Context="context" /> *@
-            @* </FilterTemplate> *@
+            <FilterTemplate>
+                <StateFilter T="AggregateModel" Context="context" />
+            </FilterTemplate>
             <CellTemplate>
                 <MudStack Row="true" Justify="Justify.Center">
                     <MudTooltip Text="@context.Item.Status.Current.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">

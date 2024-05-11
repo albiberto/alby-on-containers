@@ -6,13 +6,13 @@ using ProductDataManager.Components.Shared.Model;
 
 namespace ProductDataManager.Components.Shared.Filters;
 
-public partial class StateFilter
+public partial class StateFilter<T> where T: IStatus
 {
-    [Parameter] public required FilterContext<AggregateModel> Context { get; set; }
+    [Parameter] public required FilterContext<T> Context { get; set; }
     
-    HashSet<FilterModel> models = Enum.GetValues(typeof(Value)).Cast<Value>().Select(value => new FilterModel(value)).ToHashSet();
+    HashSet<FilterModel> models = Enum.GetValues(typeof(Value)).Cast<Value>().Select(value => new FilterModel(value, true)).ToHashSet();
     
-    FilterDefinition<AggregateModel> FilterDefinition => new()
+    FilterDefinition<T> FilterDefinition => new()
     {
         FilterFunction = type => models.Where(model => model.Checked).Select(model => model.Value).Contains(type.Status.Current),
     };
@@ -27,7 +27,7 @@ public partial class StateFilter
     
     async Task ClearFilterAsync()
     {
-        SelectAll();
+        SelectAll(true);
         await Context.Actions.ClearFilterAsync(FilterDefinition);
         open = false;
     }

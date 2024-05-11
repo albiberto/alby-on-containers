@@ -23,7 +23,7 @@
         
         <TemplateColumn IsEditable="false" Sortable="false" Filterable="true" CellStyle="width: 100px;">
             <FilterTemplate>
-                <StateFilter Context="context" />
+                <StateFilter T="AggregateModel" Context="context" />
             </FilterTemplate>
             <CellTemplate>
                 <MudStack Row="true" Justify="Justify.Center">

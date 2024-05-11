@@ -14,7 +14,7 @@ public class AggregateModel(
     bool mandatory,
     IEnumerable<ValueModel>? values = default,
     IEnumerable<JoinModel>? joins = default,
-    Status? status = default)
+    Status? status = default) : IStatus
 {
     public AggregateModel(DescriptionType type, IEnumerable<Category> categories) : this(
         type.Id!.Value,

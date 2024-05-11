@@ -1,4 +1,8 @@
-﻿<MudIconButton OnClick="@OpenFilter" Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" />
+﻿@using ProductDataManager.Components.Shared.Model
+
+@typeparam T where T: IStatus
+
+<MudIconButton OnClick="@OpenFilter" Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" />
 <MudIconButton OnClick="@ClearFilterAsync" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" />
 
 <MudOverlay Visible="@open" OnClick="@CloseFilter" />

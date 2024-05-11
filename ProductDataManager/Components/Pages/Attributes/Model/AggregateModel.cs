@@ -10,7 +10,7 @@ public class AggregateModel(
     string description,
     bool mandatory,
     IEnumerable<TypeModel>? types = default,
-    Status? status = default)
+    Status? status = default) : IStatus
 {
     public AggregateModel(AttributeCluster cluster) : this(
         cluster.Id!.Value,
