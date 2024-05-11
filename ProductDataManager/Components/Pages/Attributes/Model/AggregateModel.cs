@@ -9,33 +9,33 @@ public class AggregateModel(
     string name,
     string description,
     bool mandatory,
-    IEnumerable<TypeModel>? types = default,
+    IEnumerable<AttributeModel>? attrs = default,
     Status? status = default) : IStatus
 {
-    public AggregateModel(AttributeCluster cluster) : this(
-        cluster.Id!.Value,
-        cluster.Name,
-        cluster.Description,
-        cluster.Mandatory,
-        cluster.Types.Select(value => new TypeModel(value)))
+    public AggregateModel(AttributeType type) : this(
+        type.Id!.Value,
+        type.Name,
+        type.Description,
+        type.Mandatory,
+        type.Types.Select(value => new AttributeModel(value)))
     {
     }
 
     public static AggregateModel New(Guid id) => new(id, string.Empty, string.Empty, false, status: new(Value.Added));
 
-    public ClusterModel Cluster { get; } = new(id, name, description, mandatory, status);
-    public ObservableCollection<TypeModel> Types { get; set; } = new(types ?? []);
+    public AttributeTypeModel AttributeType { get; } = new(id, name, description, mandatory, status);
+    public ObservableCollection<AttributeModel> Types { get; set; } = new(attrs ?? []);
 
-    public bool IsValid => Cluster.IsValid && Types.All(value => value.IsValid);
+    public bool IsValid => AttributeType.IsValid && Types.All(value => value.IsValid);
 
     public Status Status
     {
         get
         {
-            if (!Cluster.Status.IsUnchanged) return Cluster.Status;
+            if (!AttributeType.Status.IsUnchanged) return AttributeType.Status;
 
             return Types.All(value => value.Status.IsUnchanged)
-                ? Cluster.Status
+                ? AttributeType.Status
                 : new(Value.Modified);
         }
     }
@@ -43,15 +43,15 @@ public class AggregateModel(
     public void AddType(Guid id, string value = "", string description = "") =>
         Types.Add(new(id, value, description, new(Value.Added)));
 
-    public void RemoveType(TypeModel type)
+    public void RemoveType(AttributeModel attribute)
     {
-        if (type.Status.IsAdded) Types.Remove(type);
-        else type.Status.Deleted();
+        if (attribute.Status.IsAdded) Types.Remove(attribute);
+        else attribute.Status.Deleted();
     }
 
     public void Save()
     {
-        Cluster.Save();
+        AttributeType.Save();
 
         foreach (var value in Types.ToHashSet())
         {
@@ -62,7 +62,7 @@ public class AggregateModel(
 
     public void Clear()
     {
-        Cluster.Clear();
+        AttributeType.Clear();
 
         foreach (var value in Types.ToList())
         {

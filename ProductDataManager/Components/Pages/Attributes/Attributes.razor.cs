@@ -3,20 +3,21 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ProductDataManager.Components.Pages.Attributes.Model;
 using ProductDataManager.Domain.Aggregates.AttributeAggregate;
+using Attribute = ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute;
 
 namespace ProductDataManager.Components.Pages.Attributes;
 
-public partial class Types : ComponentBase
+public partial class Attributes : ComponentBase
 {
-     async Task AddValueAsync()
+     async Task AddAttributeAsync()
     {
         try
         {
-            var entity = await AttributeRepository.AddTypeAsync(Aggregate.Cluster.Id);
+            var entity = await AttributeRepository.AddAttributeAsync(Aggregate.AttributeType.Id);
             Aggregate.AddType(entity.Id!.Value);
             
             await AggregateChanged.InvokeAsync(Aggregate);
-            Snackbar.Add("Value tracked for insertion", Severity.Info);
+            Snackbar.Add("Attribute tracked for insertion", Severity.Info);
         }
         catch(Exception e)
         {
@@ -25,19 +26,19 @@ public partial class Types : ComponentBase
         }
     }
     
-    async Task UpdateValueAsync(TypeModel value)
+    async Task UpdateAttributeAsync(AttributeModel attribute)
     {
         try
         {
-            if (value.IsDirty)
+            if (attribute.IsDirty)
             {
-                await AttributeRepository.UpdateTypeAsync(value.Id, value.Name, value.Description);
-                value.Status.Modified();
+                await AttributeRepository.UpdateAttributeAsync(attribute.Id, attribute.Name, attribute.Description);
+                attribute.Status.Modified();
             }
-            else await ClearAsync(value);
+            else await ClearAsync(attribute);
             
             await AggregateChanged.InvokeAsync(Aggregate);
-            if(value.Status.IsModified) Snackbar.Add("Value tracked for update", Severity.Info);
+            if(attribute.Status.IsModified) Snackbar.Add("Attribute tracked for update", Severity.Info);
         }
         catch(Exception e)
         {
@@ -46,15 +47,15 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task DeleteValueAsync(TypeModel value)
+    async Task DeleteAttributeAsync(AttributeModel attribute)
     {
         try
         {
-            await AttributeRepository.DeleteTypeAsync(value.Id);
-            Aggregate.RemoveType(value);
+            await AttributeRepository.DeleteAttributeAsync(attribute.Id);
+            Aggregate.RemoveType(attribute);
             
             await AggregateChanged.InvokeAsync(Aggregate);
-            Snackbar.Add("Value tracked for deletion", Severity.Info);
+            Snackbar.Add("Attribute tracked for deletion", Severity.Info);
         }
         catch (Exception e)
         {
@@ -63,12 +64,12 @@ public partial class Types : ComponentBase
         }
     }
 
-    async Task ClearAsync(TypeModel value)
+    async Task ClearAsync(AttributeModel attribute)
     {
         try
         {
-            await AttributeRepository.Clear<AttributeType>(value.Id);
-            value.Clear();
+            await AttributeRepository.Clear<Attribute>(attribute.Id);
+            attribute.Clear();
             
             await AggregateChanged.InvokeAsync(Aggregate);
         }
@@ -83,9 +84,9 @@ public partial class Types : ComponentBase
     {
         try
         {
-            foreach (var value in Aggregate.Types.ToFrozenSet())
-                if (value.Status.IsDeleted) Aggregate.RemoveType(value);
-                else value.Save();
+            foreach (var attribute in Aggregate.Types.ToFrozenSet())
+                if (attribute.Status.IsDeleted) Aggregate.RemoveType(attribute);
+                else attribute.Save();
         }
         catch (Exception e)
         {

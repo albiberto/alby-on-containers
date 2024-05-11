@@ -2,16 +2,17 @@
 using ProductDataManager.Components.Shared.Model;
 using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 using ProductDataManager.Validators;
+using Attribute = ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute;
 
 namespace ProductDataManager.Components.Pages.Attributes.Model;
 
 [method: JsonConstructor]
-public record TypeModel(Guid Id, string Name, string Description, Status? Status = default)
+public record AttributeModel(Guid Id, string Name, string Description, Status? Status = default)
     {
         string originalName = Name;
         string originalDescription = Description;
 
-    public TypeModel(AttributeType type, Status? state = default) : this(type.Id!.Value, type.Description, type.Description, state)
+    public AttributeModel(Attribute attribute, Status? state = default) : this(attribute.Id!.Value, attribute.Description, attribute.Description, state)
     {
     }
     

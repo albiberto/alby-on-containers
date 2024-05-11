@@ -2,15 +2,15 @@
 
 namespace ProductDataManager.Domain.Aggregates.AttributeAggregate;
 
-public interface IAttributeRepository : IRepository<AttributeCluster>
+public interface IAttributeRepository : IRepository<AttributeType>
 {
-    Task<List<AttributeCluster>> GetAllAsync();
-    Task<AttributeCluster> AddAsync(string? name = default, string? description = default);
-    Task UpdateAsync(Guid id, string name, string description);
-    Task DeleteAsync(Guid id);
-    Task<AttributeType> AddTypeAsync(Guid clusterId, string? name = default, string? description = default );
-    Task UpdateTypeAsync(Guid id, string name, string description);
-    Task DeleteTypeAsync(Guid id);
+    Task<List<AttributeType>> GetAllAsync();
+    Task<AttributeType> AddAttributeTypeAsync(string? name = default, string? description = default);
+    Task UpdateAttributeTypeAsync(Guid id, string name, string description);
+    Task DeleteAttributeTypeAsync(Guid id);
+    Task<Attribute> AddAttributeAsync(Guid clusterId, string? name = default, string? description = default );
+    Task UpdateAttributeAsync(Guid id, string name, string description);
+    Task DeleteAttributeAsync(Guid id);
     Task Clear<T>(Guid id) where T : Entity;
     void Clear();
     public bool HasChanges { get; }

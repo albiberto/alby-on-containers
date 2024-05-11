@@ -5,7 +5,7 @@ using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 
 namespace ProductDataManager.Components.Pages.Attributes;
 
-public partial class Cluster : ComponentBase
+public partial class AttributeTypes : ComponentBase
 {
     AggregatesModel Model { get; set; } = new();
     
@@ -17,14 +17,14 @@ public partial class Cluster : ComponentBase
         if (firstRender) registration = Navigation.RegisterLocationChangingHandler(OnLocationChanging);
     }
 
-    async Task AddClusterAsync()
+    async Task AddAttrTypeAsync()
     {
         try
         {
-            var entity = await AttributeRepository.AddAsync();
+            var entity = await AttributeRepository.AddAttributeTypeAsync();
             Model.Add(entity.Id!.Value);
             
-            Snackbar.Add("Cluster tracked for insertion", Severity.Info);
+            Snackbar.Add("Attribute Type tracked for insertion", Severity.Info);
         }
         catch(Exception e)
         {
@@ -33,18 +33,18 @@ public partial class Cluster : ComponentBase
         }
     }
 
-    async Task UpdateClusterAsync(AggregateModel aggregate)
+    async Task UpdateAttributeTypeAsync(AggregateModel aggregate)
     {
         try
         {
-            if (aggregate.Cluster.IsDirty)
+            if (aggregate.AttributeType.IsDirty)
             {
-                await AttributeRepository.UpdateAsync(aggregate.Cluster.Id, aggregate.Cluster.Name, aggregate.Cluster.Description);
+                await AttributeRepository.UpdateAttributeTypeAsync(aggregate.AttributeType.Id, aggregate.AttributeType.Name, aggregate.AttributeType.Description);
                 Model.Modified(aggregate);
             }
             else await ClearAsync(aggregate);
             
-            if(!aggregate.Cluster.Status.IsAdded) Snackbar.Add("Cluster tracked for update", Severity.Info);
+            if(!aggregate.AttributeType.Status.IsAdded) Snackbar.Add("Attribute type tracked for update", Severity.Info);
         }
         catch(Exception e)
         {
@@ -53,14 +53,14 @@ public partial class Cluster : ComponentBase
         }
     }
 
-    async Task DeleteClusterAsync(AggregateModel aggregate)
+    async Task DeleteAttributeTypeAsync(AggregateModel aggregate)
     {
         try
         {
-            await AttributeRepository.DeleteAsync(aggregate.Cluster.Id);
+            await AttributeRepository.DeleteAttributeTypeAsync(aggregate.AttributeType.Id);
             Model.Delete(aggregate);    
             
-            if(!aggregate.Status.IsAdded) Snackbar.Add("Cluster tracked for deletion", Severity.Info);
+            if(!aggregate.Status.IsAdded) Snackbar.Add("Attribute type tracked for deletion", Severity.Info);
         }
         catch (Exception e)
         {
@@ -73,8 +73,8 @@ public partial class Cluster : ComponentBase
     {
         try
         {
-            await AttributeRepository.Clear<AttributeCluster>(aggregate.Cluster.Id);
-            aggregate.Cluster.Clear();
+            await AttributeRepository.Clear<AttributeType>(aggregate.AttributeType.Id);
+            aggregate.AttributeType.Clear();
         }
         catch (Exception e)
         {

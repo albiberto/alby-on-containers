@@ -6,12 +6,12 @@ using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 
 namespace ProductDataManager.Components.Pages.Attributes;
 
-public partial class Types : IDisposable
+public partial class Attributes : IDisposable
 {
     [Inject] public required IAttributeRepository AttributeRepository { get; set; }
     [Inject] public required IDialogService DialogService { get; set; }
     [Inject] public required ISnackbar Snackbar { get; set; }
-    [Inject] public required ILogger<Types> Logger { get; set; }
+    [Inject] public required ILogger<Attributes> Logger { get; set; }
     [Inject] public required NavigationManager Navigation { get; set; }
 
     [Parameter] public required AggregateModel Aggregate { get; set; }

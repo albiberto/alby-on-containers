@@ -43,28 +43,28 @@
             </CellTemplate>
         </TemplateColumn>
         
-        <PropertyColumn Property="data => data.Cluster.Name">
+        <PropertyColumn Property="data => data.AttributeType.Name">
             <EditTemplate>
                 <MudTextField
                     T="string"
-                    Value="@context.Item.Cluster.Name"
-                    ValueChanged="@(async name => { context.Item.Cluster.Name = name; await UpdateClusterAsync(context.Item); })"
+                    Value="@context.Item.AttributeType.Name"
+                    ValueChanged="@(async name => { context.Item.AttributeType.Name = name; await UpdateAttributeTypeAsync(context.Item); })"
                     Variant="Variant.Text"
-                    Class=@(context.Item.Cluster.Status.IsDeleted ? "strikethrough" : "")
+                    Class=@(context.Item.AttributeType.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Name().Validation"
                     Immediate="true"
                     MaxLength="30"/>
             </EditTemplate>
         </PropertyColumn>
         
-        <PropertyColumn Property="data => data.Cluster.Description">
+        <PropertyColumn Property="data => data.AttributeType.Description">
             <EditTemplate>
                 <MudTextField
                     T="string"
-                    Value="@context.Item.Cluster.Description"
-                    ValueChanged="@(async description => { context.Item.Cluster.Description = description; await UpdateClusterAsync(context.Item); })"
+                    Value="@context.Item.AttributeType.Description"
+                    ValueChanged="@(async description => { context.Item.AttributeType.Description = description; await UpdateAttributeTypeAsync(context.Item); })"
                     Variant="Variant.Text"
-                    Class=@(context.Item.Cluster.Status.IsDeleted ? "strikethrough" : "")
+                    Class=@(context.Item.AttributeType.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Description().Validation"
                     Immediate="true"
                     MaxLength="100"/>
@@ -73,27 +73,27 @@
         
         <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
             <HeaderTemplate>
-                <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddClusterAsync()">Add</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddAttrTypeAsync()">Add</MudButton>
             </HeaderTemplate>
             <CellTemplate>
-                @if ((context.Item.Cluster.Status.IsModified && context.Item.Cluster.IsDirty) || context.Item.Cluster.Status.IsDeleted)
+                @if ((context.Item.AttributeType.Status.IsModified && context.Item.AttributeType.IsDirty) || context.Item.AttributeType.Status.IsDeleted)
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => ClearAsync(context.Item))"/>
                 }
                 @if (context.Item.Status is { IsDeleted: false })
                 {
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteClusterAsync(context.Item))"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteAttributeTypeAsync(context.Item))"/>
                 }
             </CellTemplate>
         </TemplateColumn>
     </Columns>
     
     <ChildRowContent>
-        <Types @bind-Aggregate="context.Item"/>
+        <Attributes @bind-Aggregate="context.Item"/>
     </ChildRowContent>
     
     <PagerContent>
-        <MudDataGridPager T="ClusterModel" />
+        <MudDataGridPager T="AttributeTypeModel" />
     </PagerContent>
     
 </MudDataGrid>

@@ -3,7 +3,7 @@ using ProductDataManager.Validators;
 
 namespace ProductDataManager.Components.Pages.Attributes.Model;
 
-public record ClusterModel(Guid Id, string Name, string Description, bool Mandatory, Status? Status = default)
+public record AttributeTypeModel(Guid Id, string Name, string Description, bool Mandatory, Status? Status = default)
 {
     string originalName = Name;
     string originalDescription = Description;

@@ -3,22 +3,22 @@ using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 
 namespace ProductDataManager.Components.Pages.Attributes.Model;
 
-public class AggregatesModel(IEnumerable<AttributeCluster>? clusters = default)
+public class AggregatesModel(IEnumerable<AttributeType>? types = default)
 {
-    public ObservableCollection<AggregateModel> Aggregates { get; } = new((clusters ?? []).Select(cluster => new AggregateModel(cluster)));
+    public ObservableCollection<AggregateModel> Aggregates { get; } = new((types ?? []).Select(type => new AggregateModel(type)));
 
     public void Add(Guid id) => Aggregates.Add(AggregateModel.New(id));
 
     public void Modified(AggregateModel aggregate)
     {
-        if (aggregate.Cluster.IsDirty) aggregate.Cluster.Status.Modified();
-        else aggregate.Cluster.Status.Unchanged();
+        if (aggregate.AttributeType.IsDirty) aggregate.AttributeType.Status.Modified();
+        else aggregate.AttributeType.Status.Unchanged();
     }
     
     public void Delete(AggregateModel aggregate)
     {
-        if(aggregate.Cluster.Status.IsAdded) Aggregates.Remove(aggregate);
-        else aggregate.Cluster.Status.Deleted();
+        if(aggregate.AttributeType.Status.IsAdded) Aggregates.Remove(aggregate);
+        else aggregate.AttributeType.Status.Deleted();
     }
 
     public void Save()

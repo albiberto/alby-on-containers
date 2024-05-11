@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 using ProductDataManager.Domain.SeedWork;
+using Attribute = ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute;
 
 namespace ProductDataManager.Infrastructure.Repositories;
 
@@ -8,58 +9,58 @@ public class AttributeRepository(ProductContext context) : IAttributeRepository
 {
     public IUnitOfWork UnitOfWork { get; } = context;
 
-    public Task<List<AttributeCluster>> GetAllAsync() => context.AttributeCluster.Include(cluster => cluster.Types).ToListAsync();
+    public Task<List<AttributeType>> GetAllAsync() => context.AttributeType.Include(cluster => cluster.Types).ToListAsync();
 
-    public async Task<AttributeCluster> AddAsync(string? name = default, string? description = default)
+    public async Task<AttributeType> AddAttributeTypeAsync(string? name = default, string? description = default)
     {
-        var cluster = new AttributeCluster(name ?? string.Empty, description ?? string.Empty);
-        var entity = await context.AttributeCluster.AddAsync(cluster);
+        var cluster = new AttributeType(name ?? string.Empty, description ?? string.Empty);
+        var entity = await context.AttributeType.AddAsync(cluster);
 
         return entity.Entity;
     }
     
-    public async Task UpdateAsync(Guid id, string name, string description)
+    public async Task UpdateAttributeTypeAsync(Guid id, string name, string description)
     {
-        var current = await context.AttributeCluster.FindAsync(id);
+        var current = await context.AttributeType.FindAsync(id);
 
         if (current is null) throw new ArgumentException("Cluster not found!");
             
         current.Update(name, description);
     }
     
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAttributeTypeAsync(Guid id)
     {
-        var current = await context.AttributeCluster.FindAsync(id);
+        var current = await context.AttributeType.FindAsync(id);
         
         if (current is null) throw new ArgumentException("Cluster not found!");
-        
-        context.AttributeCluster.Remove(current);
-    }
-    
-    public async Task<AttributeType> AddTypeAsync(Guid clusterId, string? name = default, string? description = default)
-    {
-        var type = new AttributeType(name ?? string.Empty, description ?? string.Empty, clusterId);
-        var entity = await context.AttributeType.AddAsync(type);
-
-        return entity.Entity;
-    }
-    
-    public async Task UpdateTypeAsync(Guid id, string name, string description)
-    {
-        var current = await context.AttributeType.FindAsync(id);
-
-        if (current is null) throw new ArgumentException("Type not found!");
-            
-        current.Update(name, description);
-    }
-    
-    public async Task DeleteTypeAsync(Guid id)
-    {
-        var current = await context.AttributeType.FindAsync(id);
-        
-        if (current is null) throw new ArgumentException("Type not found!");
         
         context.AttributeType.Remove(current);
+    }
+    
+    public async Task<Attribute> AddAttributeAsync(Guid clusterId, string? name = default, string? description = default)
+    {
+        var type = new Attribute(name ?? string.Empty, description ?? string.Empty, clusterId);
+        var entity = await context.Attribute.AddAsync(type);
+
+        return entity.Entity;
+    }
+    
+    public async Task UpdateAttributeAsync(Guid id, string name, string description)
+    {
+        var current = await context.Attribute.FindAsync(id);
+
+        if (current is null) throw new ArgumentException("Type not found!");
+            
+        current.Update(name, description);
+    }
+    
+    public async Task DeleteAttributeAsync(Guid id)
+    {
+        var current = await context.Attribute.FindAsync(id);
+        
+        if (current is null) throw new ArgumentException("Type not found!");
+        
+        context.Attribute.Remove(current);
     }
         
     public async Task Clear<T>(Guid id) where T : Entity
