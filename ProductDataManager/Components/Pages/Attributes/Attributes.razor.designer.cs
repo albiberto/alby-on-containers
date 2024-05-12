@@ -16,6 +16,8 @@ public partial class Attributes : IDisposable
 
     [Parameter] public required AggregateModel Aggregate { get; set; }
     [Parameter] public required EventCallback<AggregateModel> AggregateChanged { get; set; }
+    [Parameter] public required IEnumerable<(Guid TypeId, string TypeName)> Types { get; set; }
+    
 
     public void Dispose()
     {

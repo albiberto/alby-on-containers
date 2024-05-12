@@ -43,40 +43,40 @@
             </CellTemplate>
         </TemplateColumn>
         
-        <PropertyColumn Property="data => data.AttributeType.Name">
+        <PropertyColumn Property="data => data.Type.Name">
             <EditTemplate>
                 <MudTextField
                     T="string"
-                    Value="@context.Item.AttributeType.Name"
-                    ValueChanged="@(async name => { context.Item.AttributeType.Name = name; await UpdateAttributeTypeAsync(context.Item); })"
+                    Value="@context.Item.Type.Name"
+                    ValueChanged="@(async name => { context.Item.Type.Name = name; await UpdateAttributeTypeAsync(context.Item); })"
                     Variant="Variant.Text"
-                    Class=@(context.Item.AttributeType.Status.IsDeleted ? "strikethrough" : "")
+                    Class=@(context.Item.Type.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Name().Validation"
                     Immediate="true"
                     MaxLength="30"/>
             </EditTemplate>
         </PropertyColumn>
         
-        <PropertyColumn Property="data => data.AttributeType.Description">
+        <PropertyColumn Property="data => data.Type.Description">
             <EditTemplate>
                 <MudTextField
                     T="string"
-                    Value="@context.Item.AttributeType.Description"
-                    ValueChanged="@(async description => { context.Item.AttributeType.Description = description; await UpdateAttributeTypeAsync(context.Item); })"
+                    Value="@context.Item.Type.Description"
+                    ValueChanged="@(async description => { context.Item.Type.Description = description; await UpdateAttributeTypeAsync(context.Item); })"
                     Variant="Variant.Text"
-                    Class=@(context.Item.AttributeType.Status.IsDeleted ? "strikethrough" : "")
+                    Class=@(context.Item.Type.Status.IsDeleted ? "strikethrough" : "")
                     Validation="StringValidators.Description().Validation"
                     Immediate="true"
                     MaxLength="100"/>
             </EditTemplate>
         </PropertyColumn>
         
-        <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
+            <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
             <HeaderTemplate>
                 <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddAttrTypeAsync()">Add</MudButton>
             </HeaderTemplate>
             <CellTemplate>
-                @if ((context.Item.AttributeType.Status.IsModified && context.Item.AttributeType.IsDirty) || context.Item.AttributeType.Status.IsDeleted)
+                @if ((context.Item.Type.Status.IsModified && context.Item.Type.IsDirty) || context.Item.Type.Status.IsDeleted)
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => ClearAsync(context.Item))"/>
                 }
@@ -89,7 +89,7 @@
     </Columns>
     
     <ChildRowContent>
-        <Attributes @bind-Aggregate="context.Item"/>
+        <Attributes @bind-Aggregate="context.Item" Types="Model.Types"/>
     </ChildRowContent>
     
     <PagerContent>

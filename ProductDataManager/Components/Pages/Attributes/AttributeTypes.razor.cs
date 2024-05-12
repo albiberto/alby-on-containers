@@ -26,7 +26,7 @@ public partial class AttributeTypes : ComponentBase
         try
         {
             var entity = await AttributeRepository.AddAttributeTypeAsync();
-            Model.Add(entity.Id!.Value);
+            Model.AddType(entity.Id!.Value);
             
             Snackbar.Add("Attribute Type tracked for insertion", Severity.Info);
         }
@@ -41,14 +41,14 @@ public partial class AttributeTypes : ComponentBase
     {
         try
         {
-            if (aggregate.AttributeType.IsDirty)
+            if (aggregate.Type.IsDirty)
             {
-                await AttributeRepository.UpdateAttributeTypeAsync(aggregate.AttributeType.Id, aggregate.AttributeType.Name, aggregate.AttributeType.Description);
-                Model.Modified(aggregate);
+                await AttributeRepository.UpdateAttributeTypeAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
+                Model.ModifyType(aggregate);
             }
             else await ClearAsync(aggregate);
             
-            if(!aggregate.AttributeType.Status.IsAdded) Snackbar.Add("Attribute type tracked for update", Severity.Info);
+            if(!aggregate.Type.Status.IsAdded) Snackbar.Add("Attribute type tracked for update", Severity.Info);
         }
         catch(Exception e)
         {
@@ -61,8 +61,8 @@ public partial class AttributeTypes : ComponentBase
     {
         try
         {
-            await AttributeRepository.DeleteAttributeTypeAsync(aggregate.AttributeType.Id);
-            Model.Delete(aggregate);    
+            await AttributeRepository.DeleteAttributeTypeAsync(aggregate.Type.Id);
+            Model.DeleteType(aggregate);    
             
             if(!aggregate.Status.IsAdded) Snackbar.Add("Attribute type tracked for deletion", Severity.Info);
         }
@@ -77,8 +77,8 @@ public partial class AttributeTypes : ComponentBase
     {
         try
         {
-            await AttributeRepository.Clear<AttributeType>(aggregate.AttributeType.Id);
-            aggregate.AttributeType.Clear();
+            await AttributeRepository.Clear<AttributeType>(aggregate.Type.Id);
+            aggregate.Type.Clear();
         }
         catch (Exception e)
         {

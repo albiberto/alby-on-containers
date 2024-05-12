@@ -45,13 +45,13 @@ public class AttributeRepository(ProductContext context) : IAttributeRepository
         return entity.Entity;
     }
     
-    public async Task UpdateAttributeAsync(Guid id, string name, string description)
+    public async Task UpdateAttributeAsync(Guid id, string name, string description, Guid typeId)
     {
         var current = await context.Attribute.FindAsync(id);
 
         if (current is null) throw new ArgumentException("Type not found!");
             
-        current.Update(name, description);
+        current.Update(name, description, typeId);
     }
     
     public async Task DeleteAttributeAsync(Guid id)

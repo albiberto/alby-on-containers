@@ -8,10 +8,12 @@ public record Attribute(string Name, string Description, Guid TypeId, Guid? Id =
     public string Description { get; private set; } = Description;
     
     public AttributeType? Type { get; private set; }
+    public Guid TypeId { get; private set; } = TypeId;
 
-    public void Update(string name, string description)
+    public void Update(string name, string description, Guid typeId)
     {
         Name = name;
         Description = description;
+        TypeId = typeId;
     }
 }

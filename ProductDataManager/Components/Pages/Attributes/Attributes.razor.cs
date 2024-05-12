@@ -13,8 +13,8 @@ public partial class Attributes : ComponentBase
     {
         try
         {
-            var entity = await AttributeRepository.AddAttributeAsync(Aggregate.AttributeType.Id);
-            Aggregate.AddType(entity.Id!.Value);
+            var entity = await AttributeRepository.AddAttributeAsync(Aggregate.Type.Id);
+            Aggregate.AddAttribute(entity.Id!.Value);
             
             await AggregateChanged.InvokeAsync(Aggregate);
             Snackbar.Add("Attribute tracked for insertion", Severity.Info);
@@ -32,7 +32,7 @@ public partial class Attributes : ComponentBase
         {
             if (attribute.IsDirty)
             {
-                await AttributeRepository.UpdateAttributeAsync(attribute.Id, attribute.Name, attribute.Description);
+                await AttributeRepository.UpdateAttributeAsync(attribute.Id, attribute.Name, attribute.Description, attribute.TypeId);
                 attribute.Status.Modified();
             }
             else await ClearAsync(attribute);
@@ -52,7 +52,7 @@ public partial class Attributes : ComponentBase
         try
         {
             await AttributeRepository.DeleteAttributeAsync(attribute.Id);
-            Aggregate.RemoveType(attribute);
+            Aggregate.RemoveAttribute(attribute);
             
             await AggregateChanged.InvokeAsync(Aggregate);
             Snackbar.Add("Attribute tracked for deletion", Severity.Info);
@@ -84,8 +84,8 @@ public partial class Attributes : ComponentBase
     {
         try
         {
-            foreach (var attribute in Aggregate.Types.ToFrozenSet())
-                if (attribute.Status.IsDeleted) Aggregate.RemoveType(attribute);
+            foreach (var attribute in Aggregate.Attributes.ToFrozenSet())
+                if (attribute.Status.IsDeleted) Aggregate.RemoveAttribute(attribute);
                 else attribute.Save();
         }
         catch (Exception e)

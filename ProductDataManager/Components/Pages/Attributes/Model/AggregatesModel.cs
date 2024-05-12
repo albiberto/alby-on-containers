@@ -7,20 +7,25 @@ public class AggregatesModel(IEnumerable<AttributeType>? types = default)
 {
     public ObservableCollection<AggregateModel> Aggregates { get; } = new((types ?? []).Select(type => new AggregateModel(type)));
 
-    public void Add(Guid id) => Aggregates.Add(AggregateModel.New(id));
+    public void AddType(Guid id) => Aggregates.Add(AggregateModel.New(id));
 
-    public void Modified(AggregateModel aggregate)
+    public void ModifyType(AggregateModel aggregate)
     {
-        if (aggregate.AttributeType.IsDirty) aggregate.AttributeType.Status.Modified();
-        else aggregate.AttributeType.Status.Unchanged();
+        if (aggregate.Type.IsDirty) aggregate.Type.Status.Modified();
+        else aggregate.Type.Status.Unchanged();
     }
     
-    public void Delete(AggregateModel aggregate)
+    public void DeleteType(AggregateModel aggregate)
     {
-        if(aggregate.AttributeType.Status.IsAdded) Aggregates.Remove(aggregate);
-        else aggregate.AttributeType.Status.Deleted();
+        if(aggregate.Type.Status.IsAdded) Aggregates.Remove(aggregate);
+        else aggregate.Type.Status.Deleted();
     }
 
+    public HashSet<(Guid TypeId, string TypeName)> Types => 
+        Aggregates
+            .Select(aggregate => (aggregate.Type.Id, aggregate.Type.Name))
+            .ToHashSet();
+    
     public void Save()
     {
         foreach (var aggregate in Aggregates.ToHashSet())

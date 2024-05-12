@@ -22,50 +22,50 @@ public class AggregateModel(
 
     public static AggregateModel New(Guid id) => new(id, string.Empty, string.Empty, status: new(Value.Added));
 
-    public AttributeTypeModel AttributeType { get; } = new(id, name, description, status);
-    public ObservableCollection<AttributeModel> Types { get; set; } = new(attrs ?? []);
+    public AttributeTypeModel Type { get; } = new(id, name, description, status);
+    public ObservableCollection<AttributeModel> Attributes { get; set; } = new(attrs ?? []);
 
-    public bool IsValid => AttributeType.IsValid && Types.All(value => value.IsValid);
+    public bool IsValid => Type.IsValid && Attributes.All(value => value.IsValid);
 
     public Status Status
     {
         get
         {
-            if (!AttributeType.Status.IsUnchanged) return AttributeType.Status;
+            if (!Type.Status.IsUnchanged) return Type.Status;
 
-            return Types.All(value => value.Status.IsUnchanged)
-                ? AttributeType.Status
+            return Attributes.All(value => value.Status.IsUnchanged)
+                ? Type.Status
                 : new(Value.Modified);
         }
     }
 
-    public void AddType(Guid id, string value = "", string description = "") =>
-        Types.Add(new(id, value, description, new(Value.Added)));
+    public void AddAttribute(Guid id, string value = "", string description = "") =>
+        Attributes.Add(new(id, value, description, Type.Id, new(Value.Added)));
 
-    public void RemoveType(AttributeModel attribute)
+    public void RemoveAttribute(AttributeModel attribute)
     {
-        if (attribute.Status.IsAdded) Types.Remove(attribute);
+        if (attribute.Status.IsAdded) Attributes.Remove(attribute);
         else attribute.Status.Deleted();
     }
 
     public void Save()
     {
-        AttributeType.Save();
+        Type.Save();
 
-        foreach (var value in Types.ToHashSet())
+        foreach (var value in Attributes.ToHashSet())
         {
-            if (value.Status.IsDeleted) Types.Remove(value);
+            if (value.Status.IsDeleted) Attributes.Remove(value);
             else value.Save();
         }
     }
 
     public void Clear()
     {
-        AttributeType.Clear();
+        Type.Clear();
 
-        foreach (var value in Types.ToList())
+        foreach (var value in Attributes.ToList())
         {
-            if (value.Status.IsAdded) Types.Remove(value);
+            if (value.Status.IsAdded) Attributes.Remove(value);
             else value.Clear();
         }
     }

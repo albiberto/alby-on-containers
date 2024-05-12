@@ -2,7 +2,7 @@
 @using ProductDataManager.Components.Shared.Model
 @using ProductDataManager.Validators
 
-<MudDataGrid T="AttributeModel" Items="@Aggregate.Types" ReadOnly="@false"
+<MudDataGrid T="AttributeModel" Items="@Aggregate.Attributes" ReadOnly="@false"
              EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
              Filterable="false"
              SortMode="SortMode.Single" RowsPerPage="10" 
@@ -24,6 +24,7 @@
                 </MudTooltip>
             </CellTemplate>
         </TemplateColumn>
+        
         <PropertyColumn Property="data => data.Name">
             <EditTemplate>
                 <MudTextField
@@ -37,6 +38,7 @@
                     MaxLength="30"/>
             </EditTemplate>
         </PropertyColumn>
+        
         <PropertyColumn Property="data => data.Description">
             <EditTemplate>
                 <MudTextField
@@ -50,6 +52,24 @@
                     MaxLength="100"/>
             </EditTemplate>
         </PropertyColumn>
+
+        <PropertyColumn Property="data => data.TypeId">
+            <EditTemplate>
+
+                <MudSelect T="Guid"
+                            Placeholder="Change parent ..."
+                           Value="@context.Item.TypeId"
+                           ValueChanged="@(async typeId => { context.Item.TypeId = typeId; await UpdateAttributeAsync(context.Item); })"
+                           Immediate="true">
+                    @foreach (var (id, name) in Types)
+                    {
+                        <MudSelectItem Value="@id">@name</MudSelectItem>
+                    }
+                </MudSelect>
+
+            </EditTemplate>
+        </PropertyColumn>
+        
         <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
             <HeaderTemplate>
                 <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Medium" Color="Color.Secondary" OnClick="AddAttributeAsync"/>
