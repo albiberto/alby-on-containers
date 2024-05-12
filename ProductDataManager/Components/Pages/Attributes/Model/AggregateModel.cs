@@ -69,4 +69,6 @@ public class AggregateModel(
             else value.Clear();
         }
     }
+    
+    public IEnumerable<AttributeModel> GetDirtyAttributes => Attributes.Where(value => value.IsDirtyTypeId);
 }

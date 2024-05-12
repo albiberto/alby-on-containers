@@ -20,11 +20,13 @@ public record AttributeModel(Guid Id, string Name, string Description, Guid Type
     public string Name { get; set; } = Name;
     public string Description { get; set; } = Description;
     public Guid TypeId { get; set; } = TypeId;
-    public Status Status { get; private set; } = Status ?? new();
+    public Status Status { get; } = Status ?? new();
     
     public bool IsDirty => !string.Equals(originalName, Name, StringComparison.InvariantCulture) || 
                            !string.Equals(originalDescription, Description, StringComparison.InvariantCulture) ||
-                           originalTypeId != TypeId;
+                           IsDirtyTypeId;
+    
+    public bool IsDirtyTypeId => originalTypeId != TypeId;
     
     public void Clear()
     {

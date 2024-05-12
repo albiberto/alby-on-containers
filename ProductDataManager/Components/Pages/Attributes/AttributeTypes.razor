@@ -89,7 +89,9 @@
     </Columns>
     
     <ChildRowContent>
-        <Attributes @bind-Aggregate="context.Item" Types="Model.Types"/>
+        <MudCard Outlined="true" Elevation="2">
+            <Attributes @bind-Aggregate="context.Item" Types="Model.Types"/>
+        </MudCard>
     </ChildRowContent>
     
     <PagerContent>

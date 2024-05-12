@@ -28,16 +28,24 @@ public class AggregatesModel(IEnumerable<AttributeType>? types = default)
     
     public void Save()
     {
-        foreach (var aggregate in Aggregates.ToHashSet())
+        foreach (var aggregate in Aggregates)
+        {
+            foreach (var attribute in aggregate.GetDirtyAttributes)
+            {
+                aggregate.RemoveAttribute(attribute);
+                Aggregates.Single(@new => @new.Type.Id == attribute.TypeId).AddAttribute(attribute.Id, attribute.Name, attribute.Description);
+            }
+        
             if (aggregate.Status.IsDeleted) Aggregates.Remove(aggregate);
-            else aggregate.Save();
+            else aggregate.Save();   
+        }
     }
     
     public bool IsValid => Aggregates.All(aggregate => aggregate.IsValid);
     
     public void Clear()
     {
-        foreach (var aggregate in Aggregates.ToList())
+        foreach (var aggregate in Aggregates.ToHashSet())
             if(aggregate.Status.IsAdded) Aggregates.Remove(aggregate);
             else aggregate.Clear();
     }
