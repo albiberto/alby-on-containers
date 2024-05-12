@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProductDataManager.Infrastructure;
@@ -11,9 +12,11 @@ using ProductDataManager.Infrastructure;
 namespace ProductDataManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    partial class ProductContextModelSnapshot : ModelSnapshot
+    [Migration("20240512223028_AddProduct2")]
+    partial class AddProduct2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,13 +292,13 @@ namespace ProductDataManager.Infrastructure.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.ProductAggregate.ProductAttribute", b =>
+            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.ProductAggregate.ProductCategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AttributeId")
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -317,11 +320,11 @@ namespace ProductDataManager.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AttributeId");
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductsAttributes");
+                    b.ToTable("ProductsCategories");
                 });
 
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute", b =>
@@ -377,7 +380,7 @@ namespace ProductDataManager.Infrastructure.Migrations
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.ProductAggregate.Product", b =>
                 {
                     b.HasOne("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", "Category")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -385,28 +388,23 @@ namespace ProductDataManager.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.ProductAggregate.ProductAttribute", b =>
+            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.ProductAggregate.ProductCategory", b =>
                 {
-                    b.HasOne("ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute", "Attribute")
-                        .WithMany("ProductsAttributes")
-                        .HasForeignKey("AttributeId")
+                    b.HasOne("ProductDataManager.Domain.Aggregates.CategoryAggregate.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProductDataManager.Domain.Aggregates.ProductAggregate.Product", "Product")
-                        .WithMany("ProductsAttributes")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Attribute");
+                    b.Navigation("Category");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute", b =>
-                {
-                    b.Navigation("ProductsAttributes");
                 });
 
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.AttributeAggregate.AttributeType", b =>
@@ -419,8 +417,6 @@ namespace ProductDataManager.Infrastructure.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("DescriptionTypesCategories");
-
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("ProductDataManager.Domain.Aggregates.DescriptionAggregate.DescriptionType", b =>
@@ -428,11 +424,6 @@ namespace ProductDataManager.Infrastructure.Migrations
                     b.Navigation("DescriptionTypesCategories");
 
                     b.Navigation("DescriptionValues");
-                });
-
-            modelBuilder.Entity("ProductDataManager.Domain.Aggregates.ProductAggregate.Product", b =>
-                {
-                    b.Navigation("ProductsAttributes");
                 });
 #pragma warning restore 612, 618
         }

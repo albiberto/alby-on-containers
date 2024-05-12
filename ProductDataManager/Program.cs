@@ -5,6 +5,7 @@ using MudBlazor.Services;
 using ProductDataManager.Domain.Aggregates.AttributeAggregate;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
+using ProductDataManager.Domain.Aggregates.ProductAggregate;
 using ProductDataManager.Infrastructure;
 using ProductDataManager.Infrastructure.Interceptors;
 using ProductDataManager.Infrastructure.Repositories;
@@ -28,6 +29,7 @@ builder.Services.AddDbContext<ProductContext>(options =>
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDescriptionRepository, DescriptionsRepository>();
 builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 builder.Services.AddMudServices();
 
