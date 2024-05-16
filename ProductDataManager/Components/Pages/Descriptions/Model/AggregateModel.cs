@@ -24,7 +24,7 @@ public class AggregateModel(
         type.DescriptionValues.Select(value => new ValueModel(value)),
         categories.Select(category =>
         {
-            var join = type.DescriptionTypesCategories.FirstOrDefault(join => join.CategoryId == category.Id);
+            var join = type.DescriptionTypesCategories.SingleOrDefault(join => join.CategoryId == category.Id);
             return new JoinModel(join?.Id, category.Id!.Value, category.Name, join is not null);
         }))
     {

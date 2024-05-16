@@ -4,10 +4,8 @@ using ProductDataManager.Domain.SeedWork;
 
 namespace ProductDataManager.Infrastructure.Repositories;
 
-public class CategoryRepository(ProductContext context) : ICategoryRepository
+public class CategoryRepository(ProductContext context) : RepositoryBase(context), ICategoryRepository
 {
-    public IUnitOfWork UnitOfWork { get; } = context;
-    
     public Task<List<Category>> GetAllAsync() => context.Categories
         .OrderByDescending(category => category.Name)
         .ToListAsync();

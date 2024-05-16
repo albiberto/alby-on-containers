@@ -1,25 +1,28 @@
 ﻿using System.Collections.ObjectModel;
+using ProductDataManager.Components.Shared.Model;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
-using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
+using ProductDataManager.Domain.Aggregates.ProductAggregate;
 
 namespace ProductDataManager.Components.Pages.Products.Model;
 
-public class AggregatesModel(IEnumerable<DescriptionType>? types = default, IReadOnlyCollection<Category>? categories = default)
+public class AggregatesModel(IEnumerable<Product>? products = default, IEnumerable<Category>? categories = default)
 {
-    public ObservableCollection<AggregateModel> Aggregates { get; } = new((types ?? []).Select(type => new AggregateModel(type, categories ?? [])));
+    public HashSet<CategoryModel> Categories { get; } = categories?.Select(category => new CategoryModel(category.Id!.Value, category.Name)).ToHashSet() ?? [];
 
-    public void Add(Guid id) => Aggregates.Add(AggregateModel.New(id));
+    public ObservableCollection<AggregateModel> Aggregates { get; } = new((products ?? []).Select(product => new AggregateModel(product)));
+    
+    public void Add(Guid id) => Aggregates.Add(new(id, string.Empty, string.Empty, default, new(Value.Added)));
 
     public void Modified(AggregateModel aggregate)
     {
-        if (aggregate.Type.IsDirty) aggregate.Type.Status.Modified();
-        else aggregate.Type.Status.Unchanged();
+        if (aggregate.Product.IsDirty) aggregate.Product.Status.Modified();
+        else aggregate.Product.Status.Unchanged();
     }
     
     public void Delete(AggregateModel aggregate)
     {
-        if(aggregate.Type.Status.IsAdded) Aggregates.Remove(aggregate);
-        else aggregate.Type.Status.Deleted();
+        if(aggregate.Product.Status.IsAdded) Aggregates.Remove(aggregate);
+        else aggregate.Product.Status.Deleted();
     }
 
     public void Save()

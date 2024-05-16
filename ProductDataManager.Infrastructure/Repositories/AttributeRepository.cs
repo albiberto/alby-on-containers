@@ -5,10 +5,8 @@ using Attribute = ProductDataManager.Domain.Aggregates.AttributeAggregate.Attrib
 
 namespace ProductDataManager.Infrastructure.Repositories;
 
-public class AttributeRepository(ProductContext context) : IAttributeRepository
+public class AttributeRepository(ProductContext context) : RepositoryBase(context), IAttributeRepository
 {
-    public IUnitOfWork UnitOfWork { get; } = context;
-
     public Task<List<AttributeType>> GetAllAsync() => context.AttributeTypes.Include(type => type.Attributes).ToListAsync();
 
     public async Task<AttributeType> AddAttributeTypeAsync(string? name = default, string? description = default)

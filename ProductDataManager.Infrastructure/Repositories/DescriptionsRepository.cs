@@ -5,10 +5,9 @@ using ProductDataManager.Domain.SeedWork;
 
 namespace ProductDataManager.Infrastructure.Repositories;
 
-public class DescriptionsRepository(ProductContext context) : IDescriptionRepository
+public class DescriptionsRepository(ProductContext context) : RepositoryBase(context), IDescriptionRepository
 {
-    public IUnitOfWork UnitOfWork { get; } = context;
-    
+
     public Task<List<DescriptionType>> GetAllAsync() => context.DescriptionTypes
         .Include(type => type.DescriptionTypesCategories)
         .ThenInclude(join => join.Category)

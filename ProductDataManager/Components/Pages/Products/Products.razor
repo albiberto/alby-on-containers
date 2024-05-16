@@ -1,5 +1,113 @@
-﻿<h3>Products</h3>
+﻿@page "/products"
 
-@code {
+@using ProductDataManager.Components.Pages.Products.Model
+@using ProductDataManager.Components.Shared.Filters
+@using ProductDataManager.Components.Shared.Model
+@using ProductDataManager.Validators
+
+<PageTitle>Products</PageTitle>
+<MudText Typo="Typo.h3" GutterBottom="true">Products</MudText>
+
+<MudDataGrid T="AggregateModel" Items="@Model.Aggregates" ReadOnly="@false"
+             EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
+             FilterMode="DataGridFilterMode.ColumnFilterRow" Filterable="true" FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+             SortMode="SortMode.Single" RowsPerPage="10" 
+             Bordered="true" Elevation="1">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Save" OnClick="() => SaveAsync()" Disabled="DisableSave">Save</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.ClearAll" OnClick="() => ClearAll()" Disabled="DisableClearAll">Clear All</MudButton>
+    </ToolBarContent>
     
-}
+    <Columns>
+        <HierarchyColumn T="AggregateModel"/>
+        
+        <TemplateColumn IsEditable="false" Sortable="false" Filterable="true" CellStyle="width: 100px;">
+            <FilterTemplate>
+                <StateFilter T="AggregateModel" Context="context" />
+            </FilterTemplate>
+            <CellTemplate>
+                <MudStack Row="true" Justify="Justify.Center">
+                    <MudTooltip Text="@context.Item.Status.Current.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
+                        @if (context.Item.IsValid)
+                        {
+                            <MudIcon Icon="@context.Item.Status.Current.GetOutlinedIcon()"/>
+                        }
+                        else
+                        {
+                            <MudBadge Origin="@Origin.BottomRight" Color="Color.Warning" Overlap="true" Icon="@Icons.Material.Rounded.Warning">
+                                <MudIcon Icon="@context.Item.Status.Current.GetOutlinedIcon()"/>
+                            </MudBadge>
+                        }
+                    </MudTooltip>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        
+        <PropertyColumn Property="data => data.Product.Name">
+            <EditTemplate>
+                <MudTextField
+                    T="string"
+                    Value="@context.Item.Product.Name"
+                    ValueChanged="@(async name => { context.Item.Product.Name = name; await UpdateProductAsync(context.Item); })"
+                    Variant="Variant.Text"
+                    Class=@(context.Item.Product.Status.IsDeleted ? "strikethrough" : "")
+                    Validation="StringValidators.Name().Validation"
+                    Immediate="true"
+                    MaxLength="30"/>
+            </EditTemplate>
+        </PropertyColumn>
+        
+        <PropertyColumn Property="data => data.Product.Description">
+            <EditTemplate>
+                <MudTextField
+                    T="string"
+                    Value="@context.Item.Product.Description"
+                    ValueChanged="@(async description => { context.Item.Product.Description = description; await UpdateProductAsync(context.Item); })"
+                    Variant="Variant.Text"
+                    Class=@(context.Item.Product.Status.IsDeleted ? "strikethrough" : "")
+                    Validation="StringValidators.Description().Validation"
+                    Immediate="true"
+                    MaxLength="100"/>
+            </EditTemplate>
+        </PropertyColumn>
+
+        <PropertyColumn Property="data => data.Product.CategoryId">
+            <EditTemplate>
+
+                <MudSelect T="Guid?"
+                           Placeholder="Change parent ..."
+                           Value="@context.Item.Product.CategoryId"
+                           ValueChanged="@(async categoryId => { context.Item.Product.CategoryId = categoryId; await UpdateProductAsync(context.Item); })"
+                           Immediate="true">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                
+
+            </EditTemplate>
+        </PropertyColumn>
+        
+        <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
+            <HeaderTemplate>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddProductAsync()">Add</MudButton>
+            </HeaderTemplate>
+            <CellTemplate>
+                @if ((context.Item.Product.Status.IsModified && context.Item.Product.IsDirty) || context.Item.Product.Status.IsDeleted)
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => ClearAsync(context.Item))"/>
+                }
+                @if (context.Item.Status is { IsDeleted: false })
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteProductAsync(context.Item))"/>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    
+    <PagerContent>
+        <MudDataGridPager T="ProductModel" />
+    </PagerContent>
+    
+</MudDataGrid>

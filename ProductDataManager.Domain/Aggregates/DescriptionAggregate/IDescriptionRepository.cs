@@ -14,7 +14,4 @@ public interface IDescriptionRepository : IRepository<DescriptionType>
     Task DeleteValueAsync(Guid id);
     Task<DescriptionTypeCategory> AddCategoryAsync(Guid typeId, Guid categoryId);
     Task RemoveCategoryAsync(Guid id);
-    Task Clear<T>(Guid id) where T : Entity;
-    void Clear();
-    public bool HasChanges { get; }
 }
