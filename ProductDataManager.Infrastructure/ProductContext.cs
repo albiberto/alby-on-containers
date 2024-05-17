@@ -19,6 +19,7 @@ public class ProductContext(DbContextOptions<ProductContext> options, IEnumerabl
     public DbSet<Attribute> Attributes { get; private set; } = null!;
     public DbSet<Product> Products { get; private set; } = null!;
     public DbSet<ProductAttribute> ProductsAttributes { get; private set; } = null!;
+    public DbSet<ProductDescription> ProductsDescriptions { get; private set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -11,6 +11,7 @@ public record Product(string Name, string Description, Guid CategoryId, Guid? Id
 
     public Category? Category { get; private set; }
     public ICollection<ProductAttribute> ProductsAttributes { get; private set; } = [];
+    public ICollection<ProductDescription> ProductsDescriptions { get; private set; } = [];
 
     public void Update(string name, string description, Guid? id)
     {
