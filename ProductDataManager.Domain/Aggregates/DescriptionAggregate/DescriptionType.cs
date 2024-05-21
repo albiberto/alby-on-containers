@@ -18,4 +18,10 @@ public record DescriptionType(string Name, string Description, bool Mandatory, G
         Description = description;
         Mandatory = mandatory;
     }
+
+    public void AddDescriptionValue(string? value = default, string? description = default) => 
+        DescriptionValues.Add(new(value ?? string.Empty, description ?? string.Empty, Id!.Value));
+
+    public void RemoveDescriptionValue(DescriptionValue value) => 
+        DescriptionValues.Remove(value);
 }

@@ -1,9 +1,9 @@
-﻿namespace ProductDataManager.Domain.SeedWork;
+﻿using Ardalis.Specification;
 
-public interface IRepository<T> where T:IAggregateRoot
+namespace ProductDataManager.Domain.SeedWork;
+
+public interface IRepository<T> : IRepositoryBase<T> where T: class, IAggregateRoot
 {
-    public IUnitOfWork UnitOfWork { get; }
-    
     Task Clear<TEntity>(Guid id) where TEntity : Entity;
     void Clear();
     public bool HasChanges { get; }

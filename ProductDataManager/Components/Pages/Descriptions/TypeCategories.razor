@@ -1,6 +1,6 @@
-﻿<MudCheckBox T="bool" Label="Select All" Value="@Aggregate.Joins.All(join => join.Checked)" ValueChanged="@SelectAll" />
-
-@foreach (var join in Aggregate.Joins)
-{
-    <MudCheckBox T="bool" Label="@join.CategoryName" Value="@join.Checked" ValueChanged="@(value => SelectedChanged(value, join))" Class="mt-2"/>
-}
+﻿@* <MudCheckBox T="bool" Label="Select All" Value="@Aggregate.Joins.All(join => join.Checked)" ValueChanged="@SelectAll" /> *@
+@* *@
+@* @foreach (var join in Aggregate.Joins) *@
+@* { *@
+@*     <MudCheckBox T="bool" Label="@join.CategoryName" Value="@join.Checked" ValueChanged="@(value => SelectedChanged(value, join))" Class="mt-2"/> *@
+@* } *@

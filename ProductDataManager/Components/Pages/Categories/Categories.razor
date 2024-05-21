@@ -5,7 +5,7 @@
 
 <div class="d-flex flex-row-reverse mb-6">
     <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddCategoryAsync()">Add</MudButton>
-    <MudTextField T="string" Value="@filter" ValueChanged="@(value => FilterChanged(value))"  HelperText="Filter by category name" Label="Normal" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"/>
+    <MudTextField T="string" Value="@Filter" ValueChanged="@(value => FilterChanged(value))" HelperText="Filter by category name" Label="Normal" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"/>
 </div>
 
 <MudTreeView Items="@Forest" Dense="true" Hover="true" ExpandOnClick="true" MultiSelection="true">

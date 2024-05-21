@@ -73,7 +73,7 @@
         
             <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
             <HeaderTemplate>
-                <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddAttrTypeAsync()">Add</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Add" OnClick="() => AddAttributeTypeAsync()">Add</MudButton>
             </HeaderTemplate>
             <CellTemplate>
                 @if ((context.Item.Type.Status.IsModified && context.Item.Type.IsDirty) || context.Item.Type.Status.IsDeleted)

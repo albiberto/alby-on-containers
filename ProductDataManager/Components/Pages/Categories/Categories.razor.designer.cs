@@ -12,4 +12,12 @@ public partial class Categories
     [Inject] public required IDialogService DialogService { get; set; }
     [Inject] public required ISnackbar Snackbar { get; set; }
     [Inject] public required ILogger<Categories> Logger { get; set; }
+    
+    string Filter { get; set; } = string.Empty;
+    
+    void FilterChanged(string value)
+    {
+        Filter = value;
+        UpdateForest();
+    }
 }

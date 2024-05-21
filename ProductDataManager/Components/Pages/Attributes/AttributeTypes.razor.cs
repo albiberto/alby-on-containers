@@ -2,6 +2,7 @@
 using MudBlazor;
 using ProductDataManager.Components.Pages.Attributes.Model;
 using ProductDataManager.Domain.Aggregates.AttributeAggregate;
+using ProductDataManager.Infrastructure.Specifications;
 
 namespace ProductDataManager.Components.Pages.Attributes;
 
@@ -11,7 +12,7 @@ public partial class AttributeTypes : ComponentBase
     
     protected override async Task OnInitializedAsync()
     {
-        var types = await AttributeRepository.GetAllAsync();
+        var types = await AttributeRepository.ListAsync(new AttributeSpecification());
         Model = new(types);
     }
 
@@ -21,11 +22,11 @@ public partial class AttributeTypes : ComponentBase
         if (firstRender) registration = Navigation.RegisterLocationChangingHandler(OnLocationChanging);
     }
 
-    async Task AddAttrTypeAsync()
+    async Task AddAttributeTypeAsync()
     {
         try
         {
-            var entity = await AttributeRepository.AddAttributeTypeAsync();
+            var entity = await AttributeRepository.AddAsync(new());
             Model.AddType(entity.Id!.Value);
             
             Snackbar.Add("Attribute Type tracked for insertion", Severity.Info);
@@ -43,7 +44,7 @@ public partial class AttributeTypes : ComponentBase
         {
             if (aggregate.Type.IsDirty)
             {
-                await AttributeRepository.UpdateAttributeTypeAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
+                await AttributeRepository.UpdateAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
                 Model.ModifyType(aggregate);
             }
             else await ClearAsync(aggregate);

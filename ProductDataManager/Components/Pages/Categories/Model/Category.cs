@@ -7,8 +7,8 @@ namespace ProductDataManager.Components.Pages.Categories.Model;
         public Guid? Id { get; } = category.Id;
         public Category Category { get; } = category;
 
-        public string Name { get; set; } = category.Name ?? string.Empty;
-        public string Description { get; set; } = category.Description ?? string.Empty;
+        public string Name { get; set; } = category.Name;
+        public string Description { get; set; } = category.Description;
         public Guid? ParentId { get; set; } = category.ParentId;
         
         public string ParentName { get; set; } = category.Parent?.Name ?? string.Empty;
@@ -18,8 +18,8 @@ namespace ProductDataManager.Components.Pages.Categories.Model;
         public bool ParentIdIsDirty => Category.ParentId != ParentId;
         public bool IsDirty => NameIsDirty || DescriptionIsDirty || ParentIdIsDirty;
         
-        public void CleanName() => Name = Category.Name ?? string.Empty;
-        public void CleanDescription() => Description = Category.Description ?? string.Empty;
+        public void CleanName() => Name = Category.Name;
+        public void CleanDescription() => Description = Category.Description;
         public void CleanParentId() => ParentId = Category.ParentId;
 
         public HashSet<Data> Items { get; } = [];

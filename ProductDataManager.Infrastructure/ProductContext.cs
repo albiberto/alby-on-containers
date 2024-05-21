@@ -9,7 +9,7 @@ using Attribute = ProductDataManager.Domain.Aggregates.AttributeAggregate.Attrib
 
 namespace ProductDataManager.Infrastructure;
 
-public class ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : DbContext(options), IUnitOfWork
+public class ProductContext(DbContextOptions<ProductContext> options, IEnumerable<IInterceptor> interceptors) : DbContext(options)
 {
     public DbSet<Category> Categories { get; private set; } = null!;
     public DbSet<DescriptionType> DescriptionTypes { get; private set; } = null!;

@@ -4,25 +4,33 @@ using ProductDataManager.Components.Pages.Categories.Model;
 using ProductDataManager.Components.Shared.Dialogs;
 using ProductDataManager.Domain.Aggregates.CategoryAggregate;
 using ProductDataManager.Exstensions;
+using ProductDataManager.Infrastructure.Specifications;
 
 namespace ProductDataManager.Components.Pages.Categories;
 
 public partial class Categories : ComponentBase
 {
     List<Category> categories = [];
-    string filter = string.Empty;
     HashSet<Data> Forest { get; set; } = [];
     HashSet<Parent> Parents { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await Repository.GetAllAsync();
+        categories = await Repository.ListAsync(new OrderedCategorySpecification());
         UpdateForest();
     }
 
     void UpdateForest()
     {
-        var currentFilter = Selector(filter);
+        static Func<Data, bool> Selector(string filter)
+        {
+            return data => string.IsNullOrEmpty(filter)
+                           || data.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+                           || data.ParentName.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+                           || data.HasChild;
+        }
+        
+        var currentFilter = Selector(Filter);
 
         Forest = categories
             .Where(c => c.ParentId == null)
@@ -37,21 +45,6 @@ public partial class Categories : ComponentBase
             .ToHashSet();
 
         StateHasChanged();
-        return;
-
-        static Func<Data, bool> Selector(string filter)
-        {
-            return data => string.IsNullOrEmpty(filter)
-                           || data.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-                           || data.ParentName.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-                           || data.HasChild;
-        }
-    }
-
-    void FilterChanged(string value)
-    {
-        filter = value;
-        UpdateForest();
     }
 
     async Task AddCategoryAsync(Guid? parentId = default)
@@ -70,8 +63,8 @@ public partial class Categories : ComponentBase
         if (!result.Canceled)
             try
             {
-                var category = await Repository.AddAsync(model.Name, model.Description, parentId);
-                await Repository.UnitOfWork.SaveChangesAsync();
+                var category = await Repository.AddAsync(new(model.Name, model.Description, parentId));
+                await Repository.SaveChangesAsync();
                 
                 if(parentId is null) categories.Add(category);
             }
@@ -89,8 +82,13 @@ public partial class Categories : ComponentBase
     {
         try
         {
-            await Repository.UpdateAsync(data.Id!.Value, data.Name, data.Description, data.ParentId);
-            await Repository.UnitOfWork.SaveChangesAsync();
+            var category = await Repository.GetByIdAsync(data.Id!.Value);
+            
+            if(category is null) throw new ArgumentException("Category not found!");
+            
+            category.Update(data.Name, data.Description, data.ParentId);
+            await Repository.UpdateAsync(category);
+            await Repository.SaveChangesAsync();
         }
         catch (Exception e)
         {
@@ -109,22 +107,19 @@ public partial class Categories : ComponentBase
             Snackbar.Add("Category has subcategories", Severity.Error);
             return;
         }
-        
-        // if (data.Items.Count > 0)
-        // {
-        //     Snackbar.Add("Description has related products", Severity.Error);
-        //     return;
-        // }
 
         var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>("Delete Category");
-
         var result = await dialog.Result;
 
         if (!result.Canceled)
             try
             {
-                await Repository.DeleteAsync(data.Id!.Value);
-                await Repository.UnitOfWork.SaveChangesAsync();
+                var category = await Repository.GetByIdAsync(data.Id!.Value);
+                
+                if(category is null) throw new ArgumentException("Category not found!");
+
+                await Repository.DeleteAsync(category);
+                await Repository.SaveChangesAsync();
                 
                 if(data.ParentId is null) categories.RemoveAll(c => c.Id == data.Id);
                 UpdateForest();
