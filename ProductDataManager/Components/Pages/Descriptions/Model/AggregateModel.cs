@@ -17,7 +17,7 @@ public class AggregateModel(
     Status? status = default) : IStatus
 {
     public AggregateModel(DescriptionType type, IEnumerable<Category> categories) : this(
-        type.Id!.Value,
+        type.Id,
         type.Name,
         type.Description,
         type.Mandatory,
@@ -25,7 +25,7 @@ public class AggregateModel(
         categories.Select(category =>
         {
             var join = type.DescriptionTypesCategories.FirstOrDefault(join => join.CategoryId == category.Id);
-            return new JoinModel(join?.Id, category.Id!.Value, category.Name, join is not null);
+            return new JoinModel(join?.Id, category.Id, category.Name, join is not null);
         }))
     {
     }

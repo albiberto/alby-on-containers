@@ -11,7 +11,7 @@ public record ValueModel(Guid Id, string Value, string Description, Status? Stat
     string originalValue = Value;
     string originalDescription = Description;
 
-    public ValueModel(DescriptionValue value, Status? state = default) : this(value.Id!.Value, value.Value, value.Description, state)
+    public ValueModel(DescriptionValue value, Status? state = default) : this(value.Id, value.Value, value.Description, state)
     {
     }
     

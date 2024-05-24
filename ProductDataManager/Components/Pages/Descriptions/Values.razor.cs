@@ -6,14 +6,19 @@ using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
+using Infrastructure;
+
 public partial class Values : ComponentBase
 {
     async Task AddValueAsync()
     {
         try
         {
-            var entity = await Repository.AddValueAsync(Aggregate.Type.Id);
-            Aggregate.AddValue(entity.Id!.Value);
+            DbContext.DescriptionValues.Add(new DescriptionValue
+            {
+                Description = "",
+                DescriptionTypeId = Aggregate.Type.Id
+            });
             
             await AggregateChanged.InvokeAsync(Aggregate);
             Snackbar.Add("Value tracked for insertion", Severity.Info);
@@ -27,30 +32,14 @@ public partial class Values : ComponentBase
     
     async Task UpdateValueAsync(ValueModel value)
     {
-        try
-        {
-            if (value.IsDirty)
-            {
-                await Repository.UpdateValueAsync(value.Id, value.Value, value.Description);
-                value.Status.Modified();
-            }
-            else await ClearAsync(value);
-            
-            await AggregateChanged.InvokeAsync(Aggregate);
-            if(value.Status.IsModified) Snackbar.Add("Value tracked for update", Severity.Info);
-        }
-        catch(Exception e)
-        {
-            Logger.LogError(e, "Error while updating description");
-            Snackbar.Add("Error while updating description", Severity.Error);
-        }
+       
     }
 
     async Task DeleteValueAsync(ValueModel value)
     {
         try
         {
-            await Repository.DeleteValueAsync(value.Id);
+            DbContext.DescriptionValues.Remove(DbContext.DescriptionValues.Local.FindEntry(value.Id)!.Entity);
             Aggregate.RemoveValue(value);
             
             await AggregateChanged.InvokeAsync(Aggregate);
@@ -67,7 +56,7 @@ public partial class Values : ComponentBase
     {
         try
         {
-            await Repository.Clear<DescriptionValue>(value.Id);
+            DbContext.DescriptionValues.Local.FindEntry(value.Id)!.DiscardChanges();
             value.Clear();
             
             await AggregateChanged.InvokeAsync(Aggregate);

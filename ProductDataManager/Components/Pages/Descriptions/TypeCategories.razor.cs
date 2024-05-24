@@ -3,6 +3,8 @@ using ProductDataManager.Components.Pages.Descriptions.Model;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
+using Domain.Aggregates.DescriptionAggregate;
+
 public partial class TypeCategories
 {
     async Task SelectedChanged(bool value, JoinModel join)
@@ -71,13 +73,16 @@ public partial class TypeCategories
     
     async Task RemoveAsync(JoinModel join)
     {
-        await DescriptionRepository.RemoveCategoryAsync(join.Id!.Value);
+        DbContext.DescriptionTypesCategories.Remove(DbContext.DescriptionTypesCategories.Local.FindEntry(join.Id!.Value)!.Entity);
         join.Update();
     }
 
     async Task AddAsync(JoinModel join)
     {
-        var entity = await DescriptionRepository.AddCategoryAsync(Aggregate.Type.Id, join.CategoryId);
-        join.Update(entity.Id);
+        DbContext.DescriptionTypesCategories.Add(new DescriptionTypeCategory
+        {
+            DescriptionTypeId = Aggregate.Type.Id,
+            CategoryId = join.CategoryId
+        });
     }
 }

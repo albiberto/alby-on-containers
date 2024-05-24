@@ -3,8 +3,12 @@ using ProductDataManager.Domain.SeedWork;
 
 namespace ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 
-public record DescriptionTypeCategory(Guid DescriptionTypeId, Guid CategoryId, Guid? Id = default) : Entity(Id)
+using CommunityToolkit.Mvvm.ComponentModel;
+
+public partial class DescriptionTypeCategory : Entity
 {
-    public DescriptionType? DescriptionType { get; private set; }
-    public Category? Category { get; private set; }
+    [ObservableProperty] Guid descriptionTypeId ;
+    [ObservableProperty] Guid categoryId;
+    DescriptionType? descriptionType;
+    Category? category;
 }

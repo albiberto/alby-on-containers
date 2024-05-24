@@ -1,97 +1,59 @@
-﻿using System.Collections.Frozen;
+﻿namespace ProductDataManager.Components.Pages.Attributes;
+
+using Domain.Aggregates.AttributeAggregate;
+using DynamicData;
+using FluentValidation;
+using Infrastructure;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
-using ProductDataManager.Components.Pages.Attributes.Model;
-using ProductDataManager.Domain.Aggregates.AttributeAggregate;
-using Attribute = ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute;
 
-namespace ProductDataManager.Components.Pages.Attributes;
-
-public partial class Attributes : ComponentBase
+public class AttributeValidator : AbstractValidator<Attribute>
 {
-     async Task AddAttributeAsync()
+    public AttributeValidator()
     {
-        try
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithMessage("{PropertyName} is required")
+            .Length(3, 30)
+            .WithMessage("{PropertyName} must be between {MinLength} and {MaxLength} characters");
+
+        RuleFor(x => x.Description)
+            .NotNull()
+            .Length(0, 100)
+            .WithMessage("{PropertyName} must be less than {MaxLength} characters");
+    }
+}
+
+public partial class Attributes : ComponentBase, IDisposable
+{
+    [Inject] public required ProductContext DbContext { get; set; }
+
+    [Parameter] public required AttributeType Parent { get; set; }
+    [Parameter] public required IReadOnlyObservableCollection<Model<AttributeType>> Types { get; set; }
+
+    IReadOnlyObservableCollection<Model<Attribute>> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var validator = new AttributeValidator();
+
+        Items = DbContext.Changes
+            .Connect(entry => entry.Entity is Attribute && entry.OriginalValues[nameof(Attribute.TypeId)] is Guid id && id == Parent.Id)
+            .Transform(entry => new Model<Attribute>(entry, validator), (model, entry) => model.Update(entry))
+            .ToObservableCollection();
+    }
+
+    void Add()
+    {
+        DbContext.Add(new Attribute
         {
-            var entity = await AttributeRepository.AddAttributeAsync(Aggregate.Type.Id);
-            Aggregate.AddAttribute(entity.Id!.Value);
-            
-            await AggregateChanged.InvokeAsync(Aggregate);
-            Snackbar.Add("Attribute tracked for insertion", Severity.Info);
-        }
-        catch(Exception e)
-        {
-            Logger.LogError(e, "Error while adding description");
-            Snackbar.Add("Error while adding description", Severity.Error);
-        }
+            Name = "",
+            Description = "",
+            TypeId = Parent.Id
+        });
     }
     
-    async Task UpdateAttributeAsync(AttributeModel attribute)
+    public void Dispose()
     {
-        try
-        {
-            if (attribute.IsDirty)
-            {
-                await AttributeRepository.UpdateAttributeAsync(attribute.Id, attribute.Name, attribute.Description, attribute.TypeId);
-                attribute.Status.Modified();
-            }
-            else await ClearAsync(attribute);
-            
-            await AggregateChanged.InvokeAsync(Aggregate);
-            if(attribute.Status.IsModified) Snackbar.Add("Attribute tracked for update", Severity.Info);
-        }
-        catch(Exception e)
-        {
-            Logger.LogError(e, "Error while updating description");
-            Snackbar.Add("Error while updating description", Severity.Error);
-        }
-    }
-
-    async Task DeleteAttributeAsync(AttributeModel attribute)
-    {
-        try
-        {
-            await AttributeRepository.DeleteAttributeAsync(attribute.Id);
-            Aggregate.RemoveAttribute(attribute);
-            
-            await AggregateChanged.InvokeAsync(Aggregate);
-            Snackbar.Add("Attribute tracked for deletion", Severity.Info);
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while deleting description");
-            Snackbar.Add("Error while deleting description", Severity.Error);
-        }
-    }
-
-    async Task ClearAsync(AttributeModel attribute)
-    {
-        try
-        {
-            await AttributeRepository.Clear<Attribute>(attribute.Id);
-            attribute.Clear();
-            
-            await AggregateChanged.InvokeAsync(Aggregate);
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while clearing description");
-            Snackbar.Add("Error while clearing description", Severity.Error);
-        }
-    }
-
-    void SaveDescriptionTypeAsync()
-    {
-        try
-        {
-            foreach (var attribute in Aggregate.Attributes.ToFrozenSet())
-                if (attribute.Status.IsDeleted) Aggregate.RemoveAttribute(attribute);
-                else attribute.Save();
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while deleting category");
-            Snackbar.Add("Error while deleting category", Severity.Error);
-        }
+        Items.Dispose();
     }
 }

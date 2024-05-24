@@ -2,15 +2,12 @@
 
 namespace ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 
-public record DescriptionValue(string Value, string Description, Guid DescriptionTypeId, Guid? Id = default) : Entity(Id)
-{
-    public DescriptionType? DescriptionType { get; private set; }
-    public string Value { get; set; } = Value;
-    public string Description { get; set; } = Description;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-    public void Update(string value, string description)
-    {
-        Value = value;
-        Description = description;
-    }
+public partial class DescriptionValue : Entity
+{
+    [ObservableProperty] DescriptionType? descriptionType;
+    [ObservableProperty] string value;
+    [ObservableProperty] string description;
+    [ObservableProperty] Guid descriptionTypeId;
 }

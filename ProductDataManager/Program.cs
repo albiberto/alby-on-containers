@@ -1,15 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using ProductDataManager.Components;
 using MudBlazor.Services;
-using ProductDataManager.Domain.Aggregates.AttributeAggregate;
-using ProductDataManager.Domain.Aggregates.CategoryAggregate;
-using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
-using ProductDataManager.Domain.Aggregates.ProductAggregate;
+using ProductDataManager.Components;
 using ProductDataManager.Infrastructure;
 using ProductDataManager.Infrastructure.Interceptors;
-using ProductDataManager.Infrastructure.Repositories;
 using ProductDataManager.Validators;
+using ReactiveUI;
+
+PlatformRegistrationManager.SetRegistrationNamespaces(RegistrationNamespace.Blazor);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,11 +24,6 @@ builder.Services.AddDbContext<ProductContext>(options =>
         o.MigrationsAssembly(typeof(ProductContext).Assembly.FullName));
 });
 
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IDescriptionRepository, DescriptionsRepository>();
-builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-
 builder.Services.AddMudServices();
 
 var app = builder.Build();
@@ -43,7 +36,7 @@ await context.Database.MigrateAsync();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error", true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }

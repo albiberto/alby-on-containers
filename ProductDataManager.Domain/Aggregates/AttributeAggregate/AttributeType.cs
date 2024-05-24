@@ -2,16 +2,14 @@
 
 namespace ProductDataManager.Domain.Aggregates.AttributeAggregate;
 
-public record AttributeType(string Name, string Description, Guid? Id = default, bool Tech = false) : Entity(Id), IAggregateRoot
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+
+public partial class AttributeType : Entity
 {
-  public string Name { get; private set; } = Name;
-  public string Description { get; private set; } = Description;
+  [ObservableProperty] string name;
+  [ObservableProperty] string description;
+  [ObservableProperty] bool tech;
   
-  public ICollection<Attribute> Attributes { get; } = [];
-  
-  public void Update(string name, string description)
-  {
-    Name = name;
-    Description = description;
-  }
+  public ObservableCollection<Attribute> Attributes { get; } = [];
 }

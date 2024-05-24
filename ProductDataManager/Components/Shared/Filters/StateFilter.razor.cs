@@ -1,30 +1,39 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿namespace ProductDataManager.Components.Shared.Filters;
+
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
+using Model;
 using MudBlazor;
-using ProductDataManager.Components.Pages.Descriptions.Model;
-using ProductDataManager.Components.Shared.Filters.Model;
-using ProductDataManager.Components.Shared.Model;
+using Pages.Attributes;
 
-namespace ProductDataManager.Components.Shared.Filters;
-
-public partial class StateFilter<T> where T: IStatus
+public partial class StateFilter<T> where T : class
 {
-    [Parameter] public required FilterContext<T> Context { get; set; }
+    [Parameter] public required FilterContext<Model<T>> Context { get; set; }
     
-    HashSet<FilterModel> models = Enum.GetValues(typeof(Value)).Cast<Value>().Select(value => new FilterModel(value, true)).ToHashSet();
-    
-    FilterDefinition<T> FilterDefinition => new()
+    List<FilterModel> models =
+    [
+        new FilterModel(EntityState.Unchanged, true),
+        new FilterModel(EntityState.Modified, true),
+        new FilterModel(EntityState.Added, true),
+        new FilterModel(EntityState.Deleted, true)
+    ];
+
+    FilterDefinition<Model<T>> FilterDefinition => new()
     {
-        FilterFunction = type => models.Where(model => model.Checked).Select(model => model.Value).Contains(type.Status.Current),
+        FilterFunction = type => models.Any(model => model.Checked && model.Value == type.State)
     };
 
     void OpenFilter() => open = true;
     void CloseFilter() => open = false;
-    
+
     void SelectAll(bool value = false)
     {
-        foreach (var model in models) model.Set(value);
+        foreach (var model in models)
+        {
+            model.Set(value);
+        }
     }
-    
+
     async Task ClearFilterAsync()
     {
         SelectAll(true);
@@ -33,7 +42,7 @@ public partial class StateFilter<T> where T: IStatus
     }
 
     static void SelectedChanged(bool value, FilterModel model) => model.Set(value);
-    
+
     async Task ApplyFilterAsync()
     {
         await Context.Actions.ApplyFilterAsync(FilterDefinition);

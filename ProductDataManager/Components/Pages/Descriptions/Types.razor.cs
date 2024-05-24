@@ -6,10 +6,13 @@ using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 
 namespace ProductDataManager.Components.Pages.Descriptions;
 
+using Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
 public partial class Types : ComponentBase
 {
     AggregatesModel Model { get; set; } = new();
-    protected override async Task OnInitializedAsync() => Model = new(await DescriptionRepository.GetAllAsync(), await CategoryRepository.GetAllAsync());
+    protected override async Task OnInitializedAsync() => Model = new(await DbContext.DescriptionTypes.ToListAsync(), await DbContext.Categories.ToListAsync());
 
     protected override void OnAfterRender(bool firstRender)
     
@@ -21,8 +24,13 @@ public partial class Types : ComponentBase
     {
         try
         {
-            var entity = await DescriptionRepository.AddAsync();
-            Model.Add(entity.Id!.Value);
+            var entity = new DescriptionType
+            {
+                Name = "",
+                Description = ""
+            };
+            DbContext.DescriptionTypes.Add(entity);
+            Model.Add(entity.Id);
             
             Snackbar.Add("Type tracked for insertion", Severity.Info);
         }
@@ -35,29 +43,14 @@ public partial class Types : ComponentBase
 
     async Task UpdateTypeAsync(AggregateModel aggregate)
     {
-        try
-        {
-            if (aggregate.Type.IsDirty)
-            {
-                await DescriptionRepository.UpdateAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description, aggregate.Type.Mandatory);
-                Model.Modified(aggregate);
-            }
-            else await ClearAsync(aggregate);
-            
-            if(!aggregate.Type.Status.IsAdded) Snackbar.Add("Type tracked for update", Severity.Info);
-        }
-        catch(Exception e)
-        {
-            Logger.LogError(e, "Error while updating description");
-            Snackbar.Add("Error while updating description", Severity.Error);
-        }
+      
     }
 
     async Task DeleteTypeAsync(AggregateModel aggregate)
     {
         try
         {
-            await DescriptionRepository.DeleteAsync(aggregate.Type.Id);
+            DbContext.DescriptionTypes.Remove(DbContext.DescriptionTypes.Local.FindEntry(aggregate.Type.Id)!.Entity);
             Model.Delete(aggregate);    
             
             if(!aggregate.Status.IsAdded) Snackbar.Add("Type tracked for deletion", Severity.Info);
@@ -73,7 +66,7 @@ public partial class Types : ComponentBase
     {
         try
         {
-            await DescriptionRepository.Clear<DescriptionType>(aggregate.Type.Id);
+            DbContext.DescriptionTypes.Local.FindEntry(aggregate.Type.Id)!.DiscardChanges();
             aggregate.Type.Clear();
         }
         catch (Exception e)
@@ -87,7 +80,7 @@ public partial class Types : ComponentBase
     {
         try
         {
-            await DescriptionRepository.UnitOfWork.SaveChangesAsync();
+            await DbContext.SaveChangesAsync();
             Model.Save();
             
             Snackbar.Add("Changes Saved!", Severity.Success);
@@ -99,14 +92,14 @@ public partial class Types : ComponentBase
         }
     }
 
-    public bool DisableSave => !DescriptionRepository.HasChanges || !Model.IsValid;
-    public bool DisableClearAll => !DescriptionRepository.HasChanges;
+    public bool DisableSave => !DbContext.HasChanges.Value || !Model.IsValid;
+    public bool DisableClearAll => !DbContext.HasChanges.Value;
 
     void ClearAll()
     {
         try
         {
-            DescriptionRepository.Clear();
+            DbContext.DiscardChanges();
             Model.Clear();
         }
         catch (Exception e)

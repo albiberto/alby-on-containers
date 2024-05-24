@@ -1,10 +1,16 @@
-﻿using ProductDataManager.Domain.Aggregates.CategoryAggregate;
-using ProductDataManager.Domain.SeedWork;
+﻿namespace ProductDataManager.Domain.Aggregates.ProductAggregate;
 
-namespace ProductDataManager.Domain.Aggregates.ProductAggregate;
+using System.Collections.ObjectModel;
+using CategoryAggregate;
+using CommunityToolkit.Mvvm.ComponentModel;
+using SeedWork;
 
-public record Product(string Name, string Description, Guid CategoryId, Guid? Id) : Entity(Id), IAggregateRoot
+public partial class Product : Entity
 {
-    public Category? Category { get; private set; }
-    public ICollection<ProductAttribute> ProductsAttributes { get; private set; } = [];
+    [ObservableProperty] string name;
+    [ObservableProperty] string description;
+    [ObservableProperty] Guid categoryId;
+    [ObservableProperty] Category? category;
+
+    public ObservableCollection<ProductAttribute> ProductsAttributes { get; } = [];
 }

@@ -4,23 +4,18 @@ using ProductDataManager.Domain.SeedWork;
 
 namespace ProductDataManager.Domain.Aggregates.CategoryAggregate;
 
-public record Category(string Name, string Description, Guid? ParentId = default, Guid? Id = default) : Entity(Id), IAggregateRoot
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+
+
+public partial class Category : Entity
 {
-    public string Name { get; private set; } = Name;
-    public string Description { get; private set; } = Description;
-    public Guid? ParentId { get; private set; } = ParentId;
-
-    public Category? Parent { get; private set; }
+    [ObservableProperty] string name;
+    [ObservableProperty] string description;
+    [ObservableProperty] Guid? parentId;
+    [ObservableProperty] Category? parent;
     
-    public ICollection<Category> Categories { get; private set; } = [];
-    
-    public ICollection<DescriptionTypeCategory> DescriptionTypesCategories { get; private set; } = [];
-    public ICollection<Product> Products { get; private set; } = [];
-
-    public void Update(string name, string description, Guid? parentId)
-    {
-        Name = name;
-        Description = description;
-        ParentId = parentId;
-    }
+    public ObservableCollection<Category> Categories { get; } = [];
+    public ObservableCollection<DescriptionTypeCategory> DescriptionTypesCategories { get; } = [];
+    public ObservableCollection<Product> Products { get; } = [];
 }

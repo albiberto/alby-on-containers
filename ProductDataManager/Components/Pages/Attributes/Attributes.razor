@@ -1,69 +1,72 @@
-﻿@using ProductDataManager.Components.Pages.Attributes.Model
+﻿@using Microsoft.EntityFrameworkCore
+@using Microsoft.EntityFrameworkCore.ChangeTracking
 @using ProductDataManager.Components.Shared.Model
-@using ProductDataManager.Validators
 
-<MudDataGrid T="AttributeModel" Items="@Aggregate.Attributes" ReadOnly="@false"
+<MudDataGrid T="Model<ProductDataManager.Domain.Aggregates.AttributeAggregate.Attribute>" Items="Items" ReadOnly="@false"
              EditMode="@DataGridEditMode.Cell" EditTrigger="@DataGridEditTrigger.OnRowClick"
              Filterable="false"
              SortMode="SortMode.Single" RowsPerPage="10" 
-             Bordered="true" Elevation="0" Dense="true">
+             Bordered="true" Elevation="0" Dense="true" Groupable="true">
     <Columns>
         <TemplateColumn IsEditable="false" Sortable="false">
             <CellTemplate>
-                <MudTooltip Text="@context.Item.Status.Current.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
+                <MudTooltip Text="@context.Item.State.GetTooltip()" Delay="1000" Color="Color.Dark" Placement="Placement.Bottom">
                     @if (context.Item.IsValid)
                     {
-                        <MudIcon Icon="@context.Item.Status.Current.GetOutlinedIcon()"/>
+                        <MudIcon Icon="@context.Item.State.GetOutlinedIcon()"/>
                     }
                     else
                     {
                         <MudBadge Origin="@Origin.BottomRight" Color="Color.Warning" Overlap="true" Icon="@Icons.Material.Rounded.Warning">
-                            <MudIcon Icon="@context.Item.Status.Current.GetOutlinedIcon()"/>
+                            <MudIcon Icon="@context.Item.State.GetOutlinedIcon()"/>
                         </MudBadge>
                     }
                 </MudTooltip>
             </CellTemplate>
         </TemplateColumn>
         
-        <PropertyColumn Property="data => data.Name">
+        <PropertyColumn Property="data => data.Entity.Name">
             <EditTemplate>
                 <MudTextField
                     T="string"
-                    Value="@context.Item.Name"
-                    ValueChanged="@(async name => { context.Item.Name = name.Trim(); await UpdateAttributeAsync(context.Item); })"
+                    @bind-Value="@context.Item.Entity.Name"
                     Variant="Variant.Text"
-                    Class=@(context.Item.Status.IsDeleted ? "strikethrough" : "")
-                    Validation="StringValidators.Value().Validation"
+                    Class=@(context.Item.State is EntityState.Deleted ? "strikethrough" : "")
+                    Disabled="context.Item.State is EntityState.Deleted"
+                    Error="context.Item.Validation(data => data.Name) is not null"
+                    ErrorText="@context.Item.Validation(data => data.Name)?.ErrorMessage"
                     Immediate="true"
                     MaxLength="30"/>
             </EditTemplate>
         </PropertyColumn>
         
-        <PropertyColumn Property="data => data.Description">
+        <PropertyColumn Property="data => data.Entity.Description">
             <EditTemplate>
                 <MudTextField
                     T="string"
-                    Value="@context.Item.Description"
-                    ValueChanged="@(async description => { context.Item.Description = description.Trim(); await UpdateAttributeAsync(context.Item); })"
+                    @bind-Value="@context.Item.Entity.Description"
                     Variant="Variant.Text"
-                    Class=@(context.Item.Status.IsDeleted ? "strikethrough" : "")
-                    Validation="StringValidators.Description().Validation"
+                    Class=@(context.Item.State is EntityState.Deleted ? "strikethrough" : "")
+                    Disabled="context.Item.State is EntityState.Deleted"
+                    Error="context.Item.Validation(data => data.Description) is not null"
+                    ErrorText="@context.Item.Validation(data => data.Description)?.ErrorMessage"
                     Immediate="true"
                     MaxLength="100"/>
             </EditTemplate>
         </PropertyColumn>
 
-        <PropertyColumn Property="data => data.TypeId">
+        <PropertyColumn Property="data => data.Entity.TypeId">
             <EditTemplate>
 
                 <MudSelect T="Guid"
-                            Placeholder="Change parent ..."
-                           Value="@context.Item.TypeId"
-                           ValueChanged="@(async typeId => { context.Item.TypeId = typeId; await UpdateAttributeAsync(context.Item); })"
+                           Placeholder="Change parent ..."
+                           @bind-Value="@context.Item.Entity.TypeId"
+                           Class=@(context.Item.State is EntityState.Deleted ? "strikethrough" : "")
+                           Disabled="context.Item.State is EntityState.Deleted"
                            Immediate="true">
-                    @foreach (var (id, name) in Types)
+                    @foreach (var type in Types)
                     {
-                        <MudSelectItem Value="@id">@name</MudSelectItem>
+                        <MudSelectItem Value="@type.Entity.Id">@type.Entity.Name</MudSelectItem>
                     }
                 </MudSelect>
 
@@ -72,16 +75,16 @@
         
         <TemplateColumn IsEditable="false" Filterable="false" Sortable="false">
             <HeaderTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Medium" Color="Color.Secondary" OnClick="AddAttributeAsync"/>
+                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Medium" Color="Color.Secondary" OnClick="Add"/>
             </HeaderTemplate>
             <CellTemplate>
-                @if ((context.Item.Status.IsModified && context.Item.IsDirty) || context.Item.Status.IsDeleted)
+                @if (context.Item.State is EntityState.Modified or EntityState.Deleted)
                 {
-                    <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => ClearAsync(context.Item))"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Clear" Color="Color.Dark" OnClick="@(_ => context.Item.Clear())"/>
                 }
-                @if (context.Item.Status is { IsDeleted: false, IsModified: false })
+                @if (context.Item.State is not EntityState.Deleted)
                 {
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => DeleteAttributeAsync(context.Item))"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Dark" OnClick="@(_ => context.Item.Delete())"/>
                 }
             </CellTemplate>
         </TemplateColumn>

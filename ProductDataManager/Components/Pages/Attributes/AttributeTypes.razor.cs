@@ -1,122 +1,187 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿namespace ProductDataManager.Components.Pages.Attributes;
+
+using System.Linq.Expressions;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using Domain.Aggregates.AttributeAggregate;
+using DynamicData;
+using FluentValidation;
+using FluentValidation.Results;
+using Infrastructure;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MudBlazor;
-using ProductDataManager.Components.Pages.Attributes.Model;
-using ProductDataManager.Domain.Aggregates.AttributeAggregate;
+using ReactiveUI;
+using Shared;
+using Shared.Dialogs;
+using Severity = MudBlazor.Severity;
 
-namespace ProductDataManager.Components.Pages.Attributes;
-
-public partial class AttributeTypes : ComponentBase
+public class AttributeTypeValidator : AbstractValidator<AttributeType>
 {
-    AggregatesModel Model { get; set; } = new();
+    public AttributeTypeValidator()
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithMessage("{PropertyName} is required")
+            .Length(3, 30)
+            .WithMessage("{PropertyName} must be between {MinLength} and {MaxLength} characters");
+
+        RuleFor(x => x.Description)
+            .NotNull()
+            .Length(0, 100)
+            .WithMessage("{PropertyName} must be less than {MaxLength} characters");
+
+        RuleForEach(x => x.Attributes)
+            .SetValidator(new AttributeValidator());
+    }
+}
+
+public class Model<T>(EntityEntry entry, AbstractValidator<T> validator)
+    where T : class
+{
+    ValidationResult validationResult = validator.Validate((T)entry.Entity);
+
+    public EntityState State 
+        => entry.State;
     
+    public T Entity
+        => (T)entry.Entity;
+
+    public void Clear() 
+        => entry.DiscardChanges();
+    
+    public void Delete()
+        => entry.Context.Remove(entry.Entity);
+    
+    public bool IsValid 
+        => validationResult.IsValid;
+
+    bool showErrors;
+
+    public Model<T> Update(EntityEntry next)
+    {
+        entry = next;
+        validationResult = validator.Validate(Entity);
+
+        showErrors = true;
+        
+        return this;
+    }
+
+    public ValidationFailure? Validation(Expression<Func<T, object>> property)
+    {
+        if (!showErrors)
+        {
+            return null;
+        }
+        
+        var member = property.Body as MemberExpression;
+        var propertyName = member?.Member.Name ?? string.Empty;
+
+        return validationResult.Errors.FirstOrDefault(error => error.PropertyName == propertyName);
+    }
+}
+
+public sealed partial class AttributeTypes : ComponentBase, IDisposable
+{
+    [Inject] public required ProductContext DbContext { get; set; }
+    [Inject] public required IDialogService DialogService { get; set; }
+    [Inject] public required ISnackbar Snackbar { get; set; }
+    [Inject] public required ILogger<Attributes> Logger { get; set; }
+    [Inject] public required NavigationManager Navigation { get; set; }
+
+    IDisposable? registration;
+
+    IReadOnlyObservableCollection<Model<AttributeType>> Items { get; set; }
+
+    IReactiveProperty<bool> DisableSave { get; set; }
+
+    IReactiveProperty<bool> DisableClearAll { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        var types = await AttributeRepository.GetAllAsync();
-        Model = new(types);
+        _ = await DbContext.AttributeTypes.Include(type => type.Attributes).ToListAsync();
+
+        var validator = new AttributeTypeValidator();
+
+        var entries = DbContext.Changes
+            .Connect(entry => entry.Entity is AttributeType)
+            .Transform(entry => new Model<AttributeType>(entry, validator), (model, entry) => model.Update(entry))
+            .SortBy(entry => entry.Entity.Name);
+
+        Items = entries.ToObservableCollection();
+
+        DisableClearAll = DbContext.HasChanges
+            .Select(value => !value)
+            .ToProperty(true);
+
+        DisableSave = entries
+            .ToCollection()
+            .CombineLatest(DbContext.HasChanges, (models, hasChanges) => !hasChanges || models.Any(model => !model.IsValid))
+            .ToProperty(true);
     }
 
     protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            registration = Navigation.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    async ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (!DbContext.HasChanges.Value)
+        {
+            return;
+        }
+
+        var dialog = await DialogService.ShowAsync<NavigationDialog>("Leave page?", Constants.DialogOptions);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            DbContext.ChangeTracker.Clear();
+            return;
+        }
+
+        context.PreventNavigation();
+    }
+
+    void Add()
+        => DbContext.AttributeTypes.Add(new AttributeType
+        {
+            Name = "",
+            Description = ""
+        });
     
-    {
-        if (firstRender) registration = Navigation.RegisterLocationChangingHandler(OnLocationChanging);
-    }
-
-    async Task AddAttrTypeAsync()
-    {
-        try
-        {
-            var entity = await AttributeRepository.AddAttributeTypeAsync();
-            Model.AddType(entity.Id!.Value);
-            
-            Snackbar.Add("Attribute Type tracked for insertion", Severity.Info);
-        }
-        catch(Exception e)
-        {
-            Logger.LogError(e, "Error while adding description");
-            Snackbar.Add("Error while adding description", Severity.Error);
-        }
-    }
-
-    async Task UpdateAttributeTypeAsync(AggregateModel aggregate)
-    {
-        try
-        {
-            if (aggregate.Type.IsDirty)
-            {
-                await AttributeRepository.UpdateAttributeTypeAsync(aggregate.Type.Id, aggregate.Type.Name, aggregate.Type.Description);
-                Model.ModifyType(aggregate);
-            }
-            else await ClearAsync(aggregate);
-            
-            if(!aggregate.Type.Status.IsAdded) Snackbar.Add("Attribute type tracked for update", Severity.Info);
-        }
-        catch(Exception e)
-        {
-            Logger.LogError(e, "Error while updating description");
-            Snackbar.Add("Error while updating description", Severity.Error);
-        }
-    }
-
-    async Task DeleteAttributeTypeAsync(AggregateModel aggregate)
-    {
-        try
-        {
-            await AttributeRepository.DeleteAttributeTypeAsync(aggregate.Type.Id);
-            Model.DeleteType(aggregate);    
-            
-            if(!aggregate.Status.IsAdded) Snackbar.Add("Attribute type tracked for deletion", Severity.Info);
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while deleting description");
-            Snackbar.Add("Error while deleting description", Severity.Error);
-        }
-    }
-    
-    async Task ClearAsync(AggregateModel aggregate)
-    {
-        try
-        {
-            await AttributeRepository.Clear<AttributeType>(aggregate.Type.Id);
-            aggregate.Type.Clear();
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while clearing description");
-            Snackbar.Add("Error while clearing description", Severity.Error);
-        }
-    }
+    void ClearAll()
+        => DbContext.DiscardChanges();
 
     async Task SaveAsync()
     {
         try
         {
-            await AttributeRepository.UnitOfWork.SaveChangesAsync();
-            Model.Save();
-            
+            await DbContext.SaveChangesAsync();
             Snackbar.Add("Changes Saved!", Severity.Success);
         }
         catch (Exception e)
         {
-            Logger.LogError(e, "Error while deleting category");
-            Snackbar.Add("Error while deleting category", Severity.Error);
+            Logger.LogError(e, "Error while saving attribute type");
+            Snackbar.Add("Error while saving attribute type", Severity.Error);
         }
     }
 
-    public bool DisableSave => !AttributeRepository.HasChanges || !Model.IsValid;
-    public bool DisableClearAll => !AttributeRepository.HasChanges;
-
-    void ClearAll()
+    public void Dispose()
     {
-        try
-        {
-            AttributeRepository.Clear();
-            Model.Clear();
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Error while clearing all descriptions");
-            Snackbar.Add("Error while clearing all descriptions", Severity.Error);
-        }
+        Snackbar.Dispose();
+        
+        Items.Dispose();
+        DisableSave.Dispose();
+        DisableClearAll.Dispose();
+        
+        registration?.Dispose();
     }
 }

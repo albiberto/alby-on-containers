@@ -6,7 +6,7 @@ namespace ProductDataManager.Components.Shared.Filters;
 
 #nullable enable
 
-public partial class StateFilter<T> where T: IStatus
+public partial class StateFilter<T> where T : class
 {
     bool open;
 }

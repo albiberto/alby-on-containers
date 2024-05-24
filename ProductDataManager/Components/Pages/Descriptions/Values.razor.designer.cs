@@ -12,15 +12,16 @@ using ProductDataManager.Domain.Aggregates.DescriptionAggregate;
 namespace ProductDataManager.Components.Pages.Descriptions;
 
 #nullable enable
+using Infrastructure;
 
 public partial class Values : IDisposable
 {
-    [Inject] public required IDescriptionRepository Repository { get; set; }
     [Inject] public required IDialogService DialogService { get; set; }
     [Inject] public required ISnackbar Snackbar { get; set; }
     [Inject] public required ILogger<Types> Logger { get; set; }
     [Inject] public required NavigationManager Navigation { get; set; }
-    
+    [Inject] public required ProductContext DbContext { get; set; }
+
     [Parameter] public required AggregateModel Aggregate { get; set; }
     [Parameter] public required EventCallback<AggregateModel> AggregateChanged { get; set; }
 

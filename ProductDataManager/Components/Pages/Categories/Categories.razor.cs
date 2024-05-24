@@ -7,6 +7,9 @@ using ProductDataManager.Exstensions;
 
 namespace ProductDataManager.Components.Pages.Categories;
 
+using DynamicData;
+using Microsoft.EntityFrameworkCore;
+
 public partial class Categories : ComponentBase
 {
     List<Category> categories = [];
@@ -16,7 +19,13 @@ public partial class Categories : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await Repository.GetAllAsync();
+        DbContext.Changes
+            .Connect(entry => entry.Entity is Category)
+            .Transform(entry => (Category)entry.Entity)
+            // .Group(entry => entry.ParentId ?? Guid.Empty)
+            .TransformToTree(entry => entry.ParentId ?? Guid.Empty);
+        
+        categories = await DbContext.Categories.ToListAsync();
         UpdateForest();
     }
 
@@ -32,7 +41,7 @@ public partial class Categories : ComponentBase
             .ToHashSet();
 
         Parents = categories
-            .Select(category => new Parent(category.Id!.Value, category.Name))
+            .Select(category => new Parent(category.Id, category.Name))
             .Append(new(default, "Macro"))
             .ToHashSet();
 
@@ -70,8 +79,16 @@ public partial class Categories : ComponentBase
         if (!result.Canceled)
             try
             {
-                var category = await Repository.AddAsync(model.Name, model.Description, parentId);
-                await Repository.UnitOfWork.SaveChangesAsync();
+                var category = new Category
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    ParentId = parentId
+                };
+                
+                DbContext.Add(category);
+                
+                await DbContext.SaveChangesAsync();
                 
                 if(parentId is null) categories.Add(category);
             }
@@ -89,8 +106,7 @@ public partial class Categories : ComponentBase
     {
         try
         {
-            await Repository.UpdateAsync(data.Id!.Value, data.Name, data.Description, data.ParentId);
-            await Repository.UnitOfWork.SaveChangesAsync();
+            await DbContext.SaveChangesAsync();
         }
         catch (Exception e)
         {
@@ -123,8 +139,8 @@ public partial class Categories : ComponentBase
         if (!result.Canceled)
             try
             {
-                await Repository.DeleteAsync(data.Id!.Value);
-                await Repository.UnitOfWork.SaveChangesAsync();
+                DbContext.Remove(data.Category);
+                await DbContext.SaveChangesAsync();
                 
                 if(data.ParentId is null) categories.RemoveAll(c => c.Id == data.Id);
                 UpdateForest();

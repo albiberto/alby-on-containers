@@ -1,0 +1,31 @@
+﻿@using System.Reactive.Disposables
+@using System.Reactive.Linq
+@using ReactiveUI
+
+@typeparam T
+@implements IDisposable
+
+@ChildContent?.Invoke(Value.Value)
+
+@code 
+{
+    [Parameter] public required RenderFragment<T?>? ChildContent { get; init; }
+
+    [Parameter] public required IReactiveProperty<T> Value { get; init; }
+
+    SerialDisposable subscription = new();
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (!parameters.TryGetValue<IReactiveProperty<T>>(nameof(Value), out var value) || value == Value)
+        {
+            return Task.CompletedTask;
+        }
+
+        subscription.Disposable = value.DistinctUntilChanged().Subscribe(_ => InvokeAsync(StateHasChanged));
+        return base.SetParametersAsync(parameters);
+    }
+
+    public void Dispose()
+        => subscription.Dispose();
+}

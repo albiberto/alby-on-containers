@@ -1,3 +1,9 @@
 ﻿namespace ProductDataManager.Domain.SeedWork;
 
-public abstract record Entity(Guid? Id) : Auditable;
+using CommunityToolkit.Mvvm.ComponentModel;
+
+[INotifyPropertyChanged]
+public abstract partial class Entity : Auditable
+{
+    [ObservableProperty] Guid id;
+}

@@ -2,7 +2,7 @@
 
 namespace ProductDataManager.Domain.SeedWork;
 
-public record Auditable
+public class Auditable
 {
     [Required]
     public DateTime CreatedAt { get; set; }

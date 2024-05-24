@@ -3,7 +3,9 @@ using ProductDataManager.Components.Shared.Model;
 
 namespace ProductDataManager.Components.Shared.Filters.Model;
 
-public record FilterModel(Value Value, bool Checked = false)
+using Microsoft.EntityFrameworkCore;
+
+public record FilterModel(EntityState Value, bool Checked = false)
 {
     public string Tooltip => Value.GetTooltip();
     public string OutlinedIcon => Value.GetOutlinedIcon();

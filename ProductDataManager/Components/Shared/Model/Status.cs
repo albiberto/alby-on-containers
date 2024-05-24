@@ -44,12 +44,22 @@ public static class ValueExtensions
         _ => throw new InvalidCastException("Invalid status")
     };
     
-    public static string GetFilledIcon(this Value value) => value switch
+    public static string GetOutlinedIcon(this EntityState state) => state switch
     {
-        Value.Unchanged => Icons.Material.Filled.Save,
-        Value.Added => Icons.Material.Filled.AddCircle,
-        Value.Modified => Icons.Material.Filled.Edit,
-        Value.Deleted => Icons.Material.Filled.Delete,
+        EntityState.Unchanged or EntityState.Detached => Icons.Material.Outlined.Save,
+        EntityState.Added => Icons.Material.Outlined.AddCircleOutline,
+        EntityState.Modified => Icons.Material.Outlined.Edit,
+        EntityState.Deleted => Icons.Material.Outlined.Delete,
+        _ => throw new InvalidCastException("Invalid status")
+    };
+
+    
+    public static string GetFilledIcon(this EntityState value) => value switch
+    {
+        EntityState.Unchanged or EntityState.Detached => Icons.Material.Filled.Save,
+        EntityState.Added => Icons.Material.Filled.AddCircle,
+        EntityState.Modified => Icons.Material.Filled.Edit,
+        EntityState.Deleted => Icons.Material.Filled.Delete,
         _ => throw new InvalidCastException("Invalid status")
     };
     
@@ -59,6 +69,15 @@ public static class ValueExtensions
         Value.Added => "Pending Insertion",
         Value.Modified => "Pending Update",
         Value.Deleted => "Pending Deletion",
+        _ => throw new InvalidCastException("Invalid status")
+    };
+    
+    public static string GetTooltip(this EntityState state) => state switch
+    {
+        EntityState.Unchanged or EntityState.Detached => "Persisted",
+        EntityState.Added => "Pending Insertion",
+        EntityState.Modified => "Pending Update",
+        EntityState.Deleted => "Pending Deletion",
         _ => throw new InvalidCastException("Invalid status")
     };
     
